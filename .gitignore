@@ -1,36 +1,56 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Node modules
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
+# Build outputs
+build/
+dist/
 
-# testing
-/coverage
+# Logs
+logs/
+*.log
 
-# next.js
-/.next/
-/out/
+# dotenv environment variable files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# production
-/build
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
 
-# misc
+# OS-specific files
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Python/Django files
+*.pyc
+__pycache__/
+*.sqlite3
+db.sqlite3
+*.log
+*.pot
+*.py[cod]
+*.egg-info/
+*.egg
+*.coverage
+.coverage
+dist/
+build/
+*.pyo
 
-# local env files
-.env*.local
+# Ignore coverage reports
+coverage/
 
-# vercel
-.vercel
+# Ignore testing files
+test/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Ignore virtual environment
+venv/
+env/

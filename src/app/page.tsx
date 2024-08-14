@@ -1,21 +1,34 @@
-// src/app/page.tsx
-import FetchHello from '../components/FetchHello';
-import ConsignatariaForm from '../components/ConsignatariaForm';
-import ServidorForm from '../components/ServidorForm';
-import ConsultaMargemForm from '../components/ConsultaMargemForm';
-import ReservaForm from '../components/ReservaForm';
+import * as React from 'react';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
+import NextLink from 'next/link';
+import { LightTheme } from '@/shared/themes/Ligth';
 
-const HomePage = () => {
+export default async  function Home() {
+
   return (
-    <div>
-      <h1>Bem-vindo ao Sistema de Consulta de margem de Crédito e Reservas da Defensoria Pública de Rondônia</h1>
-      <FetchHello />
-      <ConsignatariaForm />
-      <ServidorForm />
-      <ConsultaMargemForm />
-      <ReservaForm />
-    </div>
-  );
-};
+    <Container maxWidth="lg">
+      <Box
+        sx={{
+          my: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant="h4" component="h1" sx={{ mb: 2 }} style={{
+          alignItems: 'center'
+        }}>
+          Teste da Pagina Inicial Consignado
+        </Typography>
+        <Link href="/about" color="secondary" component={NextLink}>
+          Go to the about page
+        </Link>
 
-export default HomePage;
+      </Box>
+    </Container>
+  );
+}

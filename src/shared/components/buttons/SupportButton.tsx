@@ -1,4 +1,4 @@
-// src/shared/components/buttons/SupportButton.tsx
+
 'use client';
 
 import React from 'react';

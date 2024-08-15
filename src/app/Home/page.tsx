@@ -1,13 +1,14 @@
-
 'use client';
 
 import React from 'react';
-import { Box, Button, StyledEngineProvider } from '@mui/material';
+import { Box, StyledEngineProvider } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
-import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
 import { Dashboard } from '@mui/icons-material';
+import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
 
+
+// Definição do tema Material-UI
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -16,14 +17,22 @@ const theme = createTheme({
   },
 });
 
+// Função principal da página Home
 export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <StyledEngineProvider injectFirst>
         <Box>
+          {/* Lista personalizada */}
           <CustomizedList />
+          
+          {/* Ícone do Dashboard */}
           <Dashboard />
+          
+          {/* Botão de pesquisa flutuante */}
           <FloatingSearchButton />
+          
+         
         </Box>
       </StyledEngineProvider>
     </ThemeProvider>

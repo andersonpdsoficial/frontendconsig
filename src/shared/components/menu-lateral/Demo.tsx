@@ -1,4 +1,4 @@
-// Demo.tsx
+
 'use client';
 
 import React, { useState } from 'react';
@@ -49,7 +49,7 @@ export default function CustomizedList() {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <Paper elevation={0} sx={{ width: 275, bgcolor: 'rgb(42, 73, 39)' }}>
+      <Paper elevation={0} sx={{ width: 275, bgcolor: 'rgb(59, 100, 55)' }}>
         <FireNav component="nav" disablePadding>
           <ListItemButton component="a" href="#customized-list">
             <ListItemIcon sx={{ fontSize: 30 }}></ListItemIcon>
@@ -73,18 +73,18 @@ export default function CustomizedList() {
               <ListItemText
                 primary="Visão Geral"
                 primaryTypographyProps={{
-                  color: 'primary',
+                  color: '#e4f1e4',
                   fontWeight: 'medium',
                   variant: 'body2',
                 }}
               />
             </ListItemButton>
-            <Tooltip title="Project Settings">
+            <Tooltip title="Configuração do Site">
               <IconButton
                 size="large"
                 sx={{
                   '& svg': {
-                    color: 'rgb(44, 95, 37)',
+                    color: 'rgb(122, 134, 121)',
                     transition: '0.2s',
                     transform: 'translateX(0) rotate(0)',
                   },
@@ -117,7 +117,7 @@ export default function CustomizedList() {
           <Divider />
           <Box
             sx={{
-              bgcolor: open ? 'rgba(71, 98, 130, 0.2)' : null,
+              bgcolor: open ? 'rgba(59, 104, 72, 0.712)' : null,
               pb: open ? 2 : 0,
             }}
           >
@@ -134,17 +134,18 @@ export default function CustomizedList() {
               <ListItemText
                 primary="Serviços Disponiveis"
                 primaryTypographyProps={{
-                  fontSize: 18,
+                  fontSize: 22,
+                  color:'#ffffffda',
                   fontWeight: 'medium',
-                  lineHeight: '50px',
+                  lineHeight: '60px',
                   mb: '10px',
                 }}
                 secondary="Cadastros, Movimentos Margem / Contratação, Gerenciador de Contratos Aprovação de Contratos, Outras Consignações / Catões,Relatório, Ajuda, Sobre"
                 secondaryTypographyProps={{
                   noWrap: true,
-                  fontSize: 12,
-                  lineHeight: '16px',
-                  color: open ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.5)',
+                  fontSize: 13,
+                  lineHeight: '25px',
+                  color: open ? 'rgba(0,0,0,0)' : 'rgba(214, 206, 206, 0.74)',
                 }}
                 sx={{ my: 0 }}
               />
@@ -153,7 +154,7 @@ export default function CustomizedList() {
                   mr: -1,
                   opacity: 0,
                   transform: open ? 'rotate(-180deg)' : 'rotate(0)',
-                  transition: '0.3s',
+                  transition: '0.2s',
                 }}
               />
             </ListItemButton>
@@ -161,14 +162,14 @@ export default function CustomizedList() {
               data.map((item) => (
                 <ListItemButton
                   key={item.label}
-                  sx={{ py: 0, minHeight: 32, color: 'rgba(255, 255, 255, 0.842)' }}
+                  sx={{ py: 0, minHeight: 65, color: 'rgba(255, 255, 255, 0.842)' }}
                 >
                   <ListItemIcon sx={{ color: 'inherit' }}>
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
-                    primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
+                    primaryTypographyProps={{ fontSize: 16, fontWeight: 'medium' }}
                   />
                 </ListItemButton>
               ))}

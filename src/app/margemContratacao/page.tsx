@@ -1,38 +1,73 @@
 'use client'
-import { Box, Button, Grid, TextField, Typography, Divider, InputAdornment } from '@mui/material';
+import { Box, Button, Grid, TextField, Typography, Divider, InputAdornment, Snackbar, Alert } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
-import { validarCPF, validarMatricula, validarNome } from '../../shared/components/validacao/validacoes';
 import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
+import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
+import { getServidor, createConsulta } from '../../shared/services/apiService';
 
 const MargemContratacao = () => {
   const [matricula, setMatricula] = useState('');
   const [cpf, setCpf] = useState('');
   const [nome, setNome] = useState('');
-  const [margem, setMargem] = useState(''); // Novo estado para a margem
-  const [showDetails, setShowDetails] = useState(false); // Novo estado para controlar a visibilidade
+  const [margem, setMargem] = useState('');
+  const [dataAdmissao, setDataAdmissao] = useState('');
+  const [vinculo, setVinculo] = useState('');
+  const [situacaoFuncional, setSituacaoFuncional] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  // Funções para validar os campos
-  const isCPFValid = validarCPF(cpf);
-  const isMatriculaValid = validarMatricula(matricula);
-  const isNomeValid = validarNome(nome);
+  const handleSearch = async () => {
+    try {
+      // Verifica se matrícula ou CPF foi preenchido
+      if (!matricula && !cpf) {
+        setError('Informe a matrícula ou CPF.');
+        return;
+      }
 
-  // Valores que serão preenchidos após a pesquisa
-  const orgao = 'FOLHA - COMERCIAL ALEX';
-  const dataAdmissao = '15/04/2019';
-  const vinculo = 'Efetivo (Estatutário)';
-  const situacaoFuncional = 'Trabalhando';
+      // Simples lógica para determinar o tipo de busca
+      let servidor;
+      if (matricula) {
+        servidor = await getServidor(parseInt(matricula, 10));
+      } else if (cpf) {
+        // Se você tiver uma API para buscar por CPF, adicione a lógica aqui
+        // Exemplo: servidor = await getServidorByCPF(cpf);
+        setError('Busca por CPF não implementada. Por favor, use matrícula.');
+        return;
+      }
 
-  const handleSearch = () => {
-    // Aqui você faria a requisição à API e, se bem-sucedida, exibiria os detalhes
-    setShowDetails(true);
+      // Preenche os detalhes do servidor
+      setNome(servidor.nome || '');
+      setDataAdmissao(servidor.dataAdmissao || '');
+      setVinculo(servidor.vinculo || '');
+      setSituacaoFuncional(servidor.situacaoFuncional || '');
+      setShowDetails(true);
+      setError(''); // Limpa mensagens de erro
+    } catch (err: any) {
+      setError(err.message || 'Erro ao buscar informações.');
+    }
+  };
+
+  const handleClear = () => {
+    setMatricula('');
+    setCpf('');
+    setNome('');
+    setDataAdmissao('');
+    setVinculo('');
+    setSituacaoFuncional('');
+    setMargem('');
+    setShowDetails(false);
+    setError('');
+    setSuccess('');
   };
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CustomizedList /> {/* Menu lateral */}
-      <FloatingSearchButton /> {/* ChatConsig */}
+      <CustomizedList />
+      <FloatingSearchButton />
+      <CookiesBanner />
       <Box sx={{ flexGrow: 1, padding: '20px', backgroundColor: '#f5f5f5' }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
           Margem / Contratação
@@ -46,8 +81,8 @@ const MargemContratacao = () => {
               onChange={(e) => setMatricula(e.target.value)}
               fullWidth
               variant="outlined"
-              error={!isMatriculaValid && matricula !== ''}
-              helperText={!isMatriculaValid && matricula !== '' ? 'Matrícula inválida' : ''}
+              error={Boolean(error)}
+              helperText={error}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -64,8 +99,8 @@ const MargemContratacao = () => {
               onChange={(e) => setCpf(e.target.value)}
               fullWidth
               variant="outlined"
-              error={!isCPFValid && cpf !== ''}
-              helperText={!isCPFValid && cpf !== '' ? 'CPF inválido' : ''}
+              error={Boolean(error)}
+              helperText={error}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -84,18 +119,9 @@ const MargemContratacao = () => {
                 <TextField
                   label="Nome"
                   value={nome}
-                  onChange={(e) => setNome(e.target.value)}
                   fullWidth
                   variant="outlined"
-                  error={!isNomeValid && nome !== ''}
-                  helperText={!isNomeValid && nome !== '' ? 'Nome inválido' : ''}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
+                  disabled
                 />
               </Grid>
             </Grid>
@@ -169,7 +195,7 @@ const MargemContratacao = () => {
                 </Box>
               </Grid>
               <Grid item xs={12} sm={6} display="flex" flexDirection="column" alignItems="center">
-                <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '#4caf50' }}>
+                <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '##00A00A' }}>
                   Calcular Margem
                 </Button>
                 <Box sx={{ backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', textAlign: 'center', marginTop: '10px', width: '100%' }}>
@@ -242,7 +268,7 @@ const MargemContratacao = () => {
                     </Typography>
                   </Grid>
                   <Grid item xs={2}>
-                                        <Typography variant="body2">
+                    <Typography variant="body2">
                       <strong>Crédito:</strong> {/* Valor do Crédito */}
                     </Typography>
                   </Grid>
@@ -251,6 +277,14 @@ const MargemContratacao = () => {
             </Grid>
           </>
         )}
+
+        {/* Mensagens de feedback */}
+        <Snackbar open={Boolean(error)} autoHideDuration={6000} onClose={() => setError('')}>
+          <Alert onClose={() => setError('')} severity="error">{error}</Alert>
+        </Snackbar>
+        <Snackbar open={Boolean(success)} autoHideDuration={6000} onClose={() => setSuccess('')}>
+          <Alert onClose={() => setSuccess('')} severity="success">{success}</Alert>
+        </Snackbar>
       </Box>
     </Box>
   );

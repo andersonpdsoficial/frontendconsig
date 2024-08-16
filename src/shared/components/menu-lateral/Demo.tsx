@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState } from 'react';
 import { Box, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Tooltip, Typography } from '@mui/material';
-import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import ArrowRight from '@mui/icons-material/ArrowRight';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Home from '@mui/icons-material/Home';
@@ -17,17 +16,18 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import FindInPageIcon from '@mui/icons-material/FindInPage';
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 import InfoIcon from '@mui/icons-material/Info';
+import Link from 'next/link';  // Importe o Link do Next.js
 
 const data = [
-  { icon: <CreateNewFolderIcon />, label: 'Cadastros' },
-  { icon: <QueryStatsIcon />, label: 'Movimentos' },
-  { icon: <PriceChangeIcon />, label: 'Margem / Contratação' },
-  { icon: <RuleFolderIcon />, label: 'Gerenciador de Contratos' },
-  { icon: <TaskIcon />, label: 'Aprovação de Contratos' },
-  { icon: <CreditCardIcon />, label: 'Outras Consignações / Catões' },
-  { icon: <FindInPageIcon />, label: 'Relatório' },
-  { icon: <HelpCenterIcon />, label: 'Ajuda' },
-  { icon: <InfoIcon />, label: 'Sobre' }
+  { icon: <CreateNewFolderIcon />, label: 'Cadastros', href: '/cadastros' },
+  { icon: <QueryStatsIcon />, label: 'Movimentos', href: '/movimentos' },
+  { icon: <PriceChangeIcon />, label: 'Margem / Contratação', href: '/margemContratacao' }, // Adicione o href aqui
+  { icon: <RuleFolderIcon />, label: 'Gerenciador de Contratos', href: '/gerenciador-contratos' },
+  { icon: <TaskIcon />, label: 'Aprovação de Contratos', href: '/aprovacao-contratos' },
+  { icon: <CreditCardIcon />, label: 'Outras Consignações / Catões', href: '/outras-consignacoes' },
+  { icon: <FindInPageIcon />, label: 'Relatório', href: '/relatorio' },
+  { icon: <HelpCenterIcon />, label: 'Ajuda', href: '/ajuda' },
+  { icon: <InfoIcon />, label: 'Sobre', href: '/sobre' },
 ];
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -49,7 +49,7 @@ export default function CustomizedList() {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <Paper elevation={0} sx={{ width: 275, bgcolor: 'rgb(59, 100, 55)' }}>
+      <Paper elevation={0} sx={{ width: 275, bgcolor: '#0D7B52' }}>
         <FireNav component="nav" disablePadding>
           <ListItemButton component="a" href="#customized-list">
             <ListItemIcon sx={{ fontSize: 30 }}></ListItemIcon>
@@ -58,7 +58,7 @@ export default function CustomizedList() {
               primary="Sistema de Consignado"
               primaryTypographyProps={{
                 fontSize: 20,
-                fontWeight: 'medium',
+                fontWeight: 'Bold',
                 letterSpacing: 0,
                 color: 'white'
               }}
@@ -84,7 +84,7 @@ export default function CustomizedList() {
                 size="large"
                 sx={{
                   '& svg': {
-                    color: 'rgb(122, 134, 121)',
+                    color: '##bce2d5',
                     transition: '0.2s',
                     transform: 'translateX(0) rotate(0)',
                   },
@@ -117,7 +117,7 @@ export default function CustomizedList() {
           <Divider />
           <Box
             sx={{
-              bgcolor: open ? 'rgba(59, 104, 72, 0.712)' : null,
+              bgcolor: open ? '##00A00A' : null,
               pb: open ? 2 : 0,
             }}
           >
@@ -135,7 +135,7 @@ export default function CustomizedList() {
                 primary="Serviços Disponiveis"
                 primaryTypographyProps={{
                   fontSize: 22,
-                  color:'#ffffffda',
+                  color:'#bce2d5',
                   fontWeight: 'medium',
                   lineHeight: '60px',
                   mb: '10px',
@@ -145,7 +145,7 @@ export default function CustomizedList() {
                   noWrap: true,
                   fontSize: 13,
                   lineHeight: '25px',
-                  color: open ? 'rgba(0,0,0,0)' : 'rgba(214, 206, 206, 0.74)',
+                  color: open ? 'rgba(0,0,0,0)' : '#d5f1ddbc',
                 }}
                 sx={{ my: 0 }}
               />
@@ -162,6 +162,8 @@ export default function CustomizedList() {
               data.map((item) => (
                 <ListItemButton
                   key={item.label}
+                  component={Link}  // Use Link do Next.js para navegação
+                  href={item.href}  // Adicione a propriedade href para a navegação
                   sx={{ py: 0, minHeight: 65, color: 'rgba(255, 255, 255, 0.842)' }}
                 >
                   <ListItemIcon sx={{ color: 'inherit' }}>

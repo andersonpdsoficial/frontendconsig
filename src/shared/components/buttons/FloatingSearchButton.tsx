@@ -92,10 +92,10 @@ const FloatingSearchButton: React.FC = () => {
             flexDirection: 'column',
             minHeight: '300px',
             borderRadius: 2,
-            border: '1px solid #004d00',
+            border: '2px solid #0D7B52',
           }}
         >
-          <Box sx={{ position: 'relative', padding: 2, borderBottom: '1px solid #004d00' }}>
+          <Box sx={{ position: 'relative', padding: 2, borderBottom: '1px solid #0D7B52' }}>
             <Typography variant="h6">
               Olá, sou a Consig, em que posso ajudar?
             </Typography>
@@ -112,7 +112,7 @@ const FloatingSearchButton: React.FC = () => {
                 <Typography
                   variant="body2"
                   sx={{
-                    bgcolor: msg.sender === 'user' ? 'rgb(44, 95, 37)' : 'rgb(220, 220, 220)',
+                    bgcolor: msg.sender === 'user' ? '#0D7B52' : 'rgb(220, 220, 220)',
                     color: msg.sender === 'user' ? 'white' : 'black',
                     padding: 1,
                     borderRadius: 1,
@@ -121,7 +121,7 @@ const FloatingSearchButton: React.FC = () => {
                   }}
                 >
                   {msg.text}
-                  <span style={{ fontSize: '12px', color: 'rgba(0,0,0,0.6)', display: 'block' }}>
+                  <span style={{ fontSize: '12px', color: '#11311c99', display: 'block' }}>
                     {msg.time}
                   </span>
                 </Typography>
@@ -155,9 +155,9 @@ const FloatingSearchButton: React.FC = () => {
         </DialogContent>
         <DialogActions
           sx={{
-            backgroundColor: 'rgb(44, 95, 37)',
+            backgroundColor: '#0D7B52',
             color: 'white',
-            borderTop: '1px solid #004d00',
+            borderTop: '1px solid #0D7B52',
           }}
         >
           <Button

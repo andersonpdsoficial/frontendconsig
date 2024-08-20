@@ -10,11 +10,14 @@ const api = axios.create({
   }
 });
 
-// Função para buscar um servidor específico
-export const getServidor = async (id: number) => {
+// Função para buscar um servidor específico pela matrícula
+export const getServidor = async (matricula: number) => {
   try {
-    const response = await api.get(`/servidores/${id}/`);
-    return response.data;
+    const response = await api.get(`/servidores?matricula=${matricula}`);
+    if (response.data.length === 0) {
+      return null; // Se nenhum servidor for encontrado
+    }
+    return response.data[0]; // Supondo que a resposta seja um array e você quer o primeiro item
   } catch (error) {
     console.error('Erro ao buscar servidor:', error);
     throw error;

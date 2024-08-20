@@ -5,9 +5,10 @@ import React from 'react';
 import { Box, Button, StyledEngineProvider } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
-
 import { Dashboard } from '@mui/icons-material';
 import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
+
+
 
 
 
@@ -30,6 +31,7 @@ export default function Home() {
           
           <FloatingSearchButton />
            {/*<CookiesBanner /> Importação do component cookies */}
+           
         </Box>
       </StyledEngineProvider>
     </ThemeProvider>

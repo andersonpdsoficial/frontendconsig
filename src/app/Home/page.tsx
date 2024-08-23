@@ -6,8 +6,8 @@ import { Box, Button, StyledEngineProvider } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
 import { Dashboard } from '@mui/icons-material';
-import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
-
+import FloatingSearchButton from '@/shared/components/buttons/FloatingSearchButton';
+import CookiesBanner from '@/shared/components/cookiesBanner/CookiesBanner';
 
 
 
@@ -25,12 +25,12 @@ export default function Home() {
     <ThemeProvider theme={theme}>
       <StyledEngineProvider injectFirst>
         <Box>
-          
+        <CookiesBanner /> 
           <CustomizedList />
           <Dashboard />
           
           <FloatingSearchButton />
-           {/*<CookiesBanner /> Importação do component cookies */}
+           
            
         </Box>
       </StyledEngineProvider>

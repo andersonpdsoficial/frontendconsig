@@ -2,7 +2,7 @@
 import { CssBaseline } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';   //	Slot nomeado
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../themes/Dark';
+import theme from '../themes/theme';
 
 interface Props {
     children: React.ReactNode

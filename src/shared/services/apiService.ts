@@ -1,25 +1,45 @@
-// apiService.ts
+
+
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const EXTERNAL_API_BASE_URL = 'https://athenas.defensoria.ro.def.br/api/servidores/';
+const EXTERNAL_API_TOKEN = '682770e6bbe57c2736138619840a564bd0775486';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
+const externalApi = axios.create({
+  baseURL: EXTERNAL_API_BASE_URL,
   headers: {
-    'Authorization': `Bearer 682770e6bbe57c2736138619840a564bd0775486`
+    'Authorization': `Token ${EXTERNAL_API_TOKEN}`
   }
 });
 
-// Função para buscar um servidor específico pela matrícula
-export const getServidor = async (matricula: number) => {
+const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
+const LOCAL_API_TOKEN = '682770e6bbe57c2736138619840a564bd0775486';
+
+const localApi = axios.create({
+  baseURL: LOCAL_API_BASE_URL,
+  // headers: {
+  //   'Authorization': `Bearer ${LOCAL_API_TOKEN}`
+  // }
+});
+
+// Função para buscar o servidor na API externa
+export const fetchServidorFromExternalApi = async (matricula: number) => {
   try {
-    const response = await api.get(`/servidores?matricula=${matricula}`);
-    if (response.data.length === 0) {
-      return null; // Se nenhum servidor for encontrado
-    }
-    return response.data[0]; // Supondo que a resposta seja um array e você quer o primeiro item
+    const response = await externalApi.get(`?matricula=${matricula}`);
+    return response.data;
   } catch (error) {
-    console.error('Erro ao buscar servidor:', error);
+    console.error('Erro ao buscar servidor na API externa:', error);
+    throw error;
+  }
+};
+
+// Função para buscar o servidor na API local
+export const fetchServidorFromLocalApi = async (matricula: number) => {
+  try {
+    const response = await localApi.get(`/servidores/?matricula=${matricula}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar servidor na API local:', error);
     throw error;
   }
 };

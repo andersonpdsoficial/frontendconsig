@@ -6,19 +6,17 @@ interface Props {
   }
   
   
-export default async function BaseLayout({ children }: Props) {
+  export default async function BaseLayout({ children }: Props) {
 
-  return (
-    <Stack
-      sx={{
-        maxWidth: '100vw',
-        minHeight: '100vh',
-        wordBreak: 'break-word',
-        overflowWrap: 'break-word'
-      
-      }
-   
-    
-      }
-    )
-  }
+    return (
+      <Stack
+        sx={{
+          maxWidth: '100vw',
+          minHeight: '100vh',
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word',
+  
+  
+  
+        }
+    }

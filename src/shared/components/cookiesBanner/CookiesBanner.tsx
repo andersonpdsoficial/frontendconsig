@@ -1,20 +1,15 @@
-'use client'
+'use client';
 
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import TrapFocus from '@mui/material/Unstable_TrapFocus';
 import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import Paper from '@mui/material/Paper';
 import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { colors } from '@mui/material';
+import PrivacyPolicy from '../privacyPolicy/page';
 
 export default function CookiesBanner() {
   const [bannerOpen, setBannerOpen] = React.useState(true);
@@ -26,7 +21,7 @@ export default function CookiesBanner() {
   return (
     <React.Fragment>
       <CssBaseline />
-     
+      
       <TrapFocus open disableAutoFocus disableEnforceFocus>
         <Fade appear={false} in={bannerOpen}>
           <Paper
@@ -45,7 +40,9 @@ export default function CookiesBanner() {
               p: 2,
               borderWidth: 0,
               borderTopWidth: 1,
+              borderColor: '#0D7B52',
               color: '#0D7B52',
+              backgroundColor: '#F0F8F8', // Adjust background color if needed
             }}
           >
             <Stack
@@ -56,33 +53,25 @@ export default function CookiesBanner() {
               <Box
                 sx={{
                   flexShrink: 1,
-                  alignSelf: { xs: 'flex-start', 
-                    sm: 'center',
-                    color: '#0D7B52',
-
-                  },
+                  alignSelf: { xs: 'flex-start', sm: 'center' },
                 }}
               >
-                <Typography fontWeight="bold">This website uses cookies</Typography>
+                <Typography fontWeight="bold">Este site utiliza cookies</Typography>
                 <Typography variant="body2">
-                  Este é um exemplo de Cookies qu poderá ser utilizado na aplicação
+                  
+                  Utilizamos cookies para melhorar sua experiência e personalizar o conteúdo. Ao continuar a navegação, você concorda com nossa <a href='/privacyPolicy' style={{ color: '#1aa2cc' }}>Política de Privacidade</a>.
                 </Typography>
+                
               </Box>
               <Stack
                 gap={2}
-                direction={{
-                  xs: 'row-reverse',
-                  sm: 'row',
-                }}
+                direction={{ xs: 'row-reverse', sm: 'row' }}
                 sx={{
                   flexShrink: 0,
-                  alignSelf: { xs: 'flex-end', 
-                    sm: 'center',
-                    color: '#0D7B52', 
-                },
+                  alignSelf: { xs: 'flex-end', sm: 'center' },
                 }}
               >
-                <Button size="small" onClick={closeBanner} variant="contained" colors='color:#0D7B52 '>
+                <Button size="small" onClick={closeBanner} variant="contained" sx={{ backgroundColor: '#0D7B52', color: '#FFF' }}>
                   PERMITIR TODOS
                 </Button>
                 <Button size="small" onClick={closeBanner}>

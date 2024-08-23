@@ -1,43 +1,31 @@
+'use client';
 
 
 import { CssBaseline } from "@mui/material";
-import * as React from 'react';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { metadata } from './metadata'; 
 import theme from "../shared/themes/theme";
 
+const queryClient = new QueryClient();
 
-export const metadata = {
-  title: 'Sistema Consignado',
-  description: 'Sistema de Consignado Defensoria Publica de Rondônia',
-}
-
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
+      <head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        {/* Outras tags meta podem ser adicionadas aqui */}
+      </head>
       <body>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+        <QueryClientProvider client={queryClient}>
           <ThemeProvider theme={theme}>
-            
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
             <CssBaseline />
-            <div vw="true" className="enabled">
-          <div vw-access-button="true" className="active" />
-          <div vw-plugin-wrapper="true">
-            <div className="vw-plugin-top-wrapper" />
-          </div>
-        </div>
-        {/* Injetando o script inline após o carregamento do script externo */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              new window.VLibras.Widget('https://vlibras.gov.br/app');
-            `,
-          }}
-        />
-            {props.children}
+            {children}
+            <ReactQueryDevtools initialIsOpen={false} />
           </ThemeProvider>
-        </AppRouterCacheProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

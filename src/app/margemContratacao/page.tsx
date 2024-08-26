@@ -126,19 +126,80 @@ const MargemContratacao = () => {
     setError(null);
   };
 
+<<<<<<< HEAD
   const onHandleCredoresSearch = async (searchTerm: string) => {
     console.log('Searching for:', searchTerm);
     setMatricula(searchTerm);
   };
+=======
+   // Customização de datas
+   const CustomDateCalendar = styled(DateCalendar)({
+    '& .MuiDayCalendar-weekContainer, & .MuiDayCalendar-header, & .MuiDayCalendar-slideTransition, & .MuiDayCalendar-monthContainer': {
+      display: 'none',
+    },
+  });
+>>>>>>> 659215e1b776185c149edcc1910353806295a77b
 
   const debouncedHandleCredoresSearch = useCallback(
     debounce(onHandleCredoresSearch, 100),
     [],
   );
 
+<<<<<<< HEAD
   const handleInputChange = (event: any) => {
     debouncedHandleCredoresSearch(event.target.value);
   };
+=======
+   function CustomCalendarHeaderMonth(props: PickersCalendarHeaderProps<Dayjs>) {
+    const { currentMonth, onMonthChange } = props;
+
+    const selectNextMonth = () => onMonthChange(currentMonth.add(1, 'month'), 'left');
+    const selectPreviousMonth = () => onMonthChange(currentMonth.subtract(1, 'month'), 'right');
+
+    return (
+      <CustomCalendarHeaderRoot>
+        <Stack spacing={1} direction="row">
+          <IconButton onClick={selectPreviousMonth} title="Mês Anterior">
+            <ChevronLeft />
+          </IconButton>
+        </Stack>
+        <Typography variant="body2">
+          {currentMonth.format('MMMM')}
+        </Typography>
+        <Stack spacing={1} direction="row">
+          <IconButton onClick={selectNextMonth} title="Próximo Mês">
+            <ChevronRight />
+          </IconButton>
+        </Stack>
+      </CustomCalendarHeaderRoot>
+    );
+  }
+
+  function CustomCalendarHeaderYear(props: PickersCalendarHeaderProps<Dayjs>) {
+    const { currentMonth, onMonthChange } = props;
+
+    const selectPreviousYear = () => onMonthChange(currentMonth.subtract(1, 'year'), 'right');
+    const selectNextYear = () => onMonthChange(currentMonth.add(1, 'year'), 'left');
+
+    return (
+      <CustomCalendarHeaderRoot>
+        <Stack spacing={1} direction="row">
+          <IconButton onClick={selectPreviousYear} title="Ano Anterior">
+            <KeyboardDoubleArrowLeftIcon />
+          </IconButton>
+        </Stack>
+        <Typography variant="body2">
+          {currentMonth.format('YYYY')}
+        </Typography>
+        <Stack spacing={1} direction="row">
+          <IconButton onClick={selectNextYear} title="Próximo Ano">
+            <KeyboardDoubleArrowRightIcon />
+          </IconButton>
+        </Stack>
+      </CustomCalendarHeaderRoot>
+    );
+  }
+>>>>>>> 659215e1b776185c149edcc1910353806295a77b
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -265,6 +326,7 @@ const MargemContratacao = () => {
                   </Grid>
                 </Grid>
 
+
                 <Grid container spacing={2} marginTop={2}>
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
@@ -298,6 +360,9 @@ const MargemContratacao = () => {
                   <Divider />
                 </Box>
 
+                {/*  O PREENCHIEMNTO AUTOMATICO FOI ATE ESSE PONTO */}
+
+                
                 <Grid container spacing={2} marginTop={2} alignItems="center">
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" color="primary">
@@ -307,7 +372,7 @@ const MargemContratacao = () => {
                 </Grid>
 
                 <Grid container spacing={2} marginTop={2} alignItems="center">
-                  <Grid item xs={12} sm={7}>
+                  <Grid item xs={12} sm={7}> {/*verificar*/}
                     <Grid container spacing={1}>
                       <Grid item xs={6}>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
@@ -332,7 +397,11 @@ const MargemContratacao = () => {
                         </LocalizationProvider>
                       </Grid>
                     </Grid>
+<<<<<<< HEAD
                     <Box sx={{ backgroundColor: '#E8F5E9', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
+=======
+                    <Box sx={{ backgroundColor: '#e3f2fd', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
+>>>>>>> 659215e1b776185c149edcc1910353806295a77b
                       <Typography variant="h6">Margem Total</Typography>
                       <TextField
                         label="Valor da Margem"

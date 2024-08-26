@@ -6,8 +6,10 @@ import { Box, Button, StyledEngineProvider } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
 import { Dashboard } from '@mui/icons-material';
-import FloatingSearchButton from '@/shared/components/buttons/FloatingSearchButton';
-import CookiesBanner from '@/shared/components/cookiesBanner/CookiesBanner';
+import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
+import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
+
+
 
 
 

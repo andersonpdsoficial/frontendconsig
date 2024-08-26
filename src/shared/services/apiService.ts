@@ -43,3 +43,36 @@ export const fetchServidorFromLocalApi = async (matricula: number) => {
     throw error;
   }
 };
+
+// Função para criar um novo servidor na API local
+export const createServidor = async (servidorData: {
+  nome: string;
+  matricula: string;
+  cadastradoPor?: string;
+  modificadoPor?: string;
+  desativadoPor?: string;
+  desativadoEmData?: string;
+  desativadoEmHora?: string;
+}) => {
+  try {
+    const response = await localApi.post('/servidores/', servidorData, {
+      headers: {
+        'Authorization': `Bearer ${LOCAL_API_TOKEN}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar servidor na API local:', error);
+    throw error;
+  }
+};
+
+// Função para excluir um servidor na API local
+export const deleteServidor = async (matricula: string) => {
+  try {
+    await localApi.delete(`/servidores/${matricula}/`);
+  } catch (error) {
+    console.error('Erro ao excluir servidor na API local:', error);
+    throw error;
+  }
+};

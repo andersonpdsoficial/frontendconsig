@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Grid, TextField, Typography, Divider, InputAdornment, Snackbar, Alert, Stack, IconButton, styled, LinearProgress, debounce } from '@mui/material';
+import { Box, Button, Grid, TextField, Typography, Divider, InputAdornment, Snackbar, Alert, Stack, IconButton, styled, LinearProgress, debounce, FormControl, Select, MenuItem } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState, useEffect, useCallback } from 'react';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
@@ -15,92 +15,41 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { formatDate } from '../../shared/utils/dateUtils';
 import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
+import { useConsignataria } from '../../shared/hooks/useConsignataria';
 
 dayjs.locale('pt-br');
-
-const CustomDateCalendar = styled(DateCalendar)({
-  '& .MuiDayCalendar-weekContainer, & .MuiDayCalendar-header, & .MuiDayCalendar-slideTransition, & .MuiDayCalendar-monthContainer': {
-    display: 'none',
-  },
-});
-
-const CustomCalendarHeaderRoot = styled('div')({
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: '1px 6px',
-  alignItems: 'center',
-});
-
-function CustomCalendarHeaderMonth(props: PickersCalendarHeaderProps<Dayjs>) {
-  const { currentMonth, onMonthChange } = props;
-
-  const selectNextMonth = () => onMonthChange(currentMonth.add(1, 'month'), 'left');
-  const selectPreviousMonth = () => onMonthChange(currentMonth.subtract(1, 'month'), 'right');
-
-  return (
-    <CustomCalendarHeaderRoot>
-      <Stack spacing={1} direction="row">
-        <IconButton onClick={selectPreviousMonth} title="Mês Anterior">
-          <ChevronLeft />
-        </IconButton>
-      </Stack>
-      <Typography variant="body2">
-        {currentMonth.format('MMMM')}
-      </Typography>
-      <Stack spacing={1} direction="row">
-        <IconButton onClick={selectNextMonth} title="Próximo Mês">
-          <ChevronRight />
-        </IconButton>
-      </Stack>
-    </CustomCalendarHeaderRoot>
-  );
-}
-
-function CustomCalendarHeaderYear(props: PickersCalendarHeaderProps<Dayjs>) {
-  const { currentMonth, onMonthChange } = props;
-
-  const selectPreviousYear = () => onMonthChange(currentMonth.subtract(1, 'year'), 'right');
-  const selectNextYear = () => onMonthChange(currentMonth.add(1, 'year'), 'left');
-
-  return (
-    <CustomCalendarHeaderRoot>
-      <Stack spacing={1} direction="row">
-        <IconButton onClick={selectPreviousYear} title="Ano Anterior">
-          <KeyboardDoubleArrowLeftIcon />
-        </IconButton>
-      </Stack>
-      <Typography variant="body2">
-        {currentMonth.format('YYYY')}
-      </Typography>
-      <Stack spacing={1} direction="row">
-        <IconButton onClick={selectNextYear} title="Próximo Ano">
-          <KeyboardDoubleArrowRightIcon />
-        </IconButton>
-      </Stack>
-    </CustomCalendarHeaderRoot>
-  );
-}
 
 const MargemContratacao = () => {
   const [matricula, setMatricula] = useState<number | null>(null);
   const [cpf, setCpf] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
-
+  // const [consulta, setconsultaMargemAthenasLocal] = useConsultaMargemServidor()
   const { externalData, isLoading, isError, error: fetchError } = useServidor(matricula || 0);
+  const {localData } = useConsignataria( )
+
+  const [selectValue, setSelectdValue] = useState('');
+  
+  
+const handleChange = (e) =>{
+  setSelectdValue(e.target.value)
+}
+
 
   useEffect(() => {
     if (isLoading) {
+      // Simula o progresso de carregamento
       const timer = setInterval(() => {
         setLoadingProgress(prev => {
           if (prev === 100) {
             clearInterval(timer);
             return 100;
           }
-          return prev + 10;
+          return prev + 10; // Atualiza o progresso a cada intervalo
         });
-      }, 500);
+      }, 1000); // Atualiza a cada segundo
 
+      // Limpar o intervalo ao desmontar o componente
       return () => clearInterval(timer);
     } else {
       setLoadingProgress(0);
@@ -126,31 +75,21 @@ const MargemContratacao = () => {
     setError(null);
   };
 
-<<<<<<< HEAD
-  const onHandleCredoresSearch = async (searchTerm: string) => {
-    console.log('Searching for:', searchTerm);
-    setMatricula(searchTerm);
-  };
-=======
-   // Customização de datas
-   const CustomDateCalendar = styled(DateCalendar)({
+  // Customização de datas
+  const CustomDateCalendar = styled(DateCalendar)({
     '& .MuiDayCalendar-weekContainer, & .MuiDayCalendar-header, & .MuiDayCalendar-slideTransition, & .MuiDayCalendar-monthContainer': {
       display: 'none',
     },
   });
->>>>>>> 659215e1b776185c149edcc1910353806295a77b
 
-  const debouncedHandleCredoresSearch = useCallback(
-    debounce(onHandleCredoresSearch, 100),
-    [],
-  );
+  const CustomCalendarHeaderRoot = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '1px 6px',
+    alignItems: 'center',
+  });
 
-<<<<<<< HEAD
-  const handleInputChange = (event: any) => {
-    debouncedHandleCredoresSearch(event.target.value);
-  };
-=======
-   function CustomCalendarHeaderMonth(props: PickersCalendarHeaderProps<Dayjs>) {
+  function CustomCalendarHeaderMonth(props: PickersCalendarHeaderProps<Dayjs>) {
     const { currentMonth, onMonthChange } = props;
 
     const selectNextMonth = () => onMonthChange(currentMonth.add(1, 'month'), 'left');
@@ -199,16 +138,31 @@ const MargemContratacao = () => {
       </CustomCalendarHeaderRoot>
     );
   }
->>>>>>> 659215e1b776185c149edcc1910353806295a77b
 
+  const onHandleCredoresSearch = async (searchTerm: string) => {
+    console.log('Searching for:', searchTerm);
+    setMatricula(searchTerm);
+};
+
+const debouncedHandleCredoresSearch = useCallback(
+  debounce(onHandleCredoresSearch, 100),
+  [],
+);
+
+const handleInputChange = (event: any, value: string, reason: string) => {
+    debouncedHandleCredoresSearch(event.target.value);
+};
   return (
     <Box sx={{ display: 'flex' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
+     
       <Box sx={{ flexGrow: 1, padding: '20px', backgroundColor: '#F2F2F2' }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
+
           Margem / Contratação
+          
         </Typography>
 
         <Grid container spacing={2} alignItems="center">
@@ -254,44 +208,42 @@ const MargemContratacao = () => {
           </Grid>
         </Grid>
 
+      
+
         <Grid container spacing={1} marginTop={1}>
           <Grid item xs={12} sm={6}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: '#0D7B52',
-                color: '#FFF',
-                '&:hover': {
-                  backgroundColor: '#0A6E43',
-                },
-              }}
-              fullWidth
-              onClick={handleSearch}
-              disabled={isLoading}
-            >
+            <Button variant="contained" color="primary" fullWidth onClick={handleSearch} disabled={isLoading}>
               Buscar DADOS
             </Button>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Button
-              variant="outlined"
-              sx={{
-                borderColor: '#0D7B52',
-                color: '#0D7B52',
-                backgroundColor: '#E0F2F1',
-                '&:hover': {
-                  borderColor: '#0D7B52',
-                  backgroundColor: '#B2DFDB',
-                },
-              }}
-              fullWidth
-              onClick={handleClear}
-            >
+            <Button variant="outlined" color="secondary" fullWidth onClick={handleClear} >
               Limpar Busca
             </Button>
           </Grid>
-        </Grid>
+        </Grid> 
 
+        
+        {/* Select da consignataria */}
+              <Grid container spacing={1} marginTop={1}>
+                <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                    <Select
+                      value={selectValue ? selectValue : null}
+                      onChange={handleChange}
+                    >
+                      <MenuItem value="" disabled>
+                        Selecione a Consignataria
+                      </MenuItem>
+                      {localData?.results.map(consignataria => (
+                        <MenuItem key={consignataria.id} value={consignataria.id}>
+                          {consignataria.nome}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
         {isLoading ? (
           <Box sx={{ width: '100%', marginTop: 2 }}>
             <LinearProgress variant="determinate" value={loadingProgress} />
@@ -299,11 +251,12 @@ const MargemContratacao = () => {
               Processando... {loadingProgress}%
             </Typography>
           </Box>
+          
         ) : (
           <>
             {externalData && externalData.results.length > 0 && (
               <>
-                <Box marginTop={4}>
+                <Box marginTop={4} >
                   <Divider />
                 </Box>
 
@@ -327,30 +280,38 @@ const MargemContratacao = () => {
                 </Grid>
 
 
+
+
+
+
                 <Grid container spacing={2} marginTop={2}>
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
-                      <strong>Data de Admissão:</strong> {formatDate(externalData.results[0]?.data_exercicio)}
+                      <strong>Data de Admissão:</strong> {formatDate
+                      (externalData.results[0]?.data_exercicio ? externalData.results[0]?.data_exercicio : 'Data Não Encontrada')  
+                      }
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
                       <strong>Vínculo:</strong> {
-                        externalData.results[0]?.tipo_servidor.nome || 'Vinculo Não Localizado'
+                      externalData.results[0]?.tipo_servidor.nome ? externalData.results[0]?.tipo_servidor.nome : 'Vinculo Não Localizado' 
                       }
                     </Typography>
                   </Grid>
+
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
                       <strong>Lotação:</strong> {
-                        externalData.results[0]?.lotacao_principal?.lotacao.nome || 'Sem Lotação'
+                      externalData.results[0]?.lotacao_principal ? externalData.results[0]?.lotacao_principal?.lotacao.nome : 'Sem Lotação'  
                       }
                     </Typography>
                   </Grid>
+
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
                       <strong>Situação Funcional:</strong> {
-                        externalData.results[0]?.situacao_funcional_atual?.display_name || ''
+                      externalData.results[0]?.situacao_funcional_atual?.display_name || ''
                       }
                     </Typography>
                   </Grid>
@@ -360,9 +321,6 @@ const MargemContratacao = () => {
                   <Divider />
                 </Box>
 
-                {/*  O PREENCHIEMNTO AUTOMATICO FOI ATE ESSE PONTO */}
-
-                
                 <Grid container spacing={2} marginTop={2} alignItems="center">
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" color="primary">
@@ -372,7 +330,7 @@ const MargemContratacao = () => {
                 </Grid>
 
                 <Grid container spacing={2} marginTop={2} alignItems="center">
-                  <Grid item xs={12} sm={7}> {/*verificar*/}
+                  <Grid item xs={12} sm={7}>
                     <Grid container spacing={1}>
                       <Grid item xs={6}>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
@@ -397,11 +355,7 @@ const MargemContratacao = () => {
                         </LocalizationProvider>
                       </Grid>
                     </Grid>
-<<<<<<< HEAD
                     <Box sx={{ backgroundColor: '#E8F5E9', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
-=======
-                    <Box sx={{ backgroundColor: '#e3f2fd', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
->>>>>>> 659215e1b776185c149edcc1910353806295a77b
                       <Typography variant="h6">Margem Total</Typography>
                       <TextField
                         label="Valor da Margem"
@@ -423,9 +377,12 @@ const MargemContratacao = () => {
                   </Grid>
                 </Grid>
 
+
                 <Box marginTop={2}>
                   <Divider />
                 </Box>
+
+
 
                 <Grid container spacing={2} marginTop={2} alignItems="center">
                   <Grid item xs={12} sm={3}>

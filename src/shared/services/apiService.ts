@@ -33,6 +33,31 @@ export const fetchServidorFromExternalApi = async (matricula: number) => {
   }
 };
 
+// Função para buscar a consignataria  na API local
+export const fetchConsignatariaFromLocalApi = async () =>{
+  try{
+    const response = await localApi.get(`/consignatarias/`);
+    return response.data;
+  } catch (error){
+    console.log('Erro ao buscar consignataria na Api Local:', error);
+    throw error;
+  }
+}
+
+//Função para buscar a margem  disponivel do servidor no athenas
+export const fetchValorMargemServidorFromLocalApi = async (consultaMargemAthenas: number)=>{
+  try{
+    const response = await localApi.get(`/consultas-margem-athenas/`)
+    return response.data;
+
+   } catch (error){
+    console.log('Erro ao Consultar Margem do Servidor', error);
+    throw error;
+   }
+}
+
+
+
 // Função para buscar o servidor na API local
 export const fetchServidorFromLocalApi = async (matricula: number) => {
   try {
@@ -67,12 +92,28 @@ export const createServidor = async (servidorData: {
   }
 };
 
-// Função para excluir um servidor na API local
+
+
+// Função para excluir um servidor na API local não esta habilitado
 export const deleteServidor = async (matricula: string) => {
   try {
     await localApi.delete(`/servidores/${matricula}/`);
   } catch (error) {
     console.error('Erro ao excluir servidor na API local:', error);
+    throw error;
+  }
+};
+
+// Função para criar uma nova consulta de margem na API local
+export const createConsultaMargem = async (servidorId: number, consignatariaId: number) => {
+  try {
+    const response = await localApi.post('/consultas-margem-athenas/', {
+      servidor: servidorId,
+      consignataria: consignatariaId
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar consulta de margem:', error);
     throw error;
   }
 };

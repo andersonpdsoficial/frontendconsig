@@ -1,3 +1,4 @@
+// src/shared/hooks/useServidor.ts
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -16,14 +17,12 @@ const fetchServidorFromExternalApi = async (matricula: number) => {
   return data;
 };
 
-
 const fetchServidorFromLocalApi = async (matricula: number) => {
   const { data } = await axios.get(`${LOCAL_API_BASE_URL}/servidores/?matricula=${matricula}`, {
-    //  headers: { 'Authorization': `Bearer ${LOCAL_API_TOKEN}` }
+    headers: { 'Authorization': `Token ${LOCAL_API_TOKEN}` }
   });
   return data;
 };
-
 
 export const useServidor = (matricula: number) => {
   const externalQuery = useQuery({
@@ -37,7 +36,6 @@ export const useServidor = (matricula: number) => {
     queryFn: () => fetchServidorFromLocalApi(matricula),
     enabled: !!externalQuery.data,
   });
-
 
   return {
     externalData: externalQuery.data,

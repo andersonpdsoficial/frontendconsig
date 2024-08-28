@@ -1,6 +1,24 @@
 'use client';
 
-import { Box, Button, Grid, TextField, Typography, Divider, InputAdornment, Snackbar, Alert, Stack, IconButton, styled, LinearProgress, debounce, FormControl, Select, MenuItem } from '@mui/material';
+import {
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Typography,
+  Divider,
+  InputAdornment,
+  Snackbar,
+  Alert,
+  Stack,
+  IconButton,
+  styled,
+  LinearProgress,
+  debounce,
+  FormControl,
+  Select,
+  MenuItem
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState, useEffect, useCallback } from 'react';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
@@ -9,7 +27,12 @@ import { useServidor } from '../../shared/hooks/useServidor';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { ChevronLeft, ChevronRight, KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon, KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon } from '@mui/icons-material';
+import {
+  ChevronLeft,
+  ChevronRight,
+  KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon,
+  KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon
+} from '@mui/icons-material';
 import { PickersCalendarHeaderProps } from '@mui/x-date-pickers/PickersCalendarHeader';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/pt-br';
@@ -24,32 +47,28 @@ const MargemContratacao = () => {
   const [cpf, setCpf] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  // const [consulta, setconsultaMargemAthenasLocal] = useConsultaMargemServidor()
+  const [selectValue, setSelectdValue] = useState<number | ''>('');
+  const [margemTotal, setMargemTotal] = useState<number | null>(null);
+  const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
+
   const { externalData, isLoading, isError, error: fetchError } = useServidor(matricula || 0);
-  const {localData } = useConsignataria( )
+  const { localData } = useConsignataria();
 
-  const [selectValue, setSelectdValue] = useState('');
-  
-  
-const handleChange = (e) =>{
-  setSelectdValue(e.target.value)
-}
-
+  const handleChange = (e) => {
+    setSelectdValue(e.target.value);
+  };
 
   useEffect(() => {
     if (isLoading) {
-      // Simula o progresso de carregamento
       const timer = setInterval(() => {
         setLoadingProgress(prev => {
           if (prev === 100) {
             clearInterval(timer);
             return 100;
           }
-          return prev + 10; // Atualiza o progresso a cada intervalo
+          return prev + 10;
         });
-      }, 1000); // Atualiza a cada segundo
-
-      // Limpar o intervalo ao desmontar o componente
+      }, 1000);
       return () => clearInterval(timer);
     } else {
       setLoadingProgress(0);
@@ -61,7 +80,6 @@ const handleChange = (e) =>{
       setError('Informe somente a matrícula no momento!');
       return;
     }
-
     if (matricula) {
       setError(null);
     } else {
@@ -75,7 +93,6 @@ const handleChange = (e) =>{
     setError(null);
   };
 
-  // Customização de datas
   const CustomDateCalendar = styled(DateCalendar)({
     '& .MuiDayCalendar-weekContainer, & .MuiDayCalendar-header, & .MuiDayCalendar-slideTransition, & .MuiDayCalendar-monthContainer': {
       display: 'none',
@@ -140,29 +157,49 @@ const handleChange = (e) =>{
   }
 
   const onHandleCredoresSearch = async (searchTerm: string) => {
-    console.log('Searching for:', searchTerm);
-    setMatricula(searchTerm);
-};
+    setMatricula(Number(searchTerm));
+  };
 
-const debouncedHandleCredoresSearch = useCallback(
-  debounce(onHandleCredoresSearch, 100),
-  [],
-);
+  const debouncedHandleCredoresSearch = useCallback(
+    debounce(onHandleCredoresSearch, 100),
+    [],
+  );
 
-const handleInputChange = (event: any, value: string, reason: string) => {
+  const handleInputChange = (event: any, value: string, reason: string) => {
     debouncedHandleCredoresSearch(event.target.value);
-};
+  };
+
+  const calculateMargem = async () => {
+    if (!externalData || !selectValue) {
+      setError('Dados incompletos para cálculo.');
+      return;
+    }
+
+    try {
+      // Supondo que a API retorna dados que incluem 'margem_total' e 'margem_disponivel'
+      const response = await fetch(`/api/margem/${selectValue}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setMargemTotal(data.margem_total);
+        setMargemDisponivel(data.margem_disponivel);
+      } else {
+        setError(data.message || 'Erro ao calcular margem.');
+      }
+    } catch (err) {
+      setError('Erro ao acessar a API.');
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
-     
+
       <Box sx={{ flexGrow: 1, padding: '20px', backgroundColor: '#F2F2F2' }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
-
           Margem / Contratação
-          
         </Typography>
 
         <Grid container spacing={2} alignItems="center">
@@ -170,7 +207,7 @@ const handleInputChange = (event: any, value: string, reason: string) => {
             <TextField
               label="Matrícula"
               value={matricula ?? ''}
-              onChange={handleInputChange}
+              onChange={(e) => setMatricula(Number(e.target.value))}
               fullWidth
               variant="outlined"
               error={Boolean(error)}
@@ -208,8 +245,6 @@ const handleInputChange = (event: any, value: string, reason: string) => {
           </Grid>
         </Grid>
 
-      
-
         <Grid container spacing={1} marginTop={1}>
           <Grid item xs={12} sm={6}>
             <Button variant="contained" color="primary" fullWidth onClick={handleSearch} disabled={isLoading}>
@@ -217,33 +252,32 @@ const handleInputChange = (event: any, value: string, reason: string) => {
             </Button>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Button variant="outlined" color="secondary" fullWidth onClick={handleClear} >
+            <Button variant="outlined" color="secondary" fullWidth onClick={handleClear}>
               Limpar Busca
             </Button>
           </Grid>
-        </Grid> 
+        </Grid>
 
-        
-        {/* Select da consignataria */}
-              <Grid container spacing={1} marginTop={1}>
-                <Grid item xs={12} sm={12}>
-                <FormControl fullWidth>
-                    <Select
-                      value={selectValue ? selectValue : null}
-                      onChange={handleChange}
-                    >
-                      <MenuItem value="" disabled>
-                        Selecione a Consignataria
-                      </MenuItem>
-                      {localData?.results.map(consignataria => (
-                        <MenuItem key={consignataria.id} value={consignataria.id}>
-                          {consignataria.nome}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
+        <Grid container spacing={1} marginTop={1}>
+          <Grid item xs={12} sm={12}>
+            <FormControl fullWidth>
+              <Select
+                value={selectValue || ''}
+                onChange={handleChange}
+              >
+                <MenuItem value="" disabled>
+                  Selecione a Consignatária
+                </MenuItem>
+                {localData?.results.map(consignataria => (
+                  <MenuItem key={consignataria.id} value={consignataria.id}>
+                    {consignataria.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
         {isLoading ? (
           <Box sx={{ width: '100%', marginTop: 2 }}>
             <LinearProgress variant="determinate" value={loadingProgress} />
@@ -251,12 +285,11 @@ const handleInputChange = (event: any, value: string, reason: string) => {
               Processando... {loadingProgress}%
             </Typography>
           </Box>
-          
         ) : (
           <>
             {externalData && externalData.results.length > 0 && (
               <>
-                <Box marginTop={4} >
+                <Box marginTop={4}>
                   <Divider />
                 </Box>
 
@@ -279,23 +312,18 @@ const handleInputChange = (event: any, value: string, reason: string) => {
                   </Grid>
                 </Grid>
 
-
-
-
-
-
                 <Grid container spacing={2} marginTop={2}>
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
-                      <strong>Data de Admissão:</strong> {formatDate
-                      (externalData.results[0]?.data_exercicio ? externalData.results[0]?.data_exercicio : 'Data Não Encontrada')  
-                      }
+                      <strong>Data de Admissão:</strong> {formatDate(
+                        externalData.results[0]?.data_exercicio || 'Data Não Encontrada'
+                      )}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
                       <strong>Vínculo:</strong> {
-                      externalData.results[0]?.tipo_servidor.nome ? externalData.results[0]?.tipo_servidor.nome : 'Vinculo Não Localizado' 
+                        externalData.results[0]?.tipo_servidor.nome || 'Vínculo Não Localizado'
                       }
                     </Typography>
                   </Grid>
@@ -303,7 +331,7 @@ const handleInputChange = (event: any, value: string, reason: string) => {
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
                       <strong>Lotação:</strong> {
-                      externalData.results[0]?.lotacao_principal ? externalData.results[0]?.lotacao_principal?.lotacao.nome : 'Sem Lotação'  
+                        externalData.results[0]?.lotacao_principal?.lotacao.nome || 'Sem Lotação'
                       }
                     </Typography>
                   </Grid>
@@ -311,7 +339,7 @@ const handleInputChange = (event: any, value: string, reason: string) => {
                   <Grid item xs={12} sm={3}>
                     <Typography variant="body2">
                       <strong>Situação Funcional:</strong> {
-                      externalData.results[0]?.situacao_funcional_atual?.display_name || ''
+                        externalData.results[0]?.situacao_funcional_atual?.display_name || ''
                       }
                     </Typography>
                   </Grid>
@@ -334,7 +362,7 @@ const handleInputChange = (event: any, value: string, reason: string) => {
                     <Grid container spacing={1}>
                       <Grid item xs={6}>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-                          <DateCalendar
+                          <CustomDateCalendar
                             slots={{ calendarHeader: CustomCalendarHeaderMonth }}
                             sx={{
                               height: 'fit-content',
@@ -345,7 +373,7 @@ const handleInputChange = (event: any, value: string, reason: string) => {
                       </Grid>
                       <Grid item xs={6}>
                         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-                          <DateCalendar
+                          <CustomDateCalendar
                             slots={{ calendarHeader: CustomCalendarHeaderYear }}
                             sx={{
                               height: 'fit-content',
@@ -359,51 +387,23 @@ const handleInputChange = (event: any, value: string, reason: string) => {
                       <Typography variant="h6">Margem Total</Typography>
                       <TextField
                         label="Valor da Margem"
-                        value={externalData.margem || ''}
-                        onChange={(e) => setCpf(e.target.value)}
+                        value={margemTotal !== null ? `R$ ${margemTotal.toFixed(2)}` : ''}
                         fullWidth
                         variant="outlined"
+                        InputProps={{
+                          readOnly: true,
+                        }}
                       />
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={5} display="flex" flexDirection="column" alignItems="center">
-                    <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '#0D7B52' }}>
+                    <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '#0D7B52' }} onClick={calculateMargem}>
                       Calcular Margem
                     </Button>
                     <Box sx={{ backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', textAlign: 'center', marginTop: '10px', width: '100%' }}>
                       <Typography variant="h6">Margem Disponível</Typography>
-                      <Typography variant="h5" color="primary">R$-</Typography>
+                      <Typography variant="h5" color="primary">{margemDisponivel !== null ? `R$ ${margemDisponivel.toFixed(2)}` : 'R$ 0,00'}</Typography>
                     </Box>
-                  </Grid>
-                </Grid>
-
-
-                <Box marginTop={2}>
-                  <Divider />
-                </Box>
-
-
-
-                <Grid container spacing={2} marginTop={2} alignItems="center">
-                  <Grid item xs={12} sm={3}>
-                    <Typography variant="body2">
-                      <strong>Empréstimo:</strong> {/* Valor do Empréstimo */}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <Typography variant="body2">
-                      <strong>Refinanciamento:</strong> {/* Valor do Refinanciamento */}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <Typography variant="body2">
-                      <strong>Composição:</strong> {/* Valor da Composição */}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <Typography variant="body2">
-                      <strong>Portabilidade:</strong> {/* Valor da Portabilidade */}
-                    </Typography>
                   </Grid>
                 </Grid>
 

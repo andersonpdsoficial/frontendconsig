@@ -1,4 +1,4 @@
 {
-  "/margemContratacao/page": "app/margemContratacao/page.js",
-  "/Home/page": "app/Home/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/margemContratacao/page": "app/margemContratacao/page.js"
 }

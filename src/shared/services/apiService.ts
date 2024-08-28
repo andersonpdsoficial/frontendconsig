@@ -117,3 +117,18 @@ export const createConsultaMargem = async (servidorId: number, consignatariaId: 
     throw error;
   }
 };
+
+
+// Função para buscar a margem disponível do servidor na API local
+export const createConsultaMargem = async (servidorId: number, consignatariaId: number) => {
+  try {
+    const response = await localApi.post('', {
+      servidor: servidorId,
+      consignataria: consignatariaId
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar consulta de margem:', error);
+    throw error;
+  }
+};

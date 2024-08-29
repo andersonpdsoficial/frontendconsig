@@ -1,4 +1,4 @@
-// src/shared/hooks/useServidor.ts
+
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -39,7 +39,7 @@ export const useServidor = (matricula: number) => {
 
   return {
     externalData: externalQuery.data,
-    localData: localQuery.data,
+    localData: localQuery.data?.results,
     isLoading: externalQuery.isLoading || localQuery.isLoading,
     isError: externalQuery.isError || localQuery.isError,
     error: externalQuery.error || localQuery.error

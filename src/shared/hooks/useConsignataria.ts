@@ -1,4 +1,4 @@
-// src/shared/hooks/useConsignataria.ts
+
 'use client';
 
 import { useQuery } from '@tanstack/react-query';

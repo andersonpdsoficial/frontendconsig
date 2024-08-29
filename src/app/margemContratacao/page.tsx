@@ -20,7 +20,7 @@ import {
   MenuItem
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
 import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
 import { useServidor } from '../../shared/hooks/useServidor';
@@ -28,8 +28,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import {
+  AttachMoney,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon,
   KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon
 } from '@mui/icons-material';
@@ -39,9 +41,10 @@ import 'dayjs/locale/pt-br';
 import { formatDate } from '../../shared/utils/dateUtils';
 import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
 import { useConsignataria } from '../../shared/hooks/useConsignataria';
-
+import axios from 'axios';
+import { Loan, AutoFixNormal } from '@mui/icons-material'; // Supondo que esses ícones sejam adequados
 dayjs.locale('pt-br');
-
+const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
 const MargemContratacao = () => {
   const [matricula, setMatricula] = useState<number | null>(null);
   const [cpf, setCpf] = useState('');
@@ -51,10 +54,10 @@ const MargemContratacao = () => {
   const [margemTotal, setMargemTotal] = useState<number | null>(null);
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
 
-  const { externalData, isLoading, isError, error: fetchError } = useServidor(matricula || 0);
-  const { localData } = useConsignataria();
+  const { externalData, localData, isLoading, isError, error: fetchError } = useServidor(matricula || 0);
+  const { localData: consignataria } = useConsignataria();
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent | any) => {
     setSelectdValue(e.target.value);
   };
 
@@ -105,6 +108,8 @@ const MargemContratacao = () => {
     padding: '1px 6px',
     alignItems: 'center',
   });
+
+  console.log('Dados vindos das APIs :', localData, ' e consignataria ', consignataria?.results);
 
   function CustomCalendarHeaderMonth(props: PickersCalendarHeaderProps<Dayjs>) {
     const { currentMonth, onMonthChange } = props;
@@ -169,22 +174,40 @@ const MargemContratacao = () => {
     debouncedHandleCredoresSearch(event.target.value);
   };
 
+  //Consulta Margem Athenas
+
+
+  // Será necessário selecionar a consignataria
   const calculateMargem = async () => {
     if (!externalData || !selectValue) {
       setError('Dados incompletos para cálculo.');
       return;
     }
-
+  
     try {
-      // Supondo que a API retorna dados que incluem 'margem_total' e 'margem_disponivel'
-      const response = await fetch(`/api/margem/${selectValue}`);
-      const data = await response.json();
-
-      if (response.ok) {
+      // Criando uma instância de FormData
+      const formData = new FormData();
+      formData.append('servidor', localData[0].id);
+      formData.append('consignataria', selectValue);
+  
+      // Fazendo a requisição POST usando axios com FormData
+      const response = await axios.post(
+        `${LOCAL_API_BASE_URL}/consultas-margem-athenas/`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+  
+      if (response.status === 201) {
+        const data = response.data;
         setMargemTotal(data.margem_total);
         setMargemDisponivel(data.margem_disponivel);
+        console.log('dados de margem', data)
       } else {
-        setError(data.message || 'Erro ao calcular margem.');
+        setError(response.data.message || 'Erro ao calcular margem.');
       }
     } catch (err) {
       setError('Erro ao acessar a API.');
@@ -268,7 +291,7 @@ const MargemContratacao = () => {
                 <MenuItem value="" disabled>
                   Selecione a Consignatária
                 </MenuItem>
-                {localData?.results.map(consignataria => (
+                {consignataria?.results.map((consignataria: { id: number; nome: string; }) => (
                   <MenuItem key={consignataria.id} value={consignataria.id}>
                     {consignataria.nome}
                   </MenuItem>
@@ -383,34 +406,146 @@ const MargemContratacao = () => {
                         </LocalizationProvider>
                       </Grid>
                     </Grid>
+
+                      
                     <Box sx={{ backgroundColor: '#E8F5E9', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
                       <Typography variant="h6">Margem Total</Typography>
-                      <TextField
-                        label="Valor da Margem"
-                        value={margemTotal !== null ? `R$ ${margemTotal.toFixed(2)}` : ''}
-                        fullWidth
+                      <TextField label="Valor da Margem"  value=    {margemTotal !== null ? `R$ ${margemTotal}` : ''} fullWidth
                         variant="outlined"
                         InputProps={{
                           readOnly: true,
-                        }}
-                      />
-                    </Box>
-                  </Grid>
+                        }} />
+                      </Box>
+
+                      <Grid item xs={12} sm={5} display="flex" flexDirection="column" alignItems="center">
+                      <Box sx={{ backgroundColor: '#E8F5E9', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
+                      <Typography variant="h8">Margem do Servidor para</Typography>
+                      <Typography variant="h6" color="primary">{margemDisponivel !== null ? `R$ ${margemDisponivel}` : 'R$ 0,00'}
+                        </Typography>
+                        </Box>
+
+
+                      </Grid>
+                     
+                    </Grid>
+                    
+
                   <Grid item xs={12} sm={5} display="flex" flexDirection="column" alignItems="center">
                     <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '#0D7B52' }} onClick={calculateMargem}>
                       Calcular Margem
                     </Button>
-                    <Box sx={{ backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', textAlign: 'center', marginTop: '10px', width: '100%' }}>
+                      <Box sx={{ backgroundColor: '#e8f5e9', padding: '20px', borderRadius: '8px', textAlign: 'center', marginTop: '10px', width: '100%' }}>
+                        
                       <Typography variant="h6">Margem Disponível</Typography>
-                      <Typography variant="h5" color="primary">{margemDisponivel !== null ? `R$ ${margemDisponivel.toFixed(2)}` : 'R$ 0,00'}</Typography>
+                        <Typography variant="h5" color="primary">{margemDisponivel !== null ? `R$ ${margemDisponivel}` : 'R$ 0,00'}</Typography>
+                        
                     </Box>
                   </Grid>
                 </Grid>
 
+                  
+{/*divisor*/}
+<>
+      <Box marginTop={2}>
+        <Divider />
+      </Box>
+
+      <Grid container spacing={0} marginTop={4} alignItems="center">
+        <Typography variant="h6" gutterBottom>
+          Novas Contratações
+                      </Typography>
+            
+                      
+                    
+                    </Grid>
+                    <Box>
+                        <Typography variant="h12" gutterBottom margemTop={0}>
+          Averbações
+      </Typography></Box>
+      
+                    
+      <Grid container spacing={2} marginTop={1} margemBottom={4}>
+        <Grid item xs={6}>
+          <Button
+            variant="contained"
+            fullWidth 
+            startIcon={<AttachMoney />}
+            sx={{ height: 100, borderRadius: 0 , backgroundColor: '#0D7B52' }}
+          >
+            Empréstimo
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<CreditCard />}
+            sx={{ height: 100, borderRadius: 0, backgroundColor: '#0D7B52' }}
+          >
+            Refinanciamento
+          </Button>
+        </Grid>
+      </Grid>
+    </>
+
+                  
+    <>
+      <Box marginTop={2}>
+        
+      </Box>
+
+      <Grid container spacing={0} marginTop={4} alignItems="center">
+      
+                    </Grid>
+                    <Box>
+                        <Typography variant="h12" gutterBottom margemTop={0} >
+                         Reservas
+                      </Typography>
+                    </Box>
+      
+                    
+      <Grid container spacing={2} marginTop={1} margemBottom={4}>
+        <Grid item xs={6}>
+          <Button
+            variant="contained"
+            fullWidth 
+            startIcon={<AttachMoney />}
+            sx={{ height: 100, borderRadius: 0 , backgroundColor: '#0D7B52' }}
+          >
+            Empréstimo
+          </Button>
+        </Grid>
+        <Grid item xs={6}>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<CreditCard />}
+            sx={{ height: 100, borderRadius: 0, backgroundColor: '#0D7B52' }}
+          >
+            Refinanciamento
+          </Button>
+                      </Grid>
+                      <Grid item xs={6}>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<CreditCard />}
+            sx={{ height: 100, borderRadius: 0, backgroundColor: '#0D7B52' }}
+          >
+            Refinanciamento
+          </Button>
+        </Grid>
+      </Grid>
+    </>
+  
+
+
+
+{/*divisor*/}
                 <Box marginTop={2}>
                   <Divider />
                 </Box>
-
+                  
                 <Grid container spacing={2} marginTop={2} alignItems="center">
                   <Grid item xs={12}>
                     <Typography variant="h6" gutterBottom>

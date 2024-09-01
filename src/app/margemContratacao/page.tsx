@@ -49,6 +49,7 @@ import axios from 'axios';
 import { Table, TableContainer, TableHead, Paper } from '@mui/material';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -64,62 +65,94 @@ const MargemContratacao = () => {
   const [selectValue, setSelectdValue] = useState<number | ''>('');
   const [margemTotal, setMargemTotal] = useState<number | null>(null);
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
+  const router = useRouter(); // Cria a instância do router
 
 
-//constantes para  calcular valores do colaborador para proximos meses anos
-const [selectedMonthYear, setSelectedMonthYear] = useState({
-  month: dayjs().month() + 1, // Default to current month
-  year: dayjs().year() // Default to current year
-});
+  // Funções para redirecionar para as páginas específicas
 
-// Function to generate the next 4 months and years
-const generateNextDates = (startMonth, startYear) => {
-  const dates = [];
-  let month = startMonth;
-  let year = startYear;
+  //rotas das reservas
+  const handleEmpréstimoReservasClick = () => {
+    router.push('/margemContratacao/reservas/emprestimoReservas');
+  };
 
-  for (let i = 0; i < 4; i++) {
-    month++;
-    if (month > 12) {
-      month = 1;
-      year++;
-    }
-    dates.push({ month, year });
+  const handleRefinanciamentoReservasClick = () => {
+    router.push('/margemContratacao/reservas/refinanciamentomentoReservas');
+  };
+
+  const handleCompostaReservasClick = () => {
+    router.push('/margemContratacao/reservas/compostaReservas');
+  };
+
+  const handlePortabilidadeReservasClick = () => {
+    router.push('/margemContratacao/reservas/portabilidadeReservas');
+  };
+
+  //rotas das averbações
+
+  const handleRefinanciamentoAverbacoesClick = () => {
+    router.push('/margemContratacao/averbacoes/refinanciamentoAverbacoes');
+  }
+  const handleEmprestimoAverbacoesClick = () => {
+    router.push('/margemContratacao/averbacoes/emprestimoAverbacoes');
   }
 
-  return dates;
-};
-
-// State to hold the next dates
-const [nextDates, setNextDates] = useState(() => generateNextDates(selectedMonthYear.month + 1, selectedMonthYear.year));
-
-// Effect to update nextDates when selectedMonthYear changes
-useEffect(() => {
-  const { month, year } = selectedMonthYear;
-  const newDates = generateNextDates(month, year); // Start from the next month
-  setNextDates(newDates);
-}, [selectedMonthYear]);
-
-// Function to handle month change from CustomDateCalendar
-const handleMonthChange = (newMonth, newYear) => {
-  setSelectedMonthYear({ month: newMonth, year: newYear });
-};
-
-const getMonthName = (month) => {
-const months = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-];
-return months[month - 1];
-};
 
 
-  
- // Determine o parâmetro de busca baseado em matricula ou cpf
- const searchParam = matricula !== null ? matricula.toString() : cpf;
 
-   // Fetch data based on search parameter
-   const { externalData, localData, isLoading, isError, error: fetchError } = useServidor(searchParam);
+  //constantes para  calcular valores do colaborador para proximos meses anos
+  const [selectedMonthYear, setSelectedMonthYear] = useState({
+    month: dayjs().month() + 1, // Default to current month
+    year: dayjs().year() // Default to current year
+  });
+
+  // Function to generate the next 4 months and years
+  const generateNextDates = (startMonth, startYear) => {
+    const dates = [];
+    let month = startMonth;
+    let year = startYear;
+
+    for (let i = 0; i < 4; i++) {
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+      }
+      dates.push({ month, year });
+    }
+
+    return dates;
+  };
+
+  // State to hold the next dates
+  const [nextDates, setNextDates] = useState(() => generateNextDates(selectedMonthYear.month + 1, selectedMonthYear.year));
+
+  // Effect to update nextDates when selectedMonthYear changes
+  useEffect(() => {
+    const { month, year } = selectedMonthYear;
+    const newDates = generateNextDates(month, year); // Start from the next month
+    setNextDates(newDates);
+  }, [selectedMonthYear]);
+
+  // Function to handle month change from CustomDateCalendar
+  const handleMonthChange = (newMonth, newYear) => {
+    setSelectedMonthYear({ month: newMonth, year: newYear });
+  };
+
+  const getMonthName = (month) => {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return months[month - 1];
+  };
+
+
+
+  // Determine o parâmetro de busca baseado em matricula ou cpf
+  const searchParam = matricula !== null ? matricula.toString() : cpf;
+
+  // Fetch data based on search parameter
+  const { externalData, localData, isLoading, isError, error: fetchError } = useServidor(searchParam);
   const { localData: consignataria } = useConsignataria();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement> | any) => {
@@ -273,7 +306,7 @@ return months[month - 1];
     },
     {
       id: 'valorParcela', label: 'Valor da Parcela', minWidth: 170, align: 'right', format: (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-    
+
     },
     {
       id: 'Convenio',
@@ -306,7 +339,7 @@ return months[month - 1];
   }
 
   const rows = [
-    createData('Ativo', 36262, 10/10/2024, 3287263, 65665, 599595),
+    createData('Ativo', 36262, 10 / 10 / 2024, 3287263, 65665, 599595),
 
 
   ];
@@ -362,23 +395,23 @@ return months[month - 1];
     }
   };
 
-//   // Função para formatar a data
-// const formatDate = (dateString) => {
-//   const options = { year: 'numeric', month: 'long', day: 'numeric' };
-//   return new Intl.DateTimeFormat('pt-BR', options).format(new Date(dateString));
-// };
+  //   // Função para formatar a data
+  // const formatDate = (dateString) => {
+  //   const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  //   return new Intl.DateTimeFormat('pt-BR', options).format(new Date(dateString));
+  // };
 
-// // Função para formatar o valor monetário
-// const formatCurrency = (value) => {
-//   return new Intl.NumberFormat('pt-BR', {
-//     style: 'currency',
-//     currency: 'BRL',
-//   }).format(value);
-//   };
-  
+  // // Função para formatar o valor monetário
+  // const formatCurrency = (value) => {
+  //   return new Intl.NumberFormat('pt-BR', {
+  //     style: 'currency',
+  //     currency: 'BRL',
+  //   }).format(value);
+  //   };
 
 
-  
+
+
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -393,344 +426,347 @@ return months[month - 1];
 
 
 
-{/* incio de uma box */}
+        {/* incio de uma box */}
 
-<Box
-      sx={{
-        padding: 2,
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-        backgroundColor: 'white',
-        borderRadius: 2,
-        marginTop: 2,
-      }}
-    >
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} sm={12}>
-          <Typography variant="body1" color="primary">
-            <Divider textAlign="left">Buscar servidor</Divider>
-          </Typography>
-        </Grid>
+        <Box
+          sx={{
+            padding: 2,
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+            backgroundColor: 'white',
+            borderRadius: 2,
+            marginTop: 2,
+          }}
+        >
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={12}>
+              <Typography variant="body1" color="primary">
+                <Divider textAlign="left">Buscar servidor</Divider>
+              </Typography>
+            </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <TextField
-            label="Matrícula"
-            value={matricula ?? ''}
-            onChange={(e) => setMatricula(Number(e.target.value))}
-            fullWidth
-            variant="outlined"
-            error={Boolean(error && !cpf)}
-            helperText={error && !cpf ? error : ''}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleSearch} disabled={isLoading}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Matrícula"
+                value={matricula ?? ''}
+                onChange={(e) => setMatricula(Number(e.target.value))}
+                fullWidth
+                variant="outlined"
+                error={Boolean(error && !cpf)}
+                helperText={error && !cpf ? error : ''}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleSearch} disabled={isLoading}>
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <TextField
-            label="CPF"
-            value={cpf}
-            onChange={(e) => setCpf(e.target.value)}
-            fullWidth
-            variant="outlined"
-            error={Boolean(error && !matricula)}
-            helperText={error && !matricula ? error : ''}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleSearch} disabled={isLoading}>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-      </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="CPF"
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+                fullWidth
+                variant="outlined"
+                error={Boolean(error && !matricula)}
+                helperText={error && !matricula ? error : ''}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleSearch} disabled={isLoading}>
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
 
-      <Grid container spacing={1} marginTop={1}>
-        <Grid item xs={12} sm={6}>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ backgroundColor: '#0D7B52' }}
-            fullWidth
-            onClick={handleSearch}
-            disabled={isLoading}
-          >
-            Buscar DADOS
-          </Button>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Button
-            variant="outlined"
-            sx={{ backgroundColor: '#bce7d84e', color: '#0D7B52' }}
-            fullWidth
-            onClick={handleClear}
-          >
-            Limpar Busca
-          </Button>
-        </Grid>
-      </Grid>
-    </Box>
-        
-    <Box marginTop={2}>
-        <Divider />
-      </Box>
+          <Grid container spacing={1} marginTop={1}>
+            <Grid item xs={12} sm={6}>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: '#0D7B52' }}
+                fullWidth
+                onClick={handleSearch}
+                disabled={isLoading}
+              >
+                Buscar DADOS
+              </Button>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Button
+                variant="outlined"
+                sx={{ backgroundColor: '#bce7d84e', color: '#0D7B52' }}
+                fullWidth
+                onClick={handleClear}
+              >
+                Limpar Busca
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
 
-
-        
+        <Box marginTop={2}>
+          <Divider />
+        </Box>
 
 
-        
-    <Box
-      sx={{
-        backgroundColor: 'white',
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-        borderRadius: 2,
-        padding: 2,
-        marginTop: 2,
-      }}
-    >
-      <Grid container spacing={1}>
-        <Grid item xs={12}>
-          <Typography variant="body1" color="primary">
-            <Divider textAlign="left">Selecione a Consignataria</Divider>
-          </Typography>
 
-          <Divider textAlign="left" sx={{ marginTop: 1 }} />
-          <FormControl fullWidth>
-            <Select
-              value={selectValue || ''}
-              onChange={handleChange}
-              sx={{ backgroundColor: '#E8F5E9' }} // Optional: to match the style
-            >
-              <MenuItem value="" disabled sx={{ color: '#000000f0', backgroundColor: '#E8F5E9' }}>
-                Selecione a Consignatária
-              </MenuItem>
-              {consignataria?.results.map((item) => (
-                <MenuItem
-                  key={item.id}
-                  value={item.id}
-                  sx={{ color: '#073a18' }}
+
+
+
+        <Box
+          sx={{
+            backgroundColor: 'white',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+            borderRadius: 2,
+            padding: 2,
+            marginTop: 2,
+          }}
+        >
+          <Grid container spacing={1}>
+            <Grid item xs={12}>
+              <Typography variant="body1" color="primary">
+                <Divider textAlign="left">Selecione a Consignataria</Divider>
+              </Typography>
+
+              <Divider textAlign="left" sx={{ marginTop: 1 }} />
+              <FormControl fullWidth>
+                <Select
+                  value={selectValue || ''}
+                  onChange={handleChange}
+                  sx={{ backgroundColor: '#E8F5E9' }} // Optional: to match the style
                 >
-                  {item.nome}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
-    </Box>
+                  <MenuItem value="" disabled sx={{ color: '#000000f0', backgroundColor: '#E8F5E9' }}>
+                    Selecione a Consignatária
+                  </MenuItem>
+                  {consignataria?.results.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      value={item.id}
+                      sx={{ color: '#073a18' }}
+                    >
+                      {item.nome}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Box>
 
 
 
 
-        
-        
+
+
         {isLoading ? (
-           <Box
-           sx={{
-             backgroundColor: 'white',
-             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-             borderRadius: 2,
-             padding: 2,
-             width: '100%',
-             marginTop: 2,
-           }}
-         >
-           <LinearProgress variant="determinate" value={loadingProgress} />
-           <Typography variant="body2" sx={{ textAlign: 'center', marginTop: 1 }}>
-             Processando... {loadingProgress}%
-           </Typography>
-         </Box>
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+              borderRadius: 2,
+              padding: 2,
+              width: '100%',
+              marginTop: 2,
+            }}
+          >
+            <LinearProgress variant="determinate" value={loadingProgress} />
+            <Typography variant="body2" sx={{ textAlign: 'center', marginTop: 1 }}>
+              Processando... {loadingProgress}%
+            </Typography>
+          </Box>
         ) : (
 
-            
-            <>
-                <Box marginTop={2}>
-        <Divider />
-      </Box>
+
+          <>
+            <Box marginTop={2}>
+              <Divider />
+            </Box>
             {externalData && externalData.results.length > 0 && (
               <>
-              <Box
-        sx={{
-          backgroundColor: 'white',
-          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-          borderRadius: 2,
-          padding: 2,
-          width: '100%',
-          marginTop: 2,
-        }}
-      >
-                <Grid item xs={12} sm={12} marginTop={2}>
-        <Typography variant="body1" color="primary">
-          <Divider textAlign="left">Dados Do Servidor</Divider>
-        </Typography>
-      </Grid>
-
-      
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="body2">
-              <strong>Nome: </strong>{externalData.results[0]?.nome || ''}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="body2">
-              <strong>CPF: </strong>{externalData.results[0]?.cpf || ''}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="body2">
-              <strong>Data de Admissão:</strong> {formatDate(
-                externalData.results[0]?.data_exercicio || 'Data Não Encontrada'
-              )}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="body2">
-              <strong>Vínculo:</strong> {externalData.results[0]?.tipo_servidor.nome || 'Vínculo Não Localizado'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="body2">
-              <strong>Lotação:</strong> {externalData.results[0]?.lotacao_principal?.lotacao.nome || 'Sem Lotação'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Typography variant="body2">
-              <strong>Situação Funcional:</strong> {externalData.results[0]?.situacao_funcional_atual?.display_name || ''}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Fim de uma box */}
-      <Box marginTop={2}>
-        <Divider />
-      </Box>
-
-                
-
-
-
-      <Box
-      sx={{
-        backgroundColor: 'white',
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-        borderRadius: 2,
-        padding: 2,
-        width: '100%',
-        marginTop: 2,
-      }}
-    >
-      <Grid container spacing={2} marginTop={2} alignItems="center">
-        <Grid item xs={12} sm={12}>
-          <Typography variant="body1" color="primary">
-            <Divider textAlign="left">Valor da Margem do Colaborador</Divider>
-          </Typography>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2} marginTop={2} alignItems="center">
-        <Grid item xs={12} sm={7}>
-          <Grid container spacing={1}>
-            <Grid item xs={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-                <CustomDateCalendar
-                  slots={{ calendarHeader: CustomCalendarHeaderMonth }}
-                  sx={{
-                    height: 'fit-content',
-                    '& .MuiDayCalendar-root': { display: 'none' },
-                  }}
-                  onMonthChange={(date) => handleMonthChange(date.month() + 1, date.year())}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-                <CustomDateCalendar
-                  slots={{ calendarHeader: CustomCalendarHeaderYear }}
-                  sx={{
-                    height: 'fit-content',
-                    '& .MuiDayCalendar-root': { display: 'none' },
-                  }}
-                  onMonthChange={(date) => handleMonthChange(date.month() + 1, date.year())}
-                />
-              </LocalizationProvider>
-            </Grid>
-          </Grid>
-
-          <Box sx={{ backgroundColor: '#bce7d84e', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
-            <Typography variant="h6">Margem Total</Typography>
-            <Typography variant="h5" color="primary">{margemTotal !== null ? `R$ ${margemTotal}` : 'R$ 0,00'}</Typography>
-            <Typography variant="body2" color="#004b70">
-              <strong>EMPRÉSTIMO</strong>
-            </Typography>
-          </Box>
-        </Grid>
-
-        <Grid item xs={12} sm={5} display="flex" flexDirection="column" alignItems="center">
-          <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '#0D7B52' }} onClick={calculateMargem}>
-            Calcular Margem
-          </Button>
-          <Box sx={{ backgroundColor: '#bce7d84e', padding: '20px', borderRadius: '8px', textAlign: 'center', marginTop: '10px', width: '100%' }}>
-            <Typography variant="h6">Margem Disponível</Typography>
-            <Typography variant="h5" color="primary">{margemDisponivel !== null ? `R$ ${margemDisponivel}` : 'R$ 0,00'}</Typography>
-            <Typography variant="body2" color="#004b70">
-              <strong>EMPRÉSTIMO</strong>
-            </Typography>
-          </Box>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2} marginTop={2} alignItems="center">
-        <Grid item xs={12}>
-          <Typography variant="body2" color="darkgray">
-            <strong>Margem do colaborador para:</strong>
-          </Typography>
-          <Grid container spacing={2} marginTop={1}>
-            {nextDates.map((date, index) => (
-              <Grid item xs={12} sm={3} key={index}>
                 <Box
                   sx={{
-                    backgroundColor: '#e0f7fa', // Cor de fundo da caixa
-                    padding: '10px',
-                    borderRadius: '8px',
-                    textAlign: 'center',
-                    border: '1px solid #bce7d84e', // Borda da caixa
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
+                    backgroundColor: 'white',
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                    borderRadius: 2,
+                    padding: 2,
+                    width: '100%',
+                    marginTop: 2,
                   }}
                 >
-                  <Typography variant="body2">
-                    <strong>{`${getMonthName(date.month)}/${date.year}`}</strong>
-                  </Typography>
-                  <Typography variant="h6" color="primary">
-                    {margemDisponivel !== null ? `R$ ${margemDisponivel}` : 'R$ 0,00'}
-                  </Typography>
+                  <Grid item xs={12} sm={12} marginTop={2}>
+                    <Typography variant="body1" color="primary">
+                      <Divider textAlign="left">Dados Do Servidor</Divider>
+                    </Typography>
+                  </Grid>
+
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Nome: </strong>{externalData.results[0]?.nome || ''}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>CPF: </strong>{externalData.results[0]?.cpf || ''}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Data de Admissão:</strong> {formatDate(
+                          externalData.results[0]?.data_exercicio || 'Data Não Encontrada'
+                        )}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Vínculo:</strong> {externalData.results[0]?.tipo_servidor.nome || 'Vínculo Não Localizado'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Lotação:</strong> {externalData.results[0]?.lotacao_principal?.lotacao.nome || 'Sem Lotação'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="body2">
+                        <strong>Situação Funcional:</strong> {externalData.results[0]?.situacao_funcional_atual?.display_name || ''}
+                      </Typography>
+                    </Grid>
+                  </Grid>
                 </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-      </Grid>
-    </Box>
+
+                {/* Fim de uma box */}
+                <Box marginTop={2}>
+                  <Divider />
+                </Box>
+
+
+
+
+
+                <Box
+                  sx={{
+                    backgroundColor: 'white',
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                    borderRadius: 2,
+                    padding: 2,
+                    width: '100%',
+                    marginTop: 2,
+                  }}
+                >
+                  <Grid container spacing={2} marginTop={2} alignItems="center">
+                    <Grid item xs={12} sm={12}>
+                      <Typography variant="body1" color="primary">
+                        <Divider textAlign="left">Valor da Margem do Colaborador</Divider>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={2} marginTop={2} alignItems="center">
+                    <Grid item xs={12} sm={7}>
+                      <Grid container spacing={1}>
+                        <Grid item xs={6}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                            <CustomDateCalendar
+                              slots={{ calendarHeader: CustomCalendarHeaderMonth }}
+                              sx={{
+                                height: 'fit-content',
+                                '& .MuiDayCalendar-root': { display: 'none' },
+                              }}
+                              onMonthChange={(date) => handleMonthChange(date.month() + 1, date.year())}
+                            />
+                          </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                            <CustomDateCalendar
+                              slots={{ calendarHeader: CustomCalendarHeaderYear }}
+                              sx={{
+                                height: 'fit-content',
+                                '& .MuiDayCalendar-root': { display: 'none' },
+                              }}
+                              onMonthChange={(date) => handleMonthChange(date.month() + 1, date.year())}
+                            />
+                          </LocalizationProvider>
+                        </Grid>
+                      </Grid>
+
+                      <Box sx={{ backgroundColor: '#bce7d84e', padding: '7px', borderRadius: '8px', textAlign: 'center', marginTop: '10px' }}>
+                        <Typography variant="h6">Margem Total</Typography>
+                        <Typography variant="h5" color="primary">{margemTotal !== null ? `R$ ${margemTotal}` : 'R$ 0,00'}</Typography>
+                        <Typography variant="body2" color="#004b70">
+                          <strong>EMPRÉSTIMO</strong>
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid item xs={12} sm={5} display="flex" flexDirection="column" alignItems="center">
+                      <Button variant="contained" color="primary" fullWidth sx={{ backgroundColor: '#0D7B52' }} onClick={calculateMargem}>
+                        Calcular Margem
+                      </Button>
+                      <Box sx={{ backgroundColor: '#bce7d84e', padding: '20px', borderRadius: '8px', textAlign: 'center', marginTop: '10px', width: '100%' }}>
+                        <Typography variant="h6">Margem Disponível</Typography>
+                        <Typography variant="h5" color="primary">{margemDisponivel !== null ? `R$ ${margemDisponivel}` : 'R$ 0,00'}</Typography>
+                        <Typography variant="body2" color="#004b70">
+                          <strong>EMPRÉSTIMO</strong>
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={2} marginTop={2} alignItems="center">
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="darkgray">
+                        <strong>Margem do colaborador para:</strong>
+                      </Typography>
+                      <Grid container spacing={2} marginTop={1}>
+                        {nextDates.map((date, index) => (
+                          <Grid item xs={12} sm={3} key={index}>
+                            <Box
+                              sx={{
+                                backgroundColor: '#e0f7fa', // Cor de fundo da caixa
+                                padding: '10px',
+                                borderRadius: '8px',
+                                textAlign: 'center',
+                                border: '1px solid #bce7d84e', // Borda da caixa
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Typography variant="body2">
+                                <strong>{`${getMonthName(date.month)}/${date.year}`}</strong>
+                              </Typography>
+                              <Typography variant="h6" color="primary">
+                                {margemDisponivel !== null ? `R$ ${margemDisponivel}` : 'R$ 0,00'}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Box>
                 {/*divisor*/}
                 <>
                   <Box marginTop={2}>
                     <Divider />
                   </Box>
 
-                    
+
+
+
+
                   <Grid container spacing={0} marginTop={4} alignItems="center">
                     <Typography variant="h6" gutterBottom>
                       Novas Contratações
@@ -738,44 +774,46 @@ return months[month - 1];
 
                   </Grid>
                   <Box
-  sx={{
-    backgroundColor: 'white',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-    borderRadius: 2,
-    padding: 2,
-    width: '100%',
-    marginTop: 2,
-  }}
->
-  <Box>
-    <Typography variant="h6" gutterBottom>
-      <Divider textAlign="left">Averbações</Divider>
-    </Typography>
-  </Box>
+                    sx={{
+                      backgroundColor: 'white',
+                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                      borderRadius: 2,
+                      padding: 2,
+                      width: '100%',
+                      marginTop: 2,
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="h6" gutterBottom>
+                        <Divider textAlign="left">Averbações</Divider>
+                      </Typography>
+                    </Box>
 
-  <Grid container spacing={2} marginTop={1} marginBottom={4}>
-    <Grid item xs={6}>
-      <Button
-        variant="contained"
-        fullWidth
-        startIcon={<AttachMoney />}
-        sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-      >
-        Empréstimo
-      </Button>
-    </Grid>
-    <Grid item xs={6}>
-      <Button
-        variant="contained"
-        fullWidth
-        startIcon={<CreditCard />}
-        sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-      >
-        Refinanciamento
-      </Button>
-    </Grid>
-  </Grid>
-</Box>
+                    <Grid container spacing={2} marginTop={1} marginBottom={4}>
+                      <Grid item xs={6}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          startIcon={<AttachMoney />}
+                          sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
+                          onClick={handleEmprestimoAverbacoesClick}
+                        >
+                          Empréstimo
+                        </Button>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          startIcon={<CreditCard />}
+                          sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
+                          onClick={handleRefinanciamentoAverbacoesClick}
+                        >
+                          Refinanciamento
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Box>
 
                 </>
 
@@ -789,64 +827,68 @@ return months[month - 1];
 
                   </Grid>
                   <Box
-  sx={{
-    backgroundColor: 'white',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-    borderRadius: 2,
-    padding: 2,
-    width: '100%',
-    marginTop: 2,
-  }}
->
-  <Box>
-    <Typography variant="h6" gutterBottom>
-      <Divider textAlign="left">Reservas</Divider>
-    </Typography>
-  </Box>
-  
-  <Grid container spacing={2} marginTop={1} marginBottom={4}>
-    <Grid item xs={3}>
-      <Button
-        variant="contained"
-        fullWidth
-        startIcon={<AttachMoney />}
-        sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52', color: '#ebebeb' }}
-      >
-        Empréstimo
-      </Button>
-    </Grid>
-    <Grid item xs={3}>
-      <Button
-        variant="contained"
-        fullWidth
-        startIcon={<CreditCard />}
-        sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-      >
-        Refinanciamento
-      </Button>
-    </Grid>
-    <Grid item xs={3}>
-      <Button
-        variant="contained"
-        fullWidth
-        startIcon={<AccountBalanceWalletRoundedIcon />}
-        sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-      >
-        Composta
-      </Button>
-    </Grid>
-    <Grid item xs={3}>
-      <Button
-        variant="contained"
-        fullWidth
-        startIcon={<ControlPointDuplicateIcon />}
-        sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-      >
-        Portabilidade
-      </Button>
-    </Grid>
-  </Grid>
-</Box>
+                    sx={{
+                      backgroundColor: 'white',
+                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                      borderRadius: 2,
+                      padding: 2,
+                      width: '100%',
+                      marginTop: 2,
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="h6" gutterBottom>
+                        <Divider textAlign="left">Reservas</Divider>
+                      </Typography>
+
+                      <Grid container spacing={2} marginTop={1} marginBottom={4}>
+                        <Grid item xs={3}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<AttachMoney />}
+                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52', color: '#ebebeb' }}
+                            onClick={handleEmpréstimoReservasClick} // Adiciona o handler de clique
+                          >
+                            Empréstimo
+                          </Button>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<CreditCard />}
+                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
+                            onClick={handleRefinanciamentoReservasClick}
+                          >
+                            Refinanciamento
+                          </Button>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<AccountBalanceWalletRoundedIcon />}
+                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
+                            onClick={handleCompostaReservasClick}
+                          >
+                            Composta
+                          </Button>
+                        </Grid>
+                        <Grid item xs={3}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<ControlPointDuplicateIcon />}
+                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
+                            onClick={handlePortabilidadeReservasClick}
+                          >
+                            Portabilidade
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </Box>
 
                 </>
 
@@ -861,99 +903,99 @@ return months[month - 1];
 
                 {/*table*/}
                 <Box
-      sx={{
-        backgroundColor: 'white',
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-        borderRadius: 2,
-        padding: 2,
-        width: '100%',
-        marginTop: 2,
-      }}
-    >
-      <Grid container spacing={2} alignItems="center">
-        <Paper sx={{ width: '100%' }}>
-          <TableContainer sx={{ maxHeight: 500 }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      backgroundColor: '#0D7B52', // Cor verde do projeto
-                      color: 'white', // Cor da fonte para branco
-                      borderRadius: 20,
-                      textAlign: 'center',
-                      fontSize: '1.5rem', // Aumenta o tamanho da fonte
-                    }}
-                  >
-                    Contratos
-                  </TableCell>
-                  <TableCell colSpan={12}></TableCell>
-                </TableRow>
-                <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align}
-                      sx={{
-                        backgroundColor: '#0D7B52', // Cor verde do projeto
-                        color: 'white', // Cor da fonte para branco
-                        minWidth: column.minWidth,
-                        borderRight: '1px solid rgba(255, 255, 255, 0.5)', // Divisor entre colunas
-                        textAlign: 'center', // Alinhamento do texto
-                        '&:last-child': {
-                          borderRight: 'none', // Remove divisor da última coluna
-                        },
-                      }}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                      {columns.map((column) => {
-                        const value = row[column.id];
-                        return (
-                          <TableCell
-                            key={column.id}
-                            align={column.align}
-                            sx={{
-                              borderRight: '1px solid rgba(0, 0, 0, 0.12)', // Divisor entre colunas
-                              textAlign: 'center', // Alinhamento do texto
-                              '&:last-child': {
-                                borderRight: 'none', // Remove divisor da última coluna
-                              },
-                            }}
-                          >
-                            {column.format === 'date'
-                              ? formatDate(value)
-                              : column.format === 'currency'
-                              ? formatCurrency(value)
-                              : value}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Grid>
-    </Box>
+                  sx={{
+                    backgroundColor: 'white',
+                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                    borderRadius: 2,
+                    padding: 2,
+                    width: '100%',
+                    marginTop: 2,
+                  }}
+                >
+                  <Grid container spacing={2} alignItems="center">
+                    <Paper sx={{ width: '100%' }}>
+                      <TableContainer sx={{ maxHeight: 500 }}>
+                        <Table stickyHeader aria-label="sticky table">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell
+                                sx={{
+                                  backgroundColor: '#0D7B52', // Cor verde do projeto
+                                  color: 'white', // Cor da fonte para branco
+                                  borderRadius: 20,
+                                  textAlign: 'center',
+                                  fontSize: '1.5rem', // Aumenta o tamanho da fonte
+                                }}
+                              >
+                                Contratos
+                              </TableCell>
+                              <TableCell colSpan={12}></TableCell>
+                            </TableRow>
+                            <TableRow>
+                              {columns.map((column) => (
+                                <TableCell
+                                  key={column.id}
+                                  align={column.align}
+                                  sx={{
+                                    backgroundColor: '#0D7B52', // Cor verde do projeto
+                                    color: 'white', // Cor da fonte para branco
+                                    minWidth: column.minWidth,
+                                    borderRight: '1px solid rgba(255, 255, 255, 0.5)', // Divisor entre colunas
+                                    textAlign: 'center', // Alinhamento do texto
+                                    '&:last-child': {
+                                      borderRight: 'none', // Remove divisor da última coluna
+                                    },
+                                  }}
+                                >
+                                  {column.label}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {rows
+                              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                              .map((row) => (
+                                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                                  {columns.map((column) => {
+                                    const value = row[column.id];
+                                    return (
+                                      <TableCell
+                                        key={column.id}
+                                        align={column.align}
+                                        sx={{
+                                          borderRight: '1px solid rgba(0, 0, 0, 0.12)', // Divisor entre colunas
+                                          textAlign: 'center', // Alinhamento do texto
+                                          '&:last-child': {
+                                            borderRight: 'none', // Remove divisor da última coluna
+                                          },
+                                        }}
+                                      >
+                                        {column.format === 'date'
+                                          ? formatDate(value)
+                                          : column.format === 'currency'
+                                            ? formatCurrency(value)
+                                            : value}
+                                      </TableCell>
+                                    );
+                                  })}
+                                </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <TablePagination
+                        rowsPerPageOptions={[10, 25, 100]}
+                        component="div"
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                      />
+                    </Paper>
+                  </Grid>
+                </Box>
 
 
 

@@ -104,7 +104,7 @@ export const deleteServidor = async (matricula: string) => {
   }
 };
 
-// Função para criar uma nova consulta de margem na API local
+// Função para criar uma nova consulta de margem na API local 
 export const createConsultaMargem = async (servidorId: number, consignatariaId: number) => {
   try {
     const response = await localApi.post('/consultas-margem-athenas/', {

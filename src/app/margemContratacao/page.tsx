@@ -71,30 +71,31 @@ const MargemContratacao = () => {
   // Funções para redirecionar para as páginas específicas
 
   //rotas das reservas
-  const handleEmpréstimoReservasClick = () => {
-    router.push('/margemContratacao/reservas/emprestimoReservas');
+  const handleEmprestimoReservasClick = () => {
+    router.push('margemContratacao/emprestimoReservas');
   };
 
   const handleRefinanciamentoReservasClick = () => {
-    router.push('/margemContratacao/reservas/refinanciamentomentoReservas');
+    router.push('/margemContratacao/refinanciamentoReservas'); 
   };
 
   const handleCompostaReservasClick = () => {
-    router.push('/margemContratacao/reservas/compostaReservas');
+    router.push('/margemContratacao/compostaReservas');
   };
 
   const handlePortabilidadeReservasClick = () => {
-    router.push('/margemContratacao/reservas/portabilidadeReservas');
+    router.push('/margemContratacao/portabilidadeReservas');
   };
 
   //rotas das averbações
 
   const handleRefinanciamentoAverbacoesClick = () => {
-    router.push('/margemContratacao/averbacoes/refinanciamentoAverbacoes');
-  }
+    router.push('/margemContratacao/refinanciamentoAverbacoes');
+  };
+
   const handleEmprestimoAverbacoesClick = () => {
-    router.push('/margemContratacao/averbacoes/emprestimoAverbacoes');
-  }
+    router.push('/margemContratacao/emprestimoAverbacoes');
+  };
 
 
 
@@ -848,7 +849,7 @@ const MargemContratacao = () => {
                             fullWidth
                             startIcon={<AttachMoney />}
                             sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52', color: '#ebebeb' }}
-                            onClick={handleEmpréstimoReservasClick} // Adiciona o handler de clique
+                            onClick={handleEmprestimoReservasClick} // Adiciona o handler de clique
                           >
                             Empréstimo
                           </Button>

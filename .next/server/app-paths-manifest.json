@@ -1,3 +1,6 @@
 {
-  "/margemContratacao/emprestimoReservas/page": "app/margemContratacao/emprestimoReservas/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/Home/page": "app/Home/page.js",
+  "/margemContratacao/page": "app/margemContratacao/page.js",
+  "/margemContratacao/emprestimoAverbacoes/page": "app/margemContratacao/emprestimoAverbacoes/page.js"
 }

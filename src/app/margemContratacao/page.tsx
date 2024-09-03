@@ -99,6 +99,18 @@ const MargemContratacao = () => {
 
 
 
+// Função para lidar com a navegação e envio de dados
+// const handleNavigateToStepper = () => {
+//   router.push({
+//     pathname: '/home',
+//     query: {
+//       matricula,
+//       cpf,
+//       nome,
+//       margemDisponivel: margemDisponivel?.toString(),
+//       margemTotal: margemTotal?.toString(),
+//     }
+//   });
 
   //constantes para  calcular valores do colaborador para proximos meses anos
   const [selectedMonthYear, setSelectedMonthYear] = useState({

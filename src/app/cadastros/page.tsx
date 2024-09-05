@@ -148,6 +148,10 @@ const CadastroForm: React.FC = () => {
   };
 
   return (
+    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2', }}>
+    <CustomizedList />
+    <FloatingSearchButton />
+    <CookiesBanner />
     <Box sx={{ padding: 2, backgroundColor: '#E0F2F1', minHeight: '100vh' }}>
       <LogoWrapper>
         <img src="/dpe-logo.png" alt="Logo da Defensoria" style={{ maxWidth: '150px' }} />
@@ -155,8 +159,9 @@ const CadastroForm: React.FC = () => {
           Sistema de Consignado da Defensoria Pública de Rondônia
         </Typography>
       </LogoWrapper>
+      
       <WhiteBox>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6"   gutterBottom >
           Cadastro
         </Typography>
         <form onSubmit={handleSubmit}>
@@ -268,7 +273,9 @@ const CadastroForm: React.FC = () => {
         </form>
       </WhiteBox>
     </Box>
+    </Box>
   );
+  
 };
 
 export default CadastroForm;

@@ -4,16 +4,20 @@ import { Box, Button, Container, Grid, Paper, Step, StepLabel, Stepper, TextFiel
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';  // Ícone de correto
 import { jsPDF } from "jspdf";  // Importa jsPDF para criação do PDF
 
-const HomePage: React.FC = () => {
+dayjs.locale('pt-br');
+const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
+
+const NovoEmprestimo: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const steps = ['Informações do Contrato', 'Confirmação', 'Finalização'];
 
+  
   const [formData, setFormData] = useState({
     matricula: '',
     cpf: '',
     nome: '',
-    margemDisponivel: 'R$ 500,00',
-    margemTotal: 'R$ 1000,00',
+    margemDisponivel : 'R$ ',
+    margemTotal: 'R$ ',
     numeroContrato: '',
     vencimentoParcela: '',
     folhaDesconto: '',
@@ -37,29 +41,29 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     // Simulando uma chamada de API para preencher os dados
     const fetchData = async () => {
-      // Exemplo de dados de uma API
+      // Trazer dados da api
       const data = {
-        matricula: '123456',
-        cpf: '123.456.789-00',
-        nome: 'Fulano de Tal',
-        margemDisponivel: 'R$ 600,00',
-        margemTotal: 'R$ 1200,00',
-        numeroContrato: '987654',
-        vencimentoParcela: '01/01/2025',
-        folhaDesconto: 'Janeiro/2025',
-        totalFinanciado: 'R$ 15.000,00',
-        liquidoLiberado: 'R$ 14.500,00',
-        liberacaoCredito: '15/12/2024',
-        cet: '5%',
-        observacoes: 'Nenhuma observação',
-        quantidadeParcelas: '36',
-        valorParcelas: 'R$ 500,00',
-        jurosMensal: '1,5%',
-        valorIof: 'R$ 100,00',
-        carenciaDias: '30',
-        valorCarencia: 'R$ 50,00',
-        vinculo: 'Empregado',
-        situacao: 'Ativo',
+        matricula: ' ',
+        cpf: ' ',
+        nome: ' ',
+        margemDisponivel: 'R$  ',
+        margemTotal: 'R$  ',
+        numeroContrato: ' ',
+        vencimentoParcela: ' ',
+        folhaDesconto: 'mes/ano',
+        totalFinanciado: 'R$  ',
+        liquidoLiberado: 'R$  ',
+        liberacaoCredito: ' ',
+        cet: ' %',
+        observacoes: 'Digite aqui as observações',
+        quantidadeParcelas: ' ',
+        valorParcelas: ' ',
+        jurosMensal: ' ',
+        valorIof: 'R$  ',
+        carenciaDias: ' ',
+        valorCarencia: 'R$  ',
+        vinculo: ' ',
+        situacao: ' ',
         margemAntes: 'R$ 00,00',
         margemApos: 'R$ 00,00'
       };
@@ -80,8 +84,21 @@ const HomePage: React.FC = () => {
 
   const handlePrintPDF = () => {
     const doc = new jsPDF();
-    doc.text("PDF gerado com nextjs-pdf", 10, 10);
+    doc.text("Dados do Colaborador", 10, 10);
+    doc.text("Nome:",10, 10);
+    doc.text("Matrícula:",10, 10);
+    doc.text("CPF:",10, 10);
+    doc.text("Vínculo:",10, 10)
+    doc.text("Situação:",10, 10)
+    doc.text("Dados do Contrato", 10, 10);
+    doc.text("Valor líquido liberado::",10, 10)
+    doc.text("Folha 1º Desconto::",10, 10)
+    doc.text("Quantidade de parcelas::",10, 10)
+    doc.text("Valor da(s) parcela(s):",10, 10)
+    doc.text("Data 1ª parcela::",10, 10)
+
     doc.save('documento.pdf');
+    
   };
 
   const handleClose = () => {
@@ -89,21 +106,19 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <Box 
-      sx={{ 
-        minHeight: '100vh', 
-        backgroundColor: '#e0f7e9',  // Fundo verde claro
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <Container maxWidth="sm">
-        <Typography variant="h6" gutterBottom>
+    <Box sx={{ display: 'flex'  ,backgroundColor: '#F2F2F2'}}>
+    <CustomizedList />
+    <FloatingSearchButton />
+    <CookiesBanner />
+
+    <Box sx={{ flexGrow: 2,   backgroundColor: '#F2F2F2'}}>
+        <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem' , padding: 3 }}>
           Nova Reserva de Empréstimo
         </Typography>
-        <Paper elevation={3} sx={{ padding: 2, borderRadius: 2, marginBottom: 2 }}>
+
+       
+{/*inicio do papre */}
+        <Paper elevation={3} sx={{ padding: 10, borderRadius: 2, marginBottom: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
             Informações do Cliente
           </Typography>
@@ -137,7 +152,9 @@ const HomePage: React.FC = () => {
             </Grid>
           </Grid>
         </Paper>
+          {/*i fim do papre */}
 
+          
         {/* Seção para Margem Disponível e Margem Total */}
         <Grid container spacing={2} sx={{ marginBottom: 2 }}>
           <Grid item xs={12} sm={6}>
@@ -153,10 +170,9 @@ const HomePage: React.FC = () => {
             </Paper>
           </Grid>
         </Grid>
-      </Container>
-
-      {/* Stepper */}
-      <Container maxWidth="md" sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, padding: 3, marginTop: 4 }}>
+      </Box>
+      {/* Inicio do Stepper */}
+      <Container maxWidth="md" sx={{  backgroundColor: '#F2F2F2', borderRadius: 2, padding: 10 }}>
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label) => (
             <Step key={label}>
@@ -178,7 +194,7 @@ const HomePage: React.FC = () => {
               sx={{ 
                 fontSize: 80, 
                 color: 'green', 
-                animation: 'bounce 1s infinite'
+                animation: 'bounce 15s infinite'
               }} 
             />
             <Typography variant="h4" sx={{ color: 'darkgreen', mt: 2 }}>
@@ -203,7 +219,7 @@ const HomePage: React.FC = () => {
                 color="primary"
                 onClick={handleClose}
               >
-                ENCERRAR >
+                ENCERRAR 
               </Button>
             </Box>
           </Box>
@@ -341,8 +357,10 @@ const HomePage: React.FC = () => {
           </>
         )}
       </Container>
-    </Box>
+    
+
+</Box>
   );
 };
 
-export default HomePage;
+export default NovoEmprestimo;

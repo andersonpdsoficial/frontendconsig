@@ -1,6 +1,6 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/Home/page": "app/Home/page.js",
+  "/aprovacaoDeContratos/page": "app/aprovacaoDeContratos/page.js",
   "/margemContratacao/page": "app/margemContratacao/page.js",
-  "/margemContratacao/emprestimoAverbacoes/page": "app/margemContratacao/emprestimoAverbacoes/page.js"
+  "/visaoGeral/page": "app/visaoGeral/page.js"
 }

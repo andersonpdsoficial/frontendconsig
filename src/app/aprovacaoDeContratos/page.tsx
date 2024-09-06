@@ -20,7 +20,7 @@ import {
   Tooltip,
   Grid
 } from '@mui/material';
-import { ArrowCircleUp, ExpandMore, ExpandLess, Search } from '@mui/icons-material';
+import { ArrowCircleUp, ExpandMore, ExpandLess, Search, SyncRounded } from '@mui/icons-material';
 import { format as formatDate } from 'date-fns';
 import { jsPDF } from 'jspdf';
 import * as xmlBuilder from 'xmlbuilder';
@@ -163,7 +163,7 @@ export default function VisaoGeral() {
 
   return (
     <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2', height: '100vh' }}>
-      <Box sx={{ width: 240, backgroundColor: '#FFFFFF', padding: '0px', borderRight: '1px solid #E0E0E0' }}>
+      <Box sx={{ width: 240, backgroundColor: '#0D7B52', padding: '0px', borderRight: '1px solid #311414' }}>
         <CustomizedList />
         <FloatingSearchButton />
         <CookiesBanner />
@@ -196,7 +196,7 @@ export default function VisaoGeral() {
               variant="contained"
               color="primary"
               onClick={handleExportClick}
-              sx={{ marginLeft: '10px' }}
+              sx={{ marginLeft: '10px', backgroundColor: '#0D7B52' }}
             >
               {isExportMenuOpen ? <ExpandLess /> : <ExpandMore />}
               EXPORTAÇÃO
@@ -204,10 +204,10 @@ export default function VisaoGeral() {
             <Button
               variant="contained"
               color="primary"
-              sx={{ marginLeft: '10px' }}
+              sx={{ marginLeft: '10px', backgroundColor: '#0D7B52' }}
               onClick={handleUpdate}
             >
-              <ArrowCircleUp />
+              <SyncRounded />
               ATUALIZAR
             </Button>
           </Grid>
@@ -221,7 +221,7 @@ export default function VisaoGeral() {
                   <TableCell
                     key={column.id}
                     sortDirection={orderBy === column.id ? order : false}
-                    sx={{ backgroundColor: 'green', color: 'white' }}
+                    sx={{ backgroundColor: '#0D7B52', color: 'white' }}
                   >
                     {column.id === 'select' ? (
                       <input

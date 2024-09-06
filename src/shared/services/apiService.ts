@@ -1,4 +1,4 @@
-'use client'
+
 
 import axios from 'axios';
 
@@ -44,17 +44,17 @@ export const fetchConsignatariaFromLocalApi = async () =>{
   }
 }
 
-//Função para buscar a margem  disponivel do servidor no athenas
-export const fetchValorMargemServidorFromLocalApi = async (consultaMargemAthenas: number)=>{
-  try{
-    const response = await localApi.get(`/consultas-margem-athenas/`)
-    return response.data;
+// //Função para buscar a margem  disponivel do servidor no athenas
+// export const fetchValorMargemServidorFromLocalApi = async (consultaMargemAthenas: number)=>{
+//   try{
+//     const response = await localApi.get(`/consultas-margem-athenas/`)
+//     return response.data;
 
-   } catch (error){
-    console.log('Erro ao Consultar Margem do Servidor', error);
-    throw error;
-   }
-}
+//    } catch (error){
+//     console.log('Erro ao Consultar Margem do Servidor', error);
+//     throw error;
+//    }
+// }
 
 
 
@@ -104,12 +104,12 @@ export const deleteServidor = async (matricula: string) => {
   }
 };
 
-// Função para criar uma nova consulta de margem na API local 
-export const createConsultaMargem = async (servidorId: number, consignatariaId: number) => {
+//Função para criar uma nova consulta de margem na API local
+export const createConsultaMargem = async (id_servidor: number, id_consignataria: number) => {
   try {
     const response = await localApi.post('/consultas-margem-athenas/', {
-      servidor: servidorId,
-      consignataria: consignatariaId
+      servidor: id_servidor,
+      consignataria: id_consignataria
     });
     return response.data;
   } catch (error) {
@@ -120,15 +120,47 @@ export const createConsultaMargem = async (servidorId: number, consignatariaId: 
 
 
 // Função para buscar a margem disponível do servidor na API local
-export const createConsultaMargem = async (servidorId: number, consignatariaId: number) => {
+export const fetchMargemServidor = async (matricula: number, id_consignataria: number) => {
   try {
     const response = await localApi.post('', {
-      servidor: servidorId,
-      consignataria: consignatariaId
+      servidor: matricula,
+      consignataria: id_consignataria
     });
     return response.data;
   } catch (error) {
     console.error('Erro ao criar consulta de margem:', error);
+    throw error;
+  }
+};
+
+
+
+//Função para criar uma nova reseerva na api local 300130571
+export const fetchreRervaFromLocalApi = async (reservaData: {
+
+  valor: number;
+  prazoInicial?: string;
+  prazoFinal?: string;
+  prazoInicialEmData?: string;
+  prazoFinalEmHora?: string;
+  situcao: string;
+  contrato: number;
+  contsulta?: string; 
+  cadastradoPor?: string;
+  modificadoPor?: string;
+  desativadoPor?: string;
+  desativadoEmData?: string;
+  desativadoEmHora?: string;
+}) => {
+  try {
+    const response = await localApi.post('/reservas/', reservaData, {
+      headers: {
+        'Authorization': `Bearer ${LOCAL_API_TOKEN}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar Reserva  na API local:', error);
     throw error;
   }
 };

@@ -5,6 +5,9 @@ import { styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ClearIcon from '@mui/icons-material/Clear';
 import { createServidor, deleteServidor } from '../../shared/services/apiService'; // Importe a função deleteServidor
+import CustomizedList from '../../shared/components/menu-lateral/Demo';
+import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
+import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
 
 const CustomButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#0D7B52',

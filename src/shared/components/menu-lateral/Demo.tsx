@@ -17,12 +17,9 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
-  ArrowRight,
-  KeyboardArrowDown,
-  ExpandLess,
+   ExpandLess,
   ExpandMore,
   Home,
-  Settings,
   PriceChange as PriceChangeIcon,
   CreateNewFolder as CreateNewFolderIcon,
   QueryStats as QueryStatsIcon,
@@ -53,6 +50,7 @@ const FireNav = styled(List)<{ component?: React.ElementType }>({
 export default function CustomizedList() {
   const [open, setOpen] = useState(true);
   const [movimentosOpen, setMovimentosOpen] = useState(false);
+  const [importacaoOpen, setImportacaoOpen] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -65,21 +63,34 @@ export default function CustomizedList() {
     setMovimentosOpen(!movimentosOpen);
   };
 
+  const handleImportacaoToggle = () => {
+    setImportacaoOpen(!importacaoOpen);
+  };
+
   const data = [
     { icon: <CreateNewFolderIcon />, label: 'Cadastros', href: '/cadastros' },
     {
       icon: <QueryStatsIcon />,
       label: 'Movimentos',
-      href: '/movimentos',
+      href: ' ',
       hasSubmenu: true,
       submenu: [
-        { label: 'Liberar Margem', href: '/liberarMargem' },
-        { label: 'Situação Funcional', href: '/situacaoFuncional' },
-        { label: 'Decisão Judicial', href: '/decisaoJudicial' },
-        { label: 'Migração de Contratos', href: '/migracaoContratos' },
-        { label: 'Importação', href: '/importacao' },
-        { label: 'Exportação', href: '/exportacao' },
-        { label: 'Consignado Mensal', href: '/consignadoMensal' },
+        { label: 'Liberar Margem', href: '/movimentos/liberarMargem' },
+        { label: 'Situação Funcional', href: '/movimentos/situacaoFuncional' },
+        { label: 'Decisão Judicial', href: '/movimentos/decisaoJudicial' },
+        { label: 'Migração de Contratos', href: '/movimentos/migracaoDeContrato' },
+        {
+          icon: <QueryStatsIcon />,
+          label: 'Importação',
+          href: ' ',
+          hasSubmenu: true,
+          submenu: [
+            { label: 'Arquivo de Margem', href: '/movimentos/importacao/arquivoDeMargem' },
+            { label: 'Conferência Fechamento', href: '/movimentos/importacao/conferenciaFechamento' },
+            { label: 'Rendimentos e Capital', href: '/movimentos/importacao/rendimentosEcapital' },
+          ],
+        },
+        { label: 'Exportação', href: '/movimentos/exportacao' },
       ],
     },
     { icon: <PriceChangeIcon />, label: 'Margem / Contratação', href: '/margemContratacao' },
@@ -94,21 +105,23 @@ export default function CustomizedList() {
   return (
     <Box sx={{ display: 'flex', position: 'relative' }}>
       <Drawer
-        variant={isMobile ? 'temporary' : 'permanent'}
-        open={true}
+        variant={isMobile || !open ? 'temporary' : 'permanent'}
+        open={open}
         onClose={handleMenuToggle}
         sx={{
-          width: 275,
+          width: open ? 275 : 0,
+          transition: 'width 0.3s',
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: 275,
+            width: open ? 275 : 0,
             boxSizing: 'border-box',
+            transition: 'width 0.3s',
           },
         }}
       >
         <Paper elevation={0} sx={{ width: 275, bgcolor: '#0D7B52', height: '100%' }}>
           <FireNav component="nav" disablePadding>
-            <ListItemButton component="a" href="/">
+            <ListItemButton component="a" href="/visaoGeral">
               <img src="/dpe-logo.png" alt="Logo" width={60} height={60} />
               <ListItemText
                 sx={{ my: 3 }}
@@ -117,7 +130,7 @@ export default function CustomizedList() {
                   fontSize: 24,
                   fontWeight: 'Bold',
                   letterSpacing: 0,
-                  color: 'white'
+                  color: 'white',
                 }}
               />
             </ListItemButton>
@@ -125,7 +138,7 @@ export default function CustomizedList() {
             <ListItem component="div" disablePadding>
               <ListItemButton sx={{ height: 56 }} href="/visaoGeral">
                 <ListItemIcon>
-                  <Home color='#ffffff'/>
+                  <Home color="#ffffff" />
                 </ListItemIcon>
                 <ListItemText
                   primary="Visão Geral"
@@ -133,7 +146,7 @@ export default function CustomizedList() {
                     color: '#fafafa',
                     fontWeight: 'medium',
                     variant: 'body1',
-                    alignItems: 'center'
+                    alignItems: 'center',
                   }}
                 />
               </ListItemButton>
@@ -175,6 +188,7 @@ export default function CustomizedList() {
                 />
                 {open ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
+
               {open &&
                 data.map((item) => (
                   <React.Fragment key={item.label}>
@@ -184,53 +198,71 @@ export default function CustomizedList() {
                       sx={{ py: 0, minHeight: 65, color: 'rgba(255, 255, 255, 0.842)' }}
                       onClick={item.label === 'Movimentos' ? handleMovimentosToggle : undefined}
                     >
-                      <ListItemIcon sx={{ color: 'inherit' }}>
-                        {item.icon}
-                      </ListItemIcon>
+                      <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
                       <ListItemText
                         primary={item.label}
                         primaryTypographyProps={{ fontSize: 16, fontWeight: 'medium' }}
                       />
                       {item.hasSubmenu && (movimentosOpen ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
+
                     {item.hasSubmenu && movimentosOpen && (
                       <Box sx={{ pl: 4 }}>
                         {item.submenu?.map((subItem) => (
-                          <ListItemButton
-                            key={subItem.label}
-                            component={Link}
-                            href={subItem.href}
-                            sx={{ py: 1, minHeight: 40, color: 'rgba(255, 255, 255, 0.842)' }}
-                          >
-                            <ListItemText
-                              primary={subItem.label}
-                              primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
-                            />
-                          </ListItemButton>
+                          <React.Fragment key={subItem.label}>
+                            <ListItemButton
+                              onClick={subItem.label === 'Importação' ? handleImportacaoToggle : undefined}
+                              sx={{ py: 1, minHeight: 40, color: 'rgba(255, 255, 255, 0.842)' }}
+                            >
+                              <ListItemText
+                                primary={subItem.label}
+                                primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
+                              />
+                              {subItem.hasSubmenu && (importacaoOpen ? <ExpandLess /> : <ExpandMore />)}
+                            </ListItemButton>
+
+                            {subItem.hasSubmenu && importacaoOpen && (
+                              <Box sx={{ pl: 4 }}>
+                                {subItem.submenu?.map((importSubItem) => (
+                                  <ListItemButton
+                                    key={importSubItem.label}
+                                    component={Link}
+                                    href={importSubItem.href}
+                                    sx={{ py: 1, minHeight: 40, color: 'rgba(255, 255, 255, 0.842)' }}
+                                  >
+                                    <ListItemText
+                                      primary={importSubItem.label}
+                                      primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
+                                    />
+                                  </ListItemButton>
+                                ))}
+                              </Box>
+                            )}
+                          </React.Fragment>
                         ))}
                       </Box>
                     )}
                   </React.Fragment>
-                )}
+                ))}
             </Box>
           </FireNav>
         </Paper>
       </Drawer>
-      {isMobile && (
-        <IconButton
-          sx={{
-            position: 'fixed',
-            top: 16,
-            left: 16,
-            zIndex: 1200,
-            backgroundColor: '#0D7B52',
-            color: 'white',
-          }}
-          onClick={handleMenuToggle}
-        >
-          <MenuIcon />
-        </IconButton>
-      )}
+
+      {/* Ícone de Menu Hambúrguer */}
+      <IconButton
+        sx={{
+          position: 'fixed',
+          top: 16,
+          left: 16,
+          zIndex: 1200,
+          backgroundColor: '#0D7B52',
+          color: 'white',
+        }}
+        onClick={handleMenuToggle}
+      >
+        <MenuIcon />
+      </IconButton>
     </Box>
   );
 }

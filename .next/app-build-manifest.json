@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/aprovacaoDeContratos/page": [
+    "/visaoGeral/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/aprovacaoDeContratos/page.js"
+      "static/chunks/app/visaoGeral/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,10 +11,40 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/visaoGeral/page": [
+    "/cadastros/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/visaoGeral/page.js"
+      "static/chunks/app/cadastros/page.js"
+    ],
+    "/margemContratacao/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/margemContratacao/page.js"
+    ],
+    "/movimentos/importacao/arquivoDeMargem/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/movimentos/importacao/arquivoDeMargem/page.js"
+    ],
+    "/movimentos/importacao/conferenciaFechamento/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/movimentos/importacao/conferenciaFechamento/page.js"
+    ],
+    "/aprovacaoDeContratos/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/aprovacaoDeContratos/page.js"
+    ],
+    "/outrasConsignacoesCatoes/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/outrasConsignacoesCatoes/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

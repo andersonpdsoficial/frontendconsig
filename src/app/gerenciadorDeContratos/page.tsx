@@ -3,11 +3,12 @@
 
 import React from 'react';
 import { Box, Button, StyledEngineProvider, Typography } from '@mui/material';
+import FloatingSearchButton from '../../shared/components/buttons/FloatingSearchButton';
+import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
+import CustomizedList from '../../shared/components/menu-lateral/Demo';
 
 
-import FloatingSearchButton from '@/shared/components/buttons/FloatingSearchButton';
-import CookiesBanner from '@/shared/components/cookiesBanner/CookiesBanner';
-import CustomizedList from '@/shared/components/menu-lateral/Demo';
+
 
 
 export default function visaoGeral() {

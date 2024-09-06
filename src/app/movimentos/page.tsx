@@ -2,9 +2,10 @@
 import {  Typography, Button, Grid, Box } from "@mui/material";
 import React from "react";
 import { useRouter } from 'next/navigation';
-import CustomizedList from "@/shared/components/menu-lateral/Demo";
-import FloatingSearchButton from "@/shared/components/buttons/FloatingSearchButton";
-import CookiesBanner from "@/shared/components/cookiesBanner/CookiesBanner";
+import CustomizedList from "../../shared/components/menu-lateral/Demo";
+import FloatingSearchButton from "../../shared/components/buttons/FloatingSearchButton";
+import CookiesBanner from "../../shared/components/cookiesBanner/CookiesBanner";
+
 
 
 const Movimentos: React.FC = () => {

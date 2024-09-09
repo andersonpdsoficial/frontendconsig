@@ -164,3 +164,30 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
     throw error;
   }
 };
+
+
+
+// Função para buscar a margem disponível do servidor na API local
+export const fetchMargemServidor = async (matricula: number, id_consignataria: number) => {
+  try {
+    // Realiza a consulta na API local
+    const response = await localApi.post('/consultas-margem-athenas/', {
+      servidor: matricula,
+      consignataria: id_consignataria
+    });
+
+    // Se o response contiver tanto os dados do servidor quanto da consignatária,
+    // podemos simplesmente retornar ambos juntos
+    const { margemDisponivel, servidor, consignataria } = response.data;
+
+    // Retorna os dados do servidor e da consignatária
+    return {
+      margemDisponivel,
+      servidor,
+      consignataria
+    };
+  } catch (error) {
+    console.error('Erro ao buscar margem do servidor na API local:', error);
+    throw error;
+  }
+};

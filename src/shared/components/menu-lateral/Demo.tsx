@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
-   ExpandLess,
+  ExpandLess,
   ExpandMore,
   Home,
   PriceChange as PriceChangeIcon,
@@ -30,6 +30,7 @@ import {
   HelpCenter as HelpCenterIcon,
   Info as InfoIcon,
   Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
@@ -37,10 +38,12 @@ const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
     paddingLeft: 24,
     paddingRight: 24,
+    transition: 'padding 0.3s ease',
   },
   '& .MuiListItemIcon-root': {
     minWidth: 0,
     marginRight: 16,
+    transition: 'margin 0.3s ease',
   },
   '& .MuiSvgIcon-root': {
     fontSize: 20,
@@ -72,17 +75,16 @@ export default function CustomizedList() {
     {
       icon: <QueryStatsIcon />,
       label: 'Movimentos',
-      href: ' ',
       hasSubmenu: true,
       submenu: [
         { label: 'Liberar Margem', href: '/movimentos/liberarMargem' },
         { label: 'Situação Funcional', href: '/movimentos/situacaoFuncional' },
         { label: 'Decisão Judicial', href: '/movimentos/decisaoJudicial' },
         { label: 'Migração de Contratos', href: '/movimentos/migracaoDeContrato' },
+        { label: 'Exportação', href: '/movimentos/exportacao' },
         {
           icon: <QueryStatsIcon />,
           label: 'Importação',
-          href: ' ',
           hasSubmenu: true,
           submenu: [
             { label: 'Arquivo de Margem', href: '/movimentos/importacao/arquivoDeMargem' },
@@ -90,7 +92,6 @@ export default function CustomizedList() {
             { label: 'Rendimentos e Capital', href: '/movimentos/importacao/rendimentosEcapital' },
           ],
         },
-        { label: 'Exportação', href: '/movimentos/exportacao' },
       ],
     },
     { icon: <PriceChangeIcon />, label: 'Margem / Contratação', href: '/margemContratacao' },
@@ -105,34 +106,36 @@ export default function CustomizedList() {
   return (
     <Box sx={{ display: 'flex', position: 'relative' }}>
       <Drawer
-        variant={isMobile || !open ? 'temporary' : 'permanent'}
+        variant={isMobile ? 'temporary' : 'permanent'}
         open={open}
         onClose={handleMenuToggle}
         sx={{
-          width: open ? 275 : 0,
-          transition: 'width 0.3s',
+          width: open ? 275 : 60,
+          transition: 'width 0.3s ease',
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: open ? 275 : 0,
+            width: open ? 275 : 60,
             boxSizing: 'border-box',
-            transition: 'width 0.3s',
+            transition: 'width 0.3s ease',
           },
         }}
       >
-        <Paper elevation={0} sx={{ width: 275, bgcolor: '#0D7B52', height: '100%' }}>
+        <Paper elevation={0} sx={{ width: open ? 275 : 60, bgcolor: '#0D7B52', height: '100%' }}>
           <FireNav component="nav" disablePadding>
             <ListItemButton component="a" href="/visaoGeral">
-              <img src="/dpe-logo.png" alt="Logo" width={60} height={60} />
-              <ListItemText
-                sx={{ my: 3 }}
-                primary="Sistema de Consignado"
-                primaryTypographyProps={{
-                  fontSize: 24,
-                  fontWeight: 'Bold',
-                  letterSpacing: 0,
-                  color: 'white',
-                }}
-              />
+              <img src="/dpe-logo.png" alt="Logo" width={open ? 60 : 40} height={open ? 60 : 40} />
+              {open && (
+                <ListItemText
+                  sx={{ my: 3 }}
+                  primary="Sistema de Consignado"
+                  primaryTypographyProps={{
+                    fontSize: 24,
+                    fontWeight: 'Bold',
+                    letterSpacing: 0,
+                    color: 'white',
+                  }}
+                />
+              )}
             </ListItemButton>
             <Divider />
             <ListItem component="div" disablePadding>
@@ -140,24 +143,21 @@ export default function CustomizedList() {
                 <ListItemIcon>
                   <Home color="#ffffff" />
                 </ListItemIcon>
-                <ListItemText
-                  primary="Visão Geral"
-                  primaryTypographyProps={{
-                    color: '#fafafa',
-                    fontWeight: 'medium',
-                    variant: 'body1',
-                    alignItems: 'center',
-                  }}
-                />
+                {open && (
+                  <ListItemText
+                    primary="Visão Geral"
+                    primaryTypographyProps={{
+                      color: '#fafafa',
+                      fontWeight: 'medium',
+                      variant: 'body1',
+                      alignItems: 'center',
+                    }}
+                  />
+                )}
               </ListItemButton>
             </ListItem>
             <Divider />
-            <Box
-              sx={{
-                bgcolor: open ? '#0D7B52' : null,
-                pb: open ? 2 : 0,
-              }}
-            >
+            <Box sx={{ bgcolor: open ? '#0D7B52' : null, pb: open ? 2 : 0 }}>
               <ListItemButton
                 alignItems="flex-start"
                 onClick={handleMenuToggle}
@@ -168,25 +168,11 @@ export default function CustomizedList() {
                   '&:hover, &:focus': { '& svg': { opacity: open ? 1 : 0 } },
                 }}
               >
-                <ListItemText
-                  primary="Serviços Disponíveis"
-                  primaryTypographyProps={{
-                    fontSize: 22,
-                    color: '#bce2d5',
-                    fontWeight: 'medium',
-                    lineHeight: '60px',
-                    mb: '10px',
-                  }}
-                  secondary="Cadastros, Movimentos, Margem / Contratação, Gerenciador de Contratos, Aprovação de Contratos, Outras Consignações / Catões, Relatório, Ajuda, Sobre"
-                  secondaryTypographyProps={{
-                    noWrap: true,
-                    fontSize: 13,
-                    lineHeight: '25px',
-                    color: open ? 'rgba(0,0,0,0)' : '#d5f1ddbc',
-                  }}
-                  sx={{ my: 0 }}
-                />
-                {open ? <ExpandLess /> : <ExpandMore />}
+                {open ? (
+                  <ChevronLeftIcon sx={{ color: 'white' }} />
+                ) : (
+                  <MenuIcon sx={{ color: 'white' }} />
+                )}
               </ListItemButton>
 
               {open &&
@@ -194,15 +180,17 @@ export default function CustomizedList() {
                   <React.Fragment key={item.label}>
                     <ListItemButton
                       component={Link}
-                      href={item.href}
+                      href={item.href ? item.href : '#'}
                       sx={{ py: 0, minHeight: 65, color: 'rgba(255, 255, 255, 0.842)' }}
                       onClick={item.label === 'Movimentos' ? handleMovimentosToggle : undefined}
                     >
                       <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
-                      <ListItemText
-                        primary={item.label}
-                        primaryTypographyProps={{ fontSize: 16, fontWeight: 'medium' }}
-                      />
+                      {open && (
+                        <ListItemText
+                          primary={item.label}
+                          primaryTypographyProps={{ fontSize: 16, fontWeight: 'medium' }}
+                        />
+                      )}
                       {item.hasSubmenu && (movimentosOpen ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
 
@@ -248,21 +236,6 @@ export default function CustomizedList() {
           </FireNav>
         </Paper>
       </Drawer>
-
-      {/* Ícone de Menu Hambúrguer */}
-      <IconButton
-        sx={{
-          position: 'fixed',
-          top: 16,
-          left: 16,
-          zIndex: 1200,
-          backgroundColor: '#0D7B52',
-          color: 'white',
-        }}
-        onClick={handleMenuToggle}
-      >
-        <MenuIcon />
-      </IconButton>
     </Box>
   );
 }

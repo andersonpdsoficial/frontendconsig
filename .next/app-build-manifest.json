@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/visaoGeral/page": [
+    "/movimentos/importacao/conferenciaFechamento/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/visaoGeral/page.js"
+      "static/chunks/app/movimentos/importacao/conferenciaFechamento/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -21,30 +21,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/margemContratacao/page.js"
     ],
-    "/movimentos/importacao/arquivoDeMargem/page": [
+    "/margemContratacao/emprestimoAverbacoes/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/movimentos/importacao/arquivoDeMargem/page.js"
-    ],
-    "/movimentos/importacao/conferenciaFechamento/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/movimentos/importacao/conferenciaFechamento/page.js"
-    ],
-    "/aprovacaoDeContratos/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/aprovacaoDeContratos/page.js"
-    ],
-    "/outrasConsignacoesCatoes/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/outrasConsignacoesCatoes/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/margemContratacao/emprestimoAverbacoes/page.js"
     ]
   }
 }

@@ -122,7 +122,7 @@ export const createConsultaMargem = async (id_servidor: number, id_consignataria
 // Função para buscar a margem disponível do servidor na API local
 export const fetchMargemServidor = async (matricula: number, id_consignataria: number) => {
   try {
-    const response = await localApi.post('', {
+    const response = await localApi.post('/consultas-margem-athenas/', {
       servidor: matricula,
       consignataria: id_consignataria
     });

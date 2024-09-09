@@ -66,7 +66,7 @@ const MargemContratacao = () => {
   const [margemTotal, setMargemTotal] = useState<number | null>(null);
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
   const router = useRouter(); // Cria a instância do router
-
+  
 
   // Funções para redirecionar para as páginas específicas
 
@@ -99,19 +99,6 @@ const MargemContratacao = () => {
 
 
 
-// Função para lidar com a navegação e envio de dados
-// const handleNavigateToStepper = () => {
-//   router.push({
-//     pathname: '/home',
-//     query: {
-//       matricula,
-//       cpf,
-//       nome,
-//       margemDisponivel: margemDisponivel?.toString(),
-//       margemTotal: margemTotal?.toString(),
-//     }
-//   });
-
   //constantes para  calcular valores do colaborador para proximos meses anos
   const [selectedMonthYear, setSelectedMonthYear] = useState({
     month: dayjs().month() + 1, // Default to current month
@@ -136,6 +123,7 @@ const MargemContratacao = () => {
     return dates;
   };
 
+ 
   // State to hold the next dates
   const [nextDates, setNextDates] = useState(() => generateNextDates(selectedMonthYear.month + 1, selectedMonthYear.year));
 
@@ -399,7 +387,18 @@ const MargemContratacao = () => {
         const data = response.data;
         setMargemTotal(data.margem_total);
         setMargemDisponivel(data.margem_disponivel);
-        console.log('dados de margem', data)
+  
+        // Armazenar dados no localStorage
+        const dataToStore = {
+          nome: externalData.results[0]?.nome,
+          cpf: externalData.results[0]?.cpf,
+          margemTotal: data.margem_total,
+          margemDisponivel: data.margem_disponivel,
+          // Adicione outros campos necessários aqui
+        };
+        localStorage.setItem('formData', JSON.stringify(dataToStore));
+  
+        console.log('dados de margem', data);
       } else {
         setError(response.data.message || 'Erro ao calcular margem.');
       }
@@ -407,24 +406,6 @@ const MargemContratacao = () => {
       setError('Erro ao acessar a API.');
     }
   };
-
-  //   // Função para formatar a data
-  // const formatDate = (dateString) => {
-  //   const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  //   return new Intl.DateTimeFormat('pt-BR', options).format(new Date(dateString));
-  // };
-
-  // // Função para formatar o valor monetário
-  // const formatCurrency = (value) => {
-  //   return new Intl.NumberFormat('pt-BR', {
-  //     style: 'currency',
-  //     currency: 'BRL',
-  //   }).format(value);
-  //   };
-
-
-
-
 
   return (
     <Box sx={{ display: 'flex' }}>

@@ -1,8 +1,6 @@
 {
-  "/movimentos/importacao/arquivoDeMargem/page": "app/movimentos/importacao/arquivoDeMargem/page.js",
-  "/visaoGeral/page": "app/visaoGeral/page.js",
-  "/outrasConsignacoesCatoes/page": "app/outrasConsignacoesCatoes/page.js",
-  "/movimentos/importacao/conferenciaFechamento/page": "app/movimentos/importacao/conferenciaFechamento/page.js",
-  "/aprovacaoDeContratos/page": "app/aprovacaoDeContratos/page.js",
-  "/margemContratacao/page": "app/margemContratacao/page.js"
+  "/margemContratacao/emprestimoAverbacoes/page": "app/margemContratacao/emprestimoAverbacoes/page.js",
+  "/cadastros/page": "app/cadastros/page.js",
+  "/margemContratacao/page": "app/margemContratacao/page.js",
+  "/movimentos/importacao/conferenciaFechamento/page": "app/movimentos/importacao/conferenciaFechamento/page.js"
 }

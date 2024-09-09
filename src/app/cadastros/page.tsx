@@ -155,7 +155,7 @@ const CadastroForm: React.FC = () => {
     <CustomizedList />
     <FloatingSearchButton />
     <CookiesBanner />
-    <Box sx={{ padding: 2, backgroundColor: '#E0F2F1', minHeight: '100vh' }}>
+    <Box sx={{ padding: '45px', backgroundColor: '#E0F2F1', minHeight: '100vh' }}>
       <LogoWrapper>
         <img src="/dpe-logo.png" alt="Logo da Defensoria" style={{ maxWidth: '150px' }} />
         <Typography variant="h6" gutterBottom>
@@ -276,7 +276,9 @@ const CadastroForm: React.FC = () => {
         </form>
       </WhiteBox>
     </Box>
+   
     </Box>
+    
   );
   
 };

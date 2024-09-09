@@ -9,7 +9,6 @@ import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
 
 
 
-
 export default function visaoGeral() {
   return (
     <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2', }}>

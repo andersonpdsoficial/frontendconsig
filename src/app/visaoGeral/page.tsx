@@ -20,9 +20,9 @@ import FloatingSearchButton from '../../shared/components/buttons/FloatingSearch
 const fetchDataFromAPI = async () => {
   // Replace with your API call
   return {
-    carteiraContratos: 120,
-    meusContratos: 80,
-    percentualCarteira: 60,
+    carteiraContratos: 12,
+    meusContratos: 8,
+    percentualCarteira: 6,
     contratosMes: 25,
     pendencias: 15,
     origem: 'Origem API Data',
@@ -42,18 +42,25 @@ export default function VisaoGeral() {
   }, []);
 
   return (
-    <Box sx={{ flexGrow: 1, padding: '20px', backgroundColor: '#F2F2F2' }}>
-       <CustomizedList />
-        <FloatingSearchButton />
+    <Box sx={{ display: 'flex' }}>
+      <CustomizedList />
+      <FloatingSearchButton />
         <CookiesBanner />
+    <Box sx={{ flexGrow: 1, padding: '45px', backgroundColor: '#E0F2F1' }}>
+    <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
+          Visão Geral
+        </Typography>
+        
       <Grid container spacing={3}>
-        {/* Quadrado 1: Carteira de Contratos */}
+
+    
+        {/* Carteira de Contratos */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Card sx={{backgroundColor: '#ffffff', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AccountBalance fontSize="large" />
-                <Typography variant="h6" sx={{ ml: 2 }}>
+                <Typography variant="h6" sx={{ ml: 2, color: '#095538'}}>
                   Carteira de Contratos
                 </Typography>
               </Box>
@@ -66,7 +73,7 @@ export default function VisaoGeral() {
                 InputProps={{
                   readOnly: true
                 }}
-                sx={{ mb: 1 }}
+                sx={{ mb: 1, backgroundColor: '#ffffff' }}
               />
               <Typography variant="body1">Meus Contratos:</Typography>
               <TextField
@@ -96,6 +103,10 @@ export default function VisaoGeral() {
                 variant="contained"
                 color="primary"
                 startIcon={<Add />}
+                sx={{
+                  color:'#ffffff',
+                  backgroundColor:'#0D7B52'
+                }}
               >
                 Meus Contratos
               </Button>
@@ -103,13 +114,13 @@ export default function VisaoGeral() {
           </Card>
         </Grid>
 
-        {/* Quadrado 2: Novos Contratos */}
+        {/*  Novos Contratos */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Card sx={{backgroundColor: '#ffffff' , height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <NewReleases fontSize="large" />
-                <Typography variant="h6" sx={{ ml: 2 }}>
+                <Typography variant="h6" sx={{ ml: 2 ,color: '#095538'}}>
                   Novos Contratos
                 </Typography>
               </Box>
@@ -129,6 +140,10 @@ export default function VisaoGeral() {
                 variant="contained"
                 color="primary"
                 startIcon={<Add />}
+                sx={{
+                  color:'#ffffff',
+                  backgroundColor:'#0D7B52'
+                }}
               >
                 Contratos deste Mês
               </Button>
@@ -136,13 +151,13 @@ export default function VisaoGeral() {
           </Card>
         </Grid>
 
-        {/* Quadrado 3: Pendências em Contratos */}
+        {/*  Pendências em Contratos */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Card sx={{ backgroundColor: '#ffffff', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <PendingActions fontSize="large" />
-                <Typography variant="h6" sx={{ ml: 2 }}>
+                <Typography variant="h6" sx={{ ml: 2,color: '#095538' }}>
                   Pendências em Contratos
                 </Typography>
               </Box>
@@ -163,6 +178,10 @@ export default function VisaoGeral() {
                 variant="contained"
                 color="primary"
                 startIcon={<Add />}
+                sx={{
+                  color:'#ffffff',
+                  backgroundColor:'#0D7B52'
+                }}
               >
                 Minhas Pendências
               </Button>
@@ -170,13 +189,13 @@ export default function VisaoGeral() {
           </Card>
         </Grid>
 
-        {/* Quadrado 4: Data de Cortes */}
+        {/*  Data de Cortes */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <Card sx={{backgroundColor: '#ffffff', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CalendarToday fontSize="large" />
-                <Typography variant="h6" sx={{ ml: 2 }}>
+                <Typography variant="h6" sx={{ ml: 2,color: '#095538' }}>
                   Data de Cortes
                 </Typography>
               </Box>
@@ -218,7 +237,11 @@ export default function VisaoGeral() {
             </CardContent>
           </Card>
         </Grid>
+        
       </Grid>
+      
+    </Box>
+    
     </Box>
   );
 }

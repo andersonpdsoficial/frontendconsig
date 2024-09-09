@@ -4,6 +4,7 @@ import { AppProps } from 'next/app';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import CookiesBanner from '../shared/components/cookiesBanner/CookiesBanner';
+import NovoEmprestimo from './margemContratacao/emprestimoAverbacoes/page';
 
 // Crie uma instância do QueryClient
 const queryClient = new QueryClient();
@@ -13,6 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <CssBaseline />
       <CookiesBanner />
+      <NovoEmprestimo />
       <Component {...pageProps} />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

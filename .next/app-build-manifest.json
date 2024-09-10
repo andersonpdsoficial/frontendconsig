@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/movimentos/importacao/conferenciaFechamento/page": [
+    "/margemContratacao/emprestimoAverbacoes/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/movimentos/importacao/conferenciaFechamento/page.js"
+      "static/chunks/app/margemContratacao/emprestimoAverbacoes/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,20 +11,20 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/cadastros/page": [
+    "/solicitacoesDeAverbacao/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/cadastros/page.js"
+      "static/chunks/app/solicitacoesDeAverbacao/page.js"
     ],
     "/margemContratacao/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/margemContratacao/page.js"
     ],
-    "/margemContratacao/emprestimoAverbacoes/page": [
+    "/visaoGeral/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/margemContratacao/emprestimoAverbacoes/page.js"
+      "static/chunks/app/visaoGeral/page.js"
     ]
   }
 }

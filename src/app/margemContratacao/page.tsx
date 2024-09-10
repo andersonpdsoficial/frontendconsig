@@ -46,18 +46,17 @@ import { formatDate } from '../../shared/utils/dateUtils';
 import CookiesBanner from '../../shared/components/cookiesBanner/CookiesBanner';
 import { useConsignataria } from '../../shared/hooks/useConsignataria';
 import axios from 'axios';
-import { Table, TableContainer, TableHead, Paper } from '@mui/material';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+
 import { useRouter } from 'next/navigation';
-
-
+import { useNavigate } from 'react-router-dom';
+import { fetchServidorFromExternalApi, fetchServidorFromLocalApi, fetchConsignatariaFromLocalApi, fetchMargemServidor } from '../../../shared/services/apiService'; // Ajuste o caminho conforme necessário
 
 
 dayjs.locale('pt-br');
 const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
 
 const MargemContratacao = () => {
+  const router = useRouter();
   const [matricula, setMatricula] = useState<number | null>(null);
   const [cpf, setCpf] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -65,35 +64,65 @@ const MargemContratacao = () => {
   const [selectValue, setSelectdValue] = useState<number | ''>('');
   const [margemTotal, setMargemTotal] = useState<number | null>(null);
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
-  const router = useRouter(); // Cria a instância do router
-  
+  const navigate = useNavigate();
 
-  // Funções para redirecionar para as páginas específicas
+  const handleNavigate = async () => {
+    try {
+      const matricula = '300131045'; // Pode ser ajustado conforme necessário
+      // Buscar dados do servidor na API externa
+      const externalData = await fetchServidorFromExternalApi(matricula);
 
-  //rotas das reservas
-  const handleEmprestimoReservasClick = () => {
-    router.push('margemContratacao/emprestimoReservas');
+      // Buscar dados do servidor na API local
+      const localData = await fetchServidorFromLocalApi(externalData.matricula);
+
+      // Buscar dados da consignataria na API local
+      const consignatariaData = await fetchConsignatariaFromLocalApi();
+      const consignatariaId = consignatariaData[0]?.id || 0;
+
+      // Buscar margem do servidor na API local
+      const margemData = await fetchMargemServidor(externalData.matricula, consignatariaId);
+
+      const dataToSend = {
+        matricula: externalData.matricula,
+        nome: externalData.nome,
+        cpf: externalData.cpf,
+        margemDisponivel: `R$ ${margemData.margemDisponivel}`,
+        margemTotal: `R$ ${margemData.margemTotal}`,
+        // Adicione outros dados conforme necessário
+      };
+
+      navigate('/novo-emprestimo', { state: { formData: dataToSend } });
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
   };
 
-  const handleRefinanciamentoReservasClick = () => {
-    router.push('/margemContratacao/refinanciamentoReservas'); 
-  };
 
-  const handleCompostaReservasClick = () => {
-    router.push('/margemContratacao/compostaReservas');
-  };
 
-  const handlePortabilidadeReservasClick = () => {
-    router.push('/margemContratacao/portabilidadeReservas');
-  };
 
-  //rotas das averbações
 
+
+
+
+
+  // // Função para lidar com a navegação e envio de dados 6981331967
+  // const NovoEmprestimo = () => {
+  //   const queryParams = new URLSearchParams({
+  //     matricula: matricula?.toString() || '',
+  //     cpf: cpf,
+  //     margemDisponivel: margemDisponivel?.toString() || '',
+  //     margemTotal: margemTotal?.toString() || '',
+  //   }).toString();
+
+  //   router.push(`/margemContratacao/emprestimoAverbacoes?${queryParams}`);
+  // };
+ 
+  //rotas das novas averbações
   const handleRefinanciamentoAverbacoesClick = () => {
-    router.push('/margemContratacao/refinanciamentoAverbacoes');
+    router.push('/margemContratacao/refinaciamentoAverbacao');
   };
 
-  const handleEmprestimoAverbacoesClick = () => {
+  const handleNavigate = () => {
     router.push('/margemContratacao/emprestimoAverbacoes');
   };
 
@@ -123,7 +152,6 @@ const MargemContratacao = () => {
     return dates;
   };
 
- 
   // State to hold the next dates
   const [nextDates, setNextDates] = useState(() => generateNextDates(selectedMonthYear.month + 1, selectedMonthYear.year));
 
@@ -149,6 +177,7 @@ const MargemContratacao = () => {
 
 
 
+
   // Determine o parâmetro de busca baseado em matricula ou cpf
   const searchParam = matricula !== null ? matricula.toString() : cpf;
 
@@ -159,7 +188,7 @@ const MargemContratacao = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement> | any) => {
     setSelectdValue(e.target.value);
   };
-
+  //carregamento de dados
   useEffect(() => {
     if (isLoading) {
       const timer = setInterval(() => {
@@ -217,6 +246,7 @@ const MargemContratacao = () => {
     const selectPreviousMonth = () => onMonthChange(currentMonth.subtract(1, 'month'), 'right');
 
     return (
+      //Returns da Data calendario
       <CustomCalendarHeaderRoot>
         <Stack spacing={1} direction="row">
           <IconButton onClick={selectPreviousMonth} title="Mês Anterior">
@@ -234,6 +264,7 @@ const MargemContratacao = () => {
       </CustomCalendarHeaderRoot>
     );
   }
+
 
   function CustomCalendarHeaderYear(props: PickersCalendarHeaderProps<Dayjs>) {
     const { currentMonth, onMonthChange } = props;
@@ -273,92 +304,6 @@ const MargemContratacao = () => {
     debouncedHandleCredoresSearch(event.target.value);
   };
 
-
-  //Function table
-
-  interface Column {
-    id: 'Situacao' | 'ADF' | 'DatadeContratacao' | 'TotalParcelas' | 'ValorParcela' | 'Convenio';
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-    format?: (value: number) => string;
-  }
-
-  const columns: Column[] = [
-    {
-      id: 'Situacao',
-      label: 'Situação',
-      minWidth: 170,
-    },
-    {
-      id: 'ADF',
-      label: 'ADF',
-      minWidth: 100
-    },
-    {
-      id: 'DatadeContratacao', label: 'Data de Contratação', minWidth: 170, align: 'right', format: (value) => new Intl.DateTimeFormat('pt-BR').format(new Date(value))
-    },
-    {
-      id: 'TotalParcelas',
-      label: 'Total Parcelas',
-      minWidth: 170,
-      align: 'right',
-      format: (value: number) => value.toLocaleString('pt-br'),
-    },
-    {
-      id: 'valorParcela', label: 'Valor da Parcela', minWidth: 170, align: 'right', format: (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
-
-    },
-    {
-      id: 'Convenio',
-      label: 'Convenio',
-      minWidth: 170,
-      align: 'right',
-      format: (value: number) => value.toFixed(2),
-    },
-  ];
-
-  interface Data {
-    Situacao: string;
-    ADF: number;
-    DatadeContratacao: number;
-    TotalParcelas: number;
-    ValorParcela: number;
-    Convenio: number;
-  };
-
-  function createData(
-    Situacao: string,
-    ADF: number,
-    DatadeContratacao: number,
-    TotalParcelas: number,
-    ValorParcela: number,
-    Convenio: number
-  ): Data {
-    const density = Situacao / ADF / DatadeContratacao / TotalParcelas / ValorParcela / Convenio;
-    return { Situacao, ADF, DatadeContratacao, TotalParcelas, ValorParcela, Convenio };
-  }
-
-  const rows = [
-    createData('Ativo', 36262, 10 / 10 / 2024, 3287263, 65665, 599595),
-
-
-  ];
-
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
-
-  //Function table Fim
-
   // Será necessário selecionar a consignataria
   const calculateMargem = async () => {
     if (!externalData || !selectValue) {
@@ -372,7 +317,7 @@ const MargemContratacao = () => {
       formData.append('servidor', localData[0].id);
       formData.append('consignataria', selectValue);
 
-      // Fazendo a requisição POST usando axios com FormData
+      // Fazendo a requisição POST usando axios com FormData  
       const response = await axios.post(
         `${LOCAL_API_BASE_URL}/consultas-margem-athenas/`,
         formData,
@@ -383,44 +328,43 @@ const MargemContratacao = () => {
         }
       );
 
-      if (response.status === 201) {
+      if (response.status === 201) {300127568
         const data = response.data;
         setMargemTotal(data.margem_total);
         setMargemDisponivel(data.margem_disponivel);
-  
-        // Armazenar dados no localStorage
-        const dataToStore = {
-          nome: externalData.results[0]?.nome,
-          cpf: externalData.results[0]?.cpf,
-          margemTotal: data.margem_total,
-          margemDisponivel: data.margem_disponivel,
-          // Adicione outros campos necessários aqui
-        };
-        localStorage.setItem('formData', JSON.stringify(dataToStore));
-  
-        console.log('dados de margem', data);
+        console.log('dados de margem', data)
       } else {
         setError(response.data.message || 'Erro ao calcular margem.');
       }
     } catch (err) {
-      setError('Erro ao acessar a API.');
+      setError('Não foi possível completar o cálculo. Verifique o vínculo; caso contrário, o servidor pode não ter margem suficiente para o cálculo.');
     }
+  };
+  // Função para formatar a data
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Intl.DateTimeFormat('pt-BR', options).format(new Date(dateString));
+  };
+
+  // Função para formatar o valor monetário
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
   };
 
   return (
+    //1
     <Box sx={{ display: 'flex' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
 
-      <Box sx={{ flexGrow: 1, padding: '20px', backgroundColor: '#F2F2F2' }}>
+      <Box sx={{ flexGrow: 1, padding: '45px', backgroundColor: '#E0F2F1' }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
           Margem / Contratação
         </Typography>
-
-
-
-        {/* incio de uma box */}
 
         <Box
           sx={{
@@ -467,7 +411,7 @@ const MargemContratacao = () => {
                 fullWidth
                 variant="outlined"
                 error={Boolean(error && !matricula)}
-                helperText={error && !matricula ? error : ''}
+                helperText={error && !matricula ? error : null}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -497,7 +441,7 @@ const MargemContratacao = () => {
             <Grid item xs={12} sm={6}>
               <Button
                 variant="outlined"
-                sx={{ backgroundColor: '#bce7d84e', color: '#0D7B52' }}
+                sx={{ color: '#0D7B52' }}
                 fullWidth
                 onClick={handleClear}
               >
@@ -510,12 +454,6 @@ const MargemContratacao = () => {
         <Box marginTop={2}>
           <Divider />
         </Box>
-
-
-
-
-
-
         <Box
           sx={{
             backgroundColor: 'white',
@@ -536,12 +474,12 @@ const MargemContratacao = () => {
                 <Select
                   value={selectValue || ''}
                   onChange={handleChange}
-                  sx={{ backgroundColor: '#E8F5E9' }} // Optional: to match the style
+                  sx={{ backgroundColor: '#ffffff' }} 
                 >
                   <MenuItem value="" disabled sx={{ color: '#000000f0', backgroundColor: '#E8F5E9' }}>
                     Selecione a Consignatária
                   </MenuItem>
-                  {consignataria?.results.map((item) => (
+                  {consignataria?.results.map((item: { id: any; nome: any; }) => (
                     <MenuItem
                       key={item.id}
                       value={item.id}
@@ -555,11 +493,6 @@ const MargemContratacao = () => {
             </Grid>
           </Grid>
         </Box>
-
-
-
-
-
 
         {isLoading ? (
           <Box
@@ -609,6 +542,7 @@ const MargemContratacao = () => {
                         <strong>Nome: </strong>{externalData.results[0]?.nome || ''}
                       </Typography>
                     </Grid>
+
                     <Grid item xs={12} sm={4}>
                       <Typography variant="body2">
                         <strong>CPF: </strong>{externalData.results[0]?.cpf || ''}
@@ -643,11 +577,6 @@ const MargemContratacao = () => {
                 <Box marginTop={2}>
                   <Divider />
                 </Box>
-
-
-
-
-
                 <Box
                   sx={{
                     backgroundColor: 'white',
@@ -790,7 +719,7 @@ const MargemContratacao = () => {
                           fullWidth
                           startIcon={<AttachMoney />}
                           sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-                          onClick={handleEmprestimoAverbacoesClick}
+                          onClick={handleNavigate}
                         >
                           Empréstimo
                         </Button>
@@ -811,187 +740,10 @@ const MargemContratacao = () => {
 
                 </>
 
-
-                <>
-                  <Box marginTop={2}>
-
-                  </Box>
-
-                  <Grid container spacing={0} marginTop={4} alignItems="center">
-
-                  </Grid>
-                  <Box
-                    sx={{
-                      backgroundColor: 'white',
-                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                      borderRadius: 2,
-                      padding: 2,
-                      width: '100%',
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="h6" gutterBottom>
-                        <Divider textAlign="left">Reservas</Divider>
-                      </Typography>
-
-                      <Grid container spacing={2} marginTop={1} marginBottom={4}>
-                        <Grid item xs={3}>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            startIcon={<AttachMoney />}
-                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52', color: '#ebebeb' }}
-                            onClick={handleEmprestimoReservasClick} // Adiciona o handler de clique
-                          >
-                            Empréstimo
-                          </Button>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            startIcon={<CreditCard />}
-                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-                            onClick={handleRefinanciamentoReservasClick}
-                          >
-                            Refinanciamento
-                          </Button>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            startIcon={<AccountBalanceWalletRoundedIcon />}
-                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-                            onClick={handleCompostaReservasClick}
-                          >
-                            Composta
-                          </Button>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            startIcon={<ControlPointDuplicateIcon />}
-                            sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-                            onClick={handlePortabilidadeReservasClick}
-                          >
-                            Portabilidade
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </Box>
-                  </Box>
-
-                </>
-
-
-
-
                 {/*divisor*/}
                 <Box marginTop={2}>
                   <Divider />
                 </Box>
-
-
-                {/*table*/}
-                <Box
-                  sx={{
-                    backgroundColor: 'white',
-                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                    borderRadius: 2,
-                    padding: 2,
-                    width: '100%',
-                    marginTop: 2,
-                  }}
-                >
-                  <Grid container spacing={2} alignItems="center">
-                    <Paper sx={{ width: '100%' }}>
-                      <TableContainer sx={{ maxHeight: 500 }}>
-                        <Table stickyHeader aria-label="sticky table">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell
-                                sx={{
-                                  backgroundColor: '#0D7B52', // Cor verde do projeto
-                                  color: 'white', // Cor da fonte para branco
-                                  borderRadius: 20,
-                                  textAlign: 'center',
-                                  fontSize: '1.5rem', // Aumenta o tamanho da fonte
-                                }}
-                              >
-                                Contratos
-                              </TableCell>
-                              <TableCell colSpan={12}></TableCell>
-                            </TableRow>
-                            <TableRow>
-                              {columns.map((column) => (
-                                <TableCell
-                                  key={column.id}
-                                  align={column.align}
-                                  sx={{
-                                    backgroundColor: '#0D7B52', // Cor verde do projeto
-                                    color: 'white', // Cor da fonte para branco
-                                    minWidth: column.minWidth,
-                                    borderRight: '1px solid rgba(255, 255, 255, 0.5)', // Divisor entre colunas
-                                    textAlign: 'center', // Alinhamento do texto
-                                    '&:last-child': {
-                                      borderRight: 'none', // Remove divisor da última coluna
-                                    },
-                                  }}
-                                >
-                                  {column.label}
-                                </TableCell>
-                              ))}
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {rows
-                              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                              .map((row) => (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                                  {columns.map((column) => {
-                                    const value = row[column.id];
-                                    return (
-                                      <TableCell
-                                        key={column.id}
-                                        align={column.align}
-                                        sx={{
-                                          borderRight: '1px solid rgba(0, 0, 0, 0.12)', // Divisor entre colunas
-                                          textAlign: 'center', // Alinhamento do texto
-                                          '&:last-child': {
-                                            borderRight: 'none', // Remove divisor da última coluna
-                                          },
-                                        }}
-                                      >
-                                        {column.format === 'date'
-                                          ? formatDate(value)
-                                          : column.format === 'currency'
-                                            ? formatCurrency(value)
-                                            : value}
-                                      </TableCell>
-                                    );
-                                  })}
-                                </TableRow>
-                              ))}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                      <TablePagination
-                        rowsPerPageOptions={[10, 25, 100]}
-                        component="div"
-                        count={rows.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                      />
-                    </Paper>
-                  </Grid>
-                </Box>
-
-
 
               </>
             )}

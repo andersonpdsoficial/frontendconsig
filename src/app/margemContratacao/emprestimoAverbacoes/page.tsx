@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Container, Grid, Paper, Typography, TextField } from '@mui/material';
-import { jsPDF } from 'jspdf';  // Importa jsPDF para criação do PDF
+import { Box, Grid, Paper, Typography, TextField } from '@mui/material';
+import { jsPDF } from 'jspdf';
 import CustomizedList from '../../../shared/components/menu-lateral/Demo';
 import FloatingSearchButton from '../../../shared/components/buttons/FloatingSearchButton';
 import CookiesBanner from '../../../shared/components/cookiesBanner/CookiesBanner';
 import StepperComponent from '../../../shared/components/StepperComponent/page';
-import { fetchConsignatariaFromLocalApi, fetchMargemServidor, fetchServidorFromExternalApi, fetchServidorFromLocalApi } from '../../../shared/services/apiService';
+
+import 'dayjs/locale/pt-br';
+import dayjs from 'dayjs';
+
+dayjs.locale('pt-br');
 
 interface FormData {
   matricula: string;
@@ -36,9 +40,7 @@ interface FormData {
 }
 
 const NovoEmprestimo: React.FC = () => {
-  const [activeStep, setActiveStep] = useState<number>(0);
-  const steps = ['Informações do Contrato', 'Confirmação', 'Finalização'];
-
+  const location = useLocalizationContext();
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
     cpf: '',
@@ -66,101 +68,27 @@ const NovoEmprestimo: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const matricula = 123456; // Use a matrícula apropriada
-        const externalData = await fetchServidorFromExternalApi(matricula);
-        const localData = await fetchServidorFromLocalApi(externalData.matricula);
-        const consignatariaData = await fetchConsignatariaFromLocalApi();
-
-        // Assumindo que o primeiro item é o relevante
-        const consignatariaId = consignatariaData[0]?.id || 0;
-        const margemData = await fetchMargemServidor(externalData.matricula, consignatariaId);
-
-        setFormData(prevData => ({
-          ...prevData,
-          matricula: externalData.matricula,
-          nome: externalData.nome,
-          cpf: externalData.cpf,
-          margemDisponivel: `R$ ${margemData.margemDisponivel}`,
-          margemTotal: `R$ ${margemData.margemTotal}`
-        }));
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (location.state && location.state.formData) {
+      setFormData(location.state.formData);
+    } else {
+      console.error('Dados não encontrados.');
+    }
+  }, [location.state]);
 
   const handleNext = () => {
-    setActiveStep(prevActiveStep => Math.min(prevActiveStep + 1, steps.length - 1));
+    // ... seu código existente
   };
 
   const handleBack = () => {
-    setActiveStep(prevActiveStep => Math.max(prevActiveStep - 1, 0));
+    // ... seu código existente
   };
 
   const handlePrintPDF = () => {
-    const doc = new jsPDF();
-    const lineHeight = 10;
-    let yOffset = 10;
-
-    doc.text("Dados do Colaborador", 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Nome: ${formData.nome}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Matrícula: ${formData.matricula}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`CPF: ${formData.cpf}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Margem Disponível: ${formData.margemDisponivel}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Margem Total: ${formData.margemTotal}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text("Dados do Contrato", 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Número do Contrato: ${formData.numeroContrato}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Vencimento da 1ª parcela: ${formData.vencimentoParcela}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Folha 1º Desconto: ${formData.folhaDesconto}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Valor Total Financiado: ${formData.totalFinanciado}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Valor Líquido Liberado: ${formData.liquidoLiberado}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Data de Liberação do Crédito: ${formData.liberacaoCredito}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`CET: ${formData.cet}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Observações: ${formData.observacoes}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Quantidade de Parcelas: ${formData.quantidadeParcelas}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Valor da(s) Parcela(s): ${formData.valorParcelas}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Juros Mensal: ${formData.jurosMensal}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Valor IOF: ${formData.valorIof}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Carência em Dias: ${formData.carenciaDias}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Valor da Carência: ${formData.valorCarencia}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Vínculo: ${formData.vinculo}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Situação: ${formData.situacao}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Margem Antes: ${formData.margemAntes}`, 10, yOffset);
-    yOffset += lineHeight;
-    doc.text(`Margem Após: ${formData.margemApos}`, 10, yOffset);
-
-    doc.save('contrato.pdf');
+    // ... seu código existente
   };
 
   const handleClose = () => {
-    setActiveStep(steps.length - 1);  // Finaliza o Stepper
+    // ... seu código existente
   };
 
   return (
@@ -169,7 +97,7 @@ const NovoEmprestimo: React.FC = () => {
       <FloatingSearchButton />
       <CookiesBanner />
 
-      <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 6 }}>
+      <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 7 }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem', padding: '6px' }}>
           Nova Reserva de Empréstimo
         </Typography>

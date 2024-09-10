@@ -1,4 +1,4 @@
-// StepperComponent.tsx
+
 import React from 'react';
 import { Box, Button, Container, Grid, Paper, Step, StepLabel, Stepper, TextField, Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';  // Ícone de correto
@@ -19,10 +19,8 @@ interface StepperComponentProps {
     margemTotal: string;
     numeroContrato: string;
     vencimentoParcela: string;
-    folhaDesconto: string;
     totalFinanciado: string;
     liquidoLiberado: string;
-    liberacaoCredito: string;
     cet: string;
     observacoes: string;
     quantidadeParcelas: string;
@@ -107,7 +105,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
                 <Grid item xs={12}>
                   <TextField
                     label="Número do Contrato do Sistema do Banco"
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     value={formData.numeroContrato}
                     onChange={(e) => setFormData({ ...formData, numeroContrato: e.target.value })}
@@ -116,25 +114,17 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
                 <Grid item xs={6}>
                   <TextField
                     label="Vencimento 1ª parcela"
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     value={formData.vencimentoParcela}
                     onChange={(e) => setFormData({ ...formData, vencimentoParcela: e.target.value })}
                   />
                 </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Folha 1º Desconto"
-                    variant="standard"
-                    fullWidth
-                    value={formData.folhaDesconto}
-                    onChange={(e) => setFormData({ ...formData, folhaDesconto: e.target.value })}
-                  />
-                </Grid>
+        
                 <Grid item xs={6}>
                   <TextField
                     label="Valor Total Financiado"
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     value={formData.totalFinanciado}
                     onChange={(e) => setFormData({ ...formData, totalFinanciado: e.target.value })}
@@ -143,7 +133,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
                 <Grid item xs={6}>
                   <TextField
                     label="Valor Líquido Liberado"
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     value={formData.liquidoLiberado}
                     onChange={(e) => setFormData({ ...formData, liquidoLiberado: e.target.value })}
@@ -151,17 +141,35 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
                 </Grid>
                 <Grid item xs={6}>
                   <TextField
-                    label="Data de Liberação do Crédito"
-                    variant="standard"
+                    label="Quantidade de Parcelas *"
+                    variant="outlined"
                     fullWidth
-                    value={formData.liberacaoCredito}
-                    onChange={(e) => setFormData({ ...formData, liberacaoCredito: e.target.value })}
+                    value={formData.quantidadeParcelas}
+                    onChange={(e) => setFormData({ ...formData, quantidadeParcelas: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label="Valor da(a) parcela(s)*"
+                    variant="outlined"
+                    fullWidth
+                    value={formData.valorParcelas}
+                    onChange={(e) => setFormData({ ...formData, valorParcelas: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label="Juros Mensais*"
+                    variant="outlined"
+                    fullWidth
+                    value={formData.jurosMensal}
+                    onChange={(e) => setFormData({ ...formData, jurosMensal: e.target.value })}
                   />
                 </Grid>
                 <Grid item xs={6}>
                   <TextField
                     label="CET"
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     value={formData.cet}
                     onChange={(e) => setFormData({ ...formData, cet: e.target.value })}
@@ -170,7 +178,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
                 <Grid item xs={12}>
                   <TextField
                     label="Observações"
-                    variant="standard"
+                    variant="outlined"
                     fullWidth
                     multiline
                     rows={3}
@@ -196,10 +204,11 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
                   <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
                     <Typography variant="subtitle1">Dados do Contrato</Typography>
                     <Typography>Valor líquido liberado: {formData.liquidoLiberado}</Typography>
-                    <Typography>Folha 1º Desconto: {formData.folhaDesconto}</Typography>
                     <Typography>Quantidade de parcelas: {formData.quantidadeParcelas}</Typography>
                     <Typography>Valor da(s) parcela(s): {formData.valorParcelas}</Typography>
                     <Typography>Data 1ª parcela: {formData.vencimentoParcela}</Typography>
+                    <Typography>Juros Mensal: {formData.jurosMensal}</Typography>
+                    <Typography>Obcervações: {formData.observacoes}</Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={6}>

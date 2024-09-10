@@ -164,3 +164,33 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
     throw error;
   }
 };
+
+export const fetchDataForNewLoan = async (matricula: string) => {
+  try {
+    // Supondo que você tenha endpoints para obter essas informações
+    const externalDataResponse = await axios.get(`http://api.example.com/servidor/${matricula}`);
+    const externalData = externalDataResponse.data;
+
+    const localDataResponse = await axios.get(`http://api.example.com/local/${externalData.matricula}`);
+    const localData = localDataResponse.data;
+
+    const consignatariaDataResponse = await axios.get('http://api.example.com/consignataria');
+    const consignatariaData = consignatariaDataResponse.data;
+    const consignatariaId = consignatariaData[0]?.id || 0;
+
+    const margemDataResponse = await axios.get(`http://api.example.com/margem/${externalData.matricula}/${consignatariaId}`);
+    const margemData = margemDataResponse.data;
+
+    return {
+      matricula: externalData.matricula,
+      nome: externalData.nome,
+      cpf: externalData.cpf,
+      margemDisponivel: `R$ ${margemData.margemDisponivel}`,
+      margemTotal: `R$ ${margemData.margemTotal}`,
+      // Adicione outros campos conforme necessário
+    };
+  } catch (error) {
+    console.error('Erro ao buscar dados para o novo empréstimo:', error);
+    throw error;
+  }
+};

@@ -1,6 +1,6 @@
 {
-  "/margemContratacao/emprestimoAverbacoes/page": "app/margemContratacao/emprestimoAverbacoes/page.js",
-  "/cadastros/page": "app/cadastros/page.js",
   "/margemContratacao/page": "app/margemContratacao/page.js",
-  "/movimentos/importacao/conferenciaFechamento/page": "app/movimentos/importacao/conferenciaFechamento/page.js"
+  "/solicitacoesDeAverbacao/page": "app/solicitacoesDeAverbacao/page.js",
+  "/visaoGeral/page": "app/visaoGeral/page.js",
+  "/margemContratacao/emprestimoAverbacoes/page": "app/margemContratacao/emprestimoAverbacoes/page.js"
 }

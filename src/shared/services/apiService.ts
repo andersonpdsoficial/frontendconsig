@@ -165,6 +165,7 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
   }
 };
 
+<<<<<<< HEAD
 export const fetchDataForNewLoan = async (matricula: string) => {
   try {
     // Supondo que você tenha endpoints para obter essas informações
@@ -232,3 +233,31 @@ export const fetchConsultas = async () => {
     throw new Error('Erro ao buscar consultas');
   }
 };
+=======
+
+
+// Função para buscar a margem disponível do servidor na API local
+export const fetchMargemServidor = async (matricula: number, id_consignataria: number) => {
+  try {
+    // Realiza a consulta na API local
+    const response = await localApi.post('/consultas-margem-athenas/', {
+      servidor: matricula,
+      consignataria: id_consignataria
+    });
+
+    // Se o response contiver tanto os dados do servidor quanto da consignatária,
+    // podemos simplesmente retornar ambos juntos
+    const { margemDisponivel, servidor, consignataria } = response.data;
+
+    // Retorna os dados do servidor e da consignatária
+    return {
+      margemDisponivel,
+      servidor,
+      consignataria
+    };
+  } catch (error) {
+    console.error('Erro ao buscar margem do servidor na API local:', error);
+    throw error;
+  }
+};
+>>>>>>> 21e603e7c7fffd5b55ad486007c041bf90bb0f5d

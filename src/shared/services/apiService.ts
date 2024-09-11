@@ -194,3 +194,41 @@ export const fetchDataForNewLoan = async (matricula: string) => {
     throw error;
   }
 };
+
+
+// // Função para buscar consultas
+// export const fetchConsultas = async () => {
+//   try {
+//     const response = await localApi.get('/consultas-margem-athenas/');
+//     return response.data; // Certifique-se de que isso é um array
+//   } catch (error) {
+//     console.error('Erro ao buscar consultas:', error);
+//     throw new Error('Erro ao buscar consultas');
+//   }
+// };
+
+
+export const createReserva = async (reservaData: any) => {
+  try {
+    const response = await axios.post(API_BASE_URL, reservaData, {
+      headers: { 'Authorization': `Token ${API_TOKEN}` }
+    });
+    return response.data; // Retorna os dados da reserva criada, incluindo o número do contrato
+  } catch (error) {
+    console.error('Erro ao criar reserva:', error);
+    throw new Error('Erro ao criar reserva');
+  }
+};
+
+// Função para buscar consultas
+export const fetchConsultas = async () => {
+  try {
+    const response = await axios.get('/consultas-margem-athenas/', {
+      headers: { 'Authorization': `Token ${API_TOKEN}` }
+    });
+    return response.data; // Certifique-se de que isso é um array
+  } catch (error) {
+    console.error('Erro ao buscar consultas:', error);
+    throw new Error('Erro ao buscar consultas');
+  }
+};

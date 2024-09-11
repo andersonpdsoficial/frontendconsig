@@ -1,53 +1,43 @@
+// src/app/margemContratacao/emprestimoAverbacoes/page.tsx
+
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Box, Grid, Paper, Typography, TextField } from '@mui/material';
-import { jsPDF } from 'jspdf';
-import CustomizedList from '../../../shared/components/menu-lateral/Demo';
-import FloatingSearchButton from '../../../shared/components/buttons/FloatingSearchButton';
-import CookiesBanner from '../../../shared/components/cookiesBanner/CookiesBanner';
-import StepperComponent from '../../../shared/components/StepperComponent/page';
+import React, { useState, useEffect } from 'react';
+import {
+  Button,
+  TextField,
+  MenuItem,
+  Typography,
+  Stepper,
+  Step,
+  StepLabel,
+  CircularProgress,
+  Box,
+  IconButton
+} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useQuery } from '@tanstack/react-query';
+import { useReserva } from '../../../shared/hooks/useReserva';
+import { fetchConsultas } from '../../../shared/services/apiService';
 
-import 'dayjs/locale/pt-br';
-import dayjs from 'dayjs';
 
-dayjs.locale('pt-br');
+// Etapas do stepper
+const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Contrato'];
 
-interface FormData {
-  matricula: string;
-  cpf: string;
-  nome: string;
-  margemDisponivel: string;
-  margemTotal: string;
-  numeroContrato: string;
-  vencimentoParcela: string;
-  folhaDesconto: string;
-  totalFinanciado: string;
-  liquidoLiberado: string;
-  liberacaoCredito: string;
-  cet: string;
-  observacoes: string;
-  quantidadeParcelas: string;
-  valorParcelas: string;
-  jurosMensal: string;
-  valorIof: string;
-  carenciaDias: string;
-  valorCarencia: string;
-  vinculo: string;
-  situacao: string;
-  margemAntes: string;
-  margemApos: string;
-}
-
-const NovoEmprestimo: React.FC = () => {
-  const location = useLocalizationContext();
-  const [formData, setFormData] = useState<FormData>({
+const ReservaPage = () => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [reservaData, setReservaData] = useState<any>({
+    valor: '',
+    consulta: '',
+    prazoInicial: '',
+    prazoFinal: '',
+    situacao: 0,
+    contrato: '',
     matricula: '',
     cpf: '',
     nome: '',
-    margemDisponivel: 'R$ 0,00',
-    margemTotal: 'R$ 0,00',
-    numeroContrato: '',
+    margemDisponivel: '',
+    margemTotal: '',
     vencimentoParcela: '',
     folhaDesconto: '',
     totalFinanciado: '',
@@ -62,108 +52,163 @@ const NovoEmprestimo: React.FC = () => {
     carenciaDias: '',
     valorCarencia: '',
     vinculo: '',
-    situacao: '',
-    margemAntes: 'R$ 0,00',
-    margemApos: 'R$ 0,00'
+    margemAntes: '',
+    margemApos: '',
+  });
+
+  const { mutate: createReserva, isLoading: isSaving } = useReserva();
+
+  // Consultas para o select
+  const { data: consultas, isLoading: isLoadingConsultas, isError: isErrorConsultas } = useQuery({
+    queryKey: ['consultas'],
+    queryFn: fetchConsultas,
   });
 
   useEffect(() => {
-    if (location.state && location.state.formData) {
-      setFormData(location.state.formData);
-    } else {
-      console.error('Dados não encontrados.');
+    if (activeStep === 2 && reservaData.contrato) {
+      // Fetch margin data for the current reservation
+      // Logic to fetch margin data should be here
     }
-  }, [location.state]);
+  }, [activeStep, reservaData.contrato]);
 
   const handleNext = () => {
-    // ... seu código existente
+    if (activeStep === 0) {
+      // Validate fields for the first step
+      if (reservaData.consulta && reservaData.valor) {
+        setActiveStep((prev) => prev + 1);
+      }
+    } else if (activeStep === 1) {
+      // Confirm and submit data
+      createReserva(reservaData, {
+        onSuccess: (data) => {
+          setReservaData((prev) => ({ ...prev, contrato: data.contrato }));
+          setActiveStep((prev) => prev + 1);
+        },
+      });
+    }
   };
 
   const handleBack = () => {
-    // ... seu código existente
+    setActiveStep((prev) => prev - 1);
   };
 
-  const handlePrintPDF = () => {
-    // ... seu código existente
-  };
-
-  const handleClose = () => {
-    // ... seu código existente
+  const handleReset = () => {
+    setReservaData({
+      valor: '',
+      consulta: '',
+      prazoInicial: '',
+      prazoFinal: '',
+      situacao: 0,
+      contrato: '',
+      matricula: '',
+      cpf: '',
+      nome: '',
+      margemDisponivel: '',
+      margemTotal: '',
+      vencimentoParcela: '',
+      folhaDesconto: '',
+      totalFinanciado: '',
+      liquidoLiberado: '',
+      liberacaoCredito: '',
+      cet: '',
+      observacoes: '',
+      quantidadeParcelas: '',
+      valorParcelas: '',
+      jurosMensal: '',
+      valorIof: '',
+      carenciaDias: '',
+      valorCarencia: '',
+      vinculo: '',
+      margemAntes: '',
+      margemApos: '',
+    });
+    setActiveStep(0);
   };
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2' }}>
-      <CustomizedList />
-      <FloatingSearchButton />
-      <CookiesBanner />
+    <Box sx={{ width: '100%' }}>
+      <Stepper activeStep={activeStep}>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <Box sx={{ padding: 3 }}>
+        {activeStep === 0 && (
+          <div>
+            <Typography variant="h6">Preenchimento dos Dados</Typography>
+            <TextField
+              fullWidth
+              label="Valor"
+              variant="outlined"
+              value={reservaData.valor}
+              onChange={(e) => setReservaData({ ...reservaData, valor: e.target.value })}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              select
+              label="Consulta"
+              variant="outlined"
+              value={reservaData.consulta}
+              onChange={(e) => setReservaData({ ...reservaData, consulta: e.target.value })}
+              margin="normal"
+            >
+              {isLoadingConsultas ? (
+                <MenuItem disabled>
+                  <CircularProgress size={24} />
+                </MenuItem>
+              ) : isErrorConsultas ? (
+                <MenuItem disabled>
+                  <Typography color="error">Erro ao carregar consultas</Typography>
+                </MenuItem>
+              ) : (
+                consultas?.map((consulta: any) => (
+                  <MenuItem key={consulta.id} value={consulta.id}>
+                    {consulta.nome}
+                  </MenuItem>
+                ))
+              )}
+            </TextField>
+            {/* Outros campos aqui */}
+            <Button onClick={handleNext} variant="contained" color="primary">Próximo</Button>
+          </div>
+        )}
 
-      <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 7 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem', padding: '6px' }}>
-          Nova Reserva de Empréstimo
-        </Typography>
+        {activeStep === 1 && (
+          <div>
+            <Typography variant="h6">Análise dos Dados</Typography>
+            <Typography>Valor: {reservaData.valor}</Typography>
+            <Typography>Consulta: {reservaData.consulta}</Typography>
+            <Typography>Margem Antes: {reservaData.margemAntes}</Typography>
+            <Typography>Margem Após: {reservaData.margemApos}</Typography>
+            {/* Outros dados a confirmar */}
+            <Button onClick={handleBack} variant="contained">Voltar</Button>
+            <Button onClick={handleNext} variant="contained" color="primary" disabled={isSaving}>
+              {isSaving ? <CircularProgress size={24} /> : 'Confirmar'}
+            </Button>
+          </div>
+        )}
 
-        <Paper elevation={3} sx={{ padding: 6, borderRadius: 2, marginBottom: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Informações do Cliente
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                label="Matrícula"
-                variant="standard"
-                fullWidth
-                value={formData.matricula}
-                onChange={(e) => setFormData({ ...formData, matricula: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="CPF"
-                variant="standard"
-                fullWidth
-                value={formData.cpf}
-                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Nome"
-                variant="standard"
-                fullWidth
-                value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              />
-            </Grid>
-          </Grid>
-        </Paper>
-
-        <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-          <Grid item xs={12} sm={6}>
-            <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', borderRadius: 2 }}>
-              <Typography variant="h6">Margem Disponível (R$)</Typography>
-              <Typography variant="body1">{formData.margemDisponivel}</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', borderRadius: 2 }}>
-              <Typography variant="h6">Margem Total (R$)</Typography>
-              <Typography variant="body1">{formData.margemTotal}</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-
-        <StepperComponent
-          activeStep={activeStep}
-          steps={steps}
-          handleNext={handleNext}
-          handleBack={handleBack}
-          handlePrintPDF={handlePrintPDF}
-          handleClose={handleClose}
-          formData={formData}
-        />
+        {activeStep === 2 && (
+          <div>
+            <CheckCircleIcon color="success" fontSize="large" />
+            <Typography variant="h6">Contrato gerado com sucesso!</Typography>
+            <Typography>Número do contrato: {reservaData.contrato}</Typography>
+            <Typography>Status: Em Análise</Typography>
+            <Button 
+              onClick={handleReset} 
+              variant="contained" 
+              color="primary"
+            >
+              Finalizar
+            </Button>
+          </div>
+        )}
       </Box>
     </Box>
   );
 };
 
-export default NovoEmprestimo;
+export default ReservaPage;

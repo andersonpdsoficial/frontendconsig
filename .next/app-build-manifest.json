@@ -11,20 +11,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/solicitacoesDeAverbacao/page": [
+    "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/solicitacoesDeAverbacao/page.js"
-    ],
-    "/margemContratacao/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/margemContratacao/page.js"
-    ],
-    "/visaoGeral/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/visaoGeral/page.js"
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

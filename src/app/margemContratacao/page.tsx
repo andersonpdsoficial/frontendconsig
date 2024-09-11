@@ -50,8 +50,6 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useNavigate } from 'react-router-dom';
 import { fetchServidorFromExternalApi, fetchServidorFromLocalApi, fetchConsignatariaFromLocalApi, fetchMargemServidor } from '../../../shared/services/apiService'; // Ajuste o caminho conforme necessário
-
-
 dayjs.locale('pt-br');
 const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
 
@@ -64,65 +62,26 @@ const MargemContratacao = () => {
   const [selectValue, setSelectdValue] = useState<number | ''>('');
   const [margemTotal, setMargemTotal] = useState<number | null>(null);
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
-  const navigate = useNavigate();
 
-  const handleNavigate = async () => {
-    try {
-      const matricula = '300131045'; // Pode ser ajustado conforme necessário
-      // Buscar dados do servidor na API externa
-      const externalData = await fetchServidorFromExternalApi(matricula);
 
-      // Buscar dados do servidor na API local
-      const localData = await fetchServidorFromLocalApi(externalData.matricula);
+  // Função para lidar com a navegação e envio de dados
+  const NovoEmprestimo = () => {
+    const queryParams = new URLSearchParams({
+      matricula: matricula?.toString() || '',
+      cpf: cpf,
+      margemDisponivel: margemDisponivel?.toString() || '',
+      margemTotal: margemTotal?.toString() || '',
+    }).toString();
 
-      // Buscar dados da consignataria na API local
-      const consignatariaData = await fetchConsignatariaFromLocalApi();
-      const consignatariaId = consignatariaData[0]?.id || 0;
-
-      // Buscar margem do servidor na API local
-      const margemData = await fetchMargemServidor(externalData.matricula, consignatariaId);
-
-      const dataToSend = {
-        matricula: externalData.matricula,
-        nome: externalData.nome,
-        cpf: externalData.cpf,
-        margemDisponivel: `R$ ${margemData.margemDisponivel}`,
-        margemTotal: `R$ ${margemData.margemTotal}`,
-        // Adicione outros dados conforme necessário
-      };
-
-      navigate('/novo-emprestimo', { state: { formData: dataToSend } });
-    } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-    }
+    router.push(`/margemContratacao/emprestimoAverbacoes?${queryParams}`);
   };
-
-
-
-
-
-
-
-
-
-  // // Função para lidar com a navegação e envio de dados 6981331967
-  // const NovoEmprestimo = () => {
-  //   const queryParams = new URLSearchParams({
-  //     matricula: matricula?.toString() || '',
-  //     cpf: cpf,
-  //     margemDisponivel: margemDisponivel?.toString() || '',
-  //     margemTotal: margemTotal?.toString() || '',
-  //   }).toString();
-
-  //   router.push(`/margemContratacao/emprestimoAverbacoes?${queryParams}`);
-  // };
  
   //rotas das novas averbações
   const handleRefinanciamentoAverbacoesClick = () => {
     router.push('/margemContratacao/refinaciamentoAverbacao');
   };
 
-  const handleNavigate = () => {
+  const handleEmprestimoAverbacoesClick = () => {
     router.push('/margemContratacao/emprestimoAverbacoes');
   };
 
@@ -719,7 +678,7 @@ const MargemContratacao = () => {
                           fullWidth
                           startIcon={<AttachMoney />}
                           sx={{ height: 100, borderRadius: 2, backgroundColor: '#0D7B52' }}
-                          onClick={handleNavigate}
+                          onClick={handleEmprestimoAverbacoesClick}
                         >
                           Empréstimo
                         </Button>
@@ -762,3 +721,13 @@ const MargemContratacao = () => {
 };
 
 export default MargemContratacao;
+
+{/*
+  
+  
+  agora, tenho um codigo aqui, é preciso criar uma page com todos os campos da models.py da reserva. estou usabndo materia ui. tenho um page aqui, mas que que vc modifique para criar essa page e vai ser somente um stepper.  onde vai ter os campos da models de criar reserva no meu backend. na models tem um campo consulta, esse campo sera um selec onde , assim como visto na models.py, vai mostrar as consultas feitas anteriormente. a situação tbm por default é em analise, somente.  vai criar primeira parte desse stepper que é o preenchimento  desses dados, a segunda parte do stepper é a analise do que foi preenchido e lgo embaixo tbm tem que ter do lado direito valor margem antes e do lado esquedor infrrio valor da margem após.  a terceira e ultima etapa do stepper é gerar um contrato quer vai ser exportado par outra pagina, então, nessa estepper final vai ter uma mensagem infrmado o numero do contrato gerado na reserva, infromar que foi para analise por pafdão.  e ter acima um icone de  deu tudo certo ou correto e um botao embaixo para finalizar. ao clicar no botão finalizar deve apagar todos os campos que foi gerado para poder solciat uma nova reserva(iniciar o stepper novament):
+  
+  
+  
+  
+  */}

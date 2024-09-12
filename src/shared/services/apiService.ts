@@ -1,6 +1,7 @@
 
 
-import axios from 'axios';
+import axios, { Axios } from 'axios';
+
 
 const EXTERNAL_API_BASE_URL = 'https://athenas.defensoria.ro.def.br/api/servidores/';
 const EXTERNAL_API_TOKEN = '682770e6bbe57c2736138619840a564bd0775486';
@@ -17,9 +18,9 @@ const LOCAL_API_TOKEN = '682770e6bbe57c2736138619840a564bd0775486';
 
 const localApi = axios.create({
   baseURL: LOCAL_API_BASE_URL,
-  // headers: {
-  //   'Authorization': `Bearer ${LOCAL_API_TOKEN}`
-  // }
+   headers: {
+     'Authorization': `Bearer ${LOCAL_API_TOKEN}`
+ }
 });
 
 // Função para buscar o servidor na API externa
@@ -43,19 +44,6 @@ export const fetchConsignatariaFromLocalApi = async () =>{
     throw error;
   }
 }
-
-// //Função para buscar a margem  disponivel do servidor no athenas
-// export const fetchValorMargemServidorFromLocalApi = async (consultaMargemAthenas: number)=>{
-//   try{
-//     const response = await localApi.get(`/consultas-margem-athenas/`)
-//     return response.data;
-
-//    } catch (error){
-//     console.log('Erro ao Consultar Margem do Servidor', error);
-//     throw error;
-//    }
-// }
-
 
 
 // Função para buscar o servidor na API local
@@ -93,17 +81,6 @@ export const createServidor = async (servidorData: {
 };
 
 
-
-// Função para excluir um servidor na API local não esta habilitado
-export const deleteServidor = async (matricula: string) => {
-  try {
-    await localApi.delete(`/servidores/${matricula}/`);
-  } catch (error) {
-    console.error('Erro ao excluir servidor na API local:', error);
-    throw error;
-  }
-};
-
 //Função para criar uma nova consulta de margem na API local
 export const createConsultaMargem = async (id_servidor: number, id_consignataria: number) => {
   try {
@@ -119,33 +96,36 @@ export const createConsultaMargem = async (id_servidor: number, id_consignataria
 };
 
 
-// Função para buscar a margem disponível do servidor na API local
-export const fetchMargemServidor = async (matricula: number, id_consignataria: number) => {
-  try {
-    const response = await localApi.post('/consultas-margem-athenas/', {
-      servidor: matricula,
-      consignataria: id_consignataria
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao criar consulta de margem:', error);
-    throw error;
-  }
-};
-
-
-
-//Função para criar uma nova reseerva na api local 300130571
+//Função para criar uma nova reseerva na api local 
 export const fetchreRervaFromLocalApi = async (reservaData: {
 
   valor: number;
+  consulta?: string; 
   prazoInicial?: string;
   prazoFinal?: string;
   prazoInicialEmData?: string;
   prazoFinalEmHora?: string;
   situcao: string;
   contrato: number;
-  contsulta?: string; 
+  cpf:number;
+  nome:string;
+  valorDisponivel: number;
+  margemTotal:number;
+  vencimentoParcela?: string;
+  vencimentoParcelaEmData?: string;
+  totalFinanciado: number;
+  liquidoLiberado: number;
+  observacoes: string;
+  cet: number;
+  quantidadeParcelas: number;
+  valorParcelas:number;
+  jurosMensal:number;
+  valorIof:number;
+  carenciaDias: number;
+  valorCarencia:number;
+  vinculo:string;
+  margemAntes:number;
+  margemApos:number;
   cadastradoPor?: string;
   modificadoPor?: string;
   desativadoPor?: string;
@@ -154,9 +134,9 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
 }) => {
   try {
     const response = await localApi.post('/reservas/', reservaData, {
-      headers: {
-        'Authorization': `Bearer ${LOCAL_API_TOKEN}`
-      }
+      // headers: {
+      //   'Authorization': `Bearer ${LOCAL_API_TOKEN}`
+      // }
     });
     return response.data;
   } catch (error) {
@@ -165,54 +145,10 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
   }
 };
 
-<<<<<<< HEAD
-export const fetchDataForNewLoan = async (matricula: string) => {
-  try {
-    // Supondo que você tenha endpoints para obter essas informações
-    const externalDataResponse = await axios.get(`http://api.example.com/servidor/${matricula}`);
-    const externalData = externalDataResponse.data;
-
-    const localDataResponse = await axios.get(`http://api.example.com/local/${externalData.matricula}`);
-    const localData = localDataResponse.data;
-
-    const consignatariaDataResponse = await axios.get('http://api.example.com/consignataria');
-    const consignatariaData = consignatariaDataResponse.data;
-    const consignatariaId = consignatariaData[0]?.id || 0;
-
-    const margemDataResponse = await axios.get(`http://api.example.com/margem/${externalData.matricula}/${consignatariaId}`);
-    const margemData = margemDataResponse.data;
-
-    return {
-      matricula: externalData.matricula,
-      nome: externalData.nome,
-      cpf: externalData.cpf,
-      margemDisponivel: `R$ ${margemData.margemDisponivel}`,
-      margemTotal: `R$ ${margemData.margemTotal}`,
-      // Adicione outros campos conforme necessário
-    };
-  } catch (error) {
-    console.error('Erro ao buscar dados para o novo empréstimo:', error);
-    throw error;
-  }
-};
-
-
-// // Função para buscar consultas
-// export const fetchConsultas = async () => {
-//   try {
-//     const response = await localApi.get('/consultas-margem-athenas/');
-//     return response.data; // Certifique-se de que isso é um array
-//   } catch (error) {
-//     console.error('Erro ao buscar consultas:', error);
-//     throw new Error('Erro ao buscar consultas');
-//   }
-// };
-
-
 export const createReserva = async (reservaData: any) => {
   try {
-    const response = await axios.post(API_BASE_URL, reservaData, {
-      headers: { 'Authorization': `Token ${API_TOKEN}` }
+    const response = await localApi.post('/reservas/', reservaData, {
+      headers: { 'Authorization': `Token ${LOCAL_API_BASE_URL}` }
     });
     return response.data; // Retorna os dados da reserva criada, incluindo o número do contrato
   } catch (error) {
@@ -221,35 +157,43 @@ export const createReserva = async (reservaData: any) => {
   }
 };
 
+
+
+
+
 // Função para buscar consultas
 export const fetchConsultas = async () => {
   try {
-    const response = await axios.get('/consultas-margem-athenas/', {
-      headers: { 'Authorization': `Token ${API_TOKEN}` }
+    const response = await localApi.get('/consultas-margem-athenas/', {
+      // headers: { 'Authorization': `Token ${LOCAL_API_TOKEN}` } // Certifique-se de incluir o header se necessário
     });
-    return response.data; // Certifique-se de que isso é um array
+    
+    // Verifique se a resposta é um array
+    if (Array.isArray(response.data.results)) {
+      return response.data.results;
+    } else {
+      console.error('Resposta da API não é um array:', response.data);
+      return []; // Retorne um array vazio para evitar erros
+    }
   } catch (error) {
     console.error('Erro ao buscar consultas:', error);
-    throw new Error('Erro ao buscar consultas');
+    return []; // Retorne um array vazio em caso de erro
   }
 };
-=======
+
 
 
 // Função para buscar a margem disponível do servidor na API local
 export const fetchMargemServidor = async (matricula: number, id_consignataria: number) => {
   try {
-    // Realiza a consulta na API local
-    const response = await localApi.post('/consultas-margem-athenas/', {
+    const response = await localApi.post('/api/consultas-margem-athenas/', {
       servidor: matricula,
       consignataria: id_consignataria
     });
 
-    // Se o response contiver tanto os dados do servidor quanto da consignatária,
-    // podemos simplesmente retornar ambos juntos
-    const { margemDisponivel, servidor, consignataria } = response.data;
+    const { margemDisponivel, servidor, consignataria } = response.data
 
-    // Retorna os dados do servidor e da consignatária
+    // Verifique se os dados estão no formato correto
     return {
       margemDisponivel,
       servidor,
@@ -260,4 +204,3 @@ export const fetchMargemServidor = async (matricula: number, id_consignataria: n
     throw error;
   }
 };
->>>>>>> 21e603e7c7fffd5b55ad486007c041bf90bb0f5d

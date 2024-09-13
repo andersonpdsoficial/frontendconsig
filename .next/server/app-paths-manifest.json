@@ -1,3 +1,4 @@
 {
+  "/margemContratacao/page": "app/margemContratacao/page.js",
   "/margemContratacao/emprestimoAverbacoes/page": "app/margemContratacao/emprestimoAverbacoes/page.js"
 }

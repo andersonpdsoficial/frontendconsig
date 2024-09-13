@@ -64,18 +64,6 @@ const MargemContratacao = () => {
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
 
 
-  // Função para lidar com a navegação e envio de dados
-  const NovoEmprestimo = () => {
-    const queryParams = new URLSearchParams({
-      matricula: matricula?.toString() || '',
-      cpf: cpf,
-      margemDisponivel: margemDisponivel?.toString() || '',
-      margemTotal: margemTotal?.toString() || '',
-    }).toString();
-
-    router.push(`/margemContratacao/emprestimoAverbacoes?${queryParams}`);
-  };
- 
   //rotas das novas averbações
   const handleRefinanciamentoAverbacoesClick = () => {
     router.push('/margemContratacao/refinaciamentoAverbacao');
@@ -287,7 +275,8 @@ const MargemContratacao = () => {
         }
       );
 
-      if (response.status === 201) {300127568
+      if (response.status === 201) {
+        300127568
         const data = response.data;
         setMargemTotal(data.margem_total);
         setMargemDisponivel(data.margem_disponivel);
@@ -296,7 +285,7 @@ const MargemContratacao = () => {
         setError(response.data.message || 'Erro ao calcular margem.');
       }
     } catch (err) {
-      setError('Não foi possível completar o cálculo. Verifique o vínculo; caso contrário, o servidor pode não ter margem suficiente para o cálculo.');
+      setError('Não foi possível calcular margem. Verifique o vínculo; caso contrário, o servidor pode não ter margem suficiente para o cálculo.');
     }
   };
   // Função para formatar a data
@@ -314,17 +303,14 @@ const MargemContratacao = () => {
   };
 
   return (
-    //1
     <Box sx={{ display: 'flex' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
-
       <Box sx={{ flexGrow: 1, padding: '45px', backgroundColor: '#E0F2F1' }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1rem' }}>
           Margem / Contratação
         </Typography>
-
         <Box
           sx={{
             padding: 2,
@@ -337,8 +323,9 @@ const MargemContratacao = () => {
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={12}>
               <Typography variant="body1" color="primary">
-                <Divider textAlign="left">Buscar servidor</Divider>
+                Buscar servidor
               </Typography>
+              <Divider textAlign="left" sx={{ marginTop: 1 }} />
             </Grid>
 
             <Grid item xs={12} sm={6}>
@@ -409,7 +396,6 @@ const MargemContratacao = () => {
             </Grid>
           </Grid>
         </Box>
-
         <Box marginTop={2}>
           <Divider />
         </Box>
@@ -423,17 +409,16 @@ const MargemContratacao = () => {
           }}
         >
           <Grid container spacing={1}>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={12}>
               <Typography variant="body1" color="primary">
-                <Divider textAlign="left">Selecione a Consignataria</Divider>
+                Selecione a Consignataria
               </Typography>
-
               <Divider textAlign="left" sx={{ marginTop: 1 }} />
               <FormControl fullWidth>
                 <Select
                   value={selectValue || ''}
                   onChange={handleChange}
-                  sx={{ backgroundColor: '#ffffff' }} 
+                  sx={{ backgroundColor: '#ffffff' }}
                 >
                   <MenuItem value="" disabled sx={{ color: '#000000f0', backgroundColor: '#E8F5E9' }}>
                     Selecione a Consignatária
@@ -452,7 +437,6 @@ const MargemContratacao = () => {
             </Grid>
           </Grid>
         </Box>
-
         {isLoading ? (
           <Box
             sx={{
@@ -470,35 +454,25 @@ const MargemContratacao = () => {
             </Typography>
           </Box>
         ) : (
-
-
           <>
             <Box marginTop={2}>
               <Divider />
             </Box>
             {externalData && externalData.results.length > 0 && (
               <>
-                <Box
-                  sx={{
-                    backgroundColor: 'white',
-                    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                    borderRadius: 2,
-                    padding: 2,
-                    width: '100%',
-                    marginTop: 2,
-                  }}
-                >
-                  <Grid item xs={12} sm={12} marginTop={2}>
-                    <Typography variant="body1" color="primary">
-                      <Divider textAlign="left">Dados Do Servidor</Divider>
-                    </Typography>
-                  </Grid>
-
-
+                <Box sx={{ backgroundColor: 'white', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: 2, padding: 2, marginTop: 2 }}>
                   <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Typography variant="body1" color="primary">
+                        Dados Do Servidor
+                      </Typography>
+                      <Divider textAlign="left" sx={{ marginTop: 2 }} />
+                    </Grid>
+
+
                     <Grid item xs={12} sm={4}>
                       <Typography variant="body2">
-                        <strong>Nome: </strong>{externalData.results[0]?.nome || ''}
+                        <strong>Nome:</strong> {externalData.results[0]?.nome || ''}
                       </Typography>
                     </Grid>
 
@@ -531,8 +505,6 @@ const MargemContratacao = () => {
                     </Grid>
                   </Grid>
                 </Box>
-
-                {/* Fim de uma box */}
                 <Box marginTop={2}>
                   <Divider />
                 </Box>
@@ -644,11 +616,6 @@ const MargemContratacao = () => {
                   <Box marginTop={2}>
                     <Divider />
                   </Box>
-
-
-
-
-
                   <Grid container spacing={0} marginTop={4} alignItems="center">
                     <Typography variant="h6" gutterBottom>
                       Novas Contratações
@@ -696,14 +663,11 @@ const MargemContratacao = () => {
                       </Grid>
                     </Grid>
                   </Box>
-
                 </>
-
                 {/*divisor*/}
                 <Box marginTop={2}>
                   <Divider />
                 </Box>
-
               </>
             )}
           </>
@@ -716,18 +680,8 @@ const MargemContratacao = () => {
           <Alert onClose={() => setError(null)} severity="error">{fetchError?.message}</Alert>
         </Snackbar>
       </Box>
-    </Box>
+    </Box >
   );
 };
 
 export default MargemContratacao;
-
-{/*
-  
-  
-  agora, tenho um codigo aqui, é preciso criar uma page com todos os campos da models.py da reserva. estou usabndo materia ui. tenho um page aqui, mas que que vc modifique para criar essa page e vai ser somente um stepper.  onde vai ter os campos da models de criar reserva no meu backend. na models tem um campo consulta, esse campo sera um selec onde , assim como visto na models.py, vai mostrar as consultas feitas anteriormente. a situação tbm por default é em analise, somente.  vai criar primeira parte desse stepper que é o preenchimento  desses dados, a segunda parte do stepper é a analise do que foi preenchido e lgo embaixo tbm tem que ter do lado direito valor margem antes e do lado esquedor infrrio valor da margem após.  a terceira e ultima etapa do stepper é gerar um contrato quer vai ser exportado par outra pagina, então, nessa estepper final vai ter uma mensagem infrmado o numero do contrato gerado na reserva, infromar que foi para analise por pafdão.  e ter acima um icone de  deu tudo certo ou correto e um botao embaixo para finalizar. ao clicar no botão finalizar deve apagar todos os campos que foi gerado para poder solciat uma nova reserva(iniciar o stepper novament):
-  
-  
-  
-  
-  */}

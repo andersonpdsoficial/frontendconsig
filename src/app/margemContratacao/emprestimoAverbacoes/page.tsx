@@ -18,7 +18,7 @@ import {Grid,
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useQuery } from '@tanstack/react-query';
 import { useReserva } from '../../../shared/hooks/useReserva';
-import { fetchConsultas, fetchServidorFromExternalApi } from '../../../shared/services/apiService';
+import { fetchConsultas, fetchServidorConsignadoFromExternalApi, fetchServidorFromExternalApi } from '../../../shared/services/apiService';
 import CustomizedList from '../../../shared/components/menu-lateral/Demo';
 import FloatingSearchButton from '../../../shared/components/buttons/FloatingSearchButton';
 import CookiesBanner from '../../../shared/components/cookiesBanner/CookiesBanner';
@@ -30,85 +30,39 @@ const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Co
 
 
 const ReservaPage = () => {
-
-  // const [consultas, setConsultas] = useState([]);
-  // const [isLoadingConsultas, setIsLoadingConsultas] = useState(true);
-  // const [isErrorConsultas, setIsErrorConsultas] = useState(false);
-
-  // useEffect(() => {
-  //   const loadConsultas = async () => {
-  //     try {
-  //       const data = await fetchConsultas();
-  //       setConsultas(data);
-  //     } catch (error) {
-  //       setIsErrorConsultas(true);
-  //     } finally {
-  //       setIsLoadingConsultas(false);
-  //     }
-  //   };
-
-  //   loadConsultas();
-  // }, []);
-
-
   const [activeStep, setActiveStep] = useState(0);
   const [reservaData, setReservaData] = useState<any>({
-    valor: '',
-    consulta: '',
-    prazoInicial: '',
-    prazoFinal: '',
-    situacao: 0,
-    contrato: '',
     matricula: '',
     cpf: '',
+    valor: '',
+    consulta: '',
+    email: '',
+    prazo_inicial: '',
+    prazo_final: '',
+    situacao: 0,
+    contrato: '',
     nome: '',
-    margemDisponivel: '',
-    margemTotal: '',
-    vencimentoParcela: '',
-    folhaDesconto: '',
-    totalFinanciado: '',
-    liquidoLiberado: '',
-    liberacaoCredito: '',
+    margem_disponivel: '',
+    margem_total: '',
+    vencimento_parcela: '',
+    folha_desconto: '',
+    total_financiado: '',
+    liquido_liberado: '',
+    liberacao_credito: '',
     cet: '',
     observacoes: '',
-    quantidadeParcelas: '',
-    valorParcelas: '',
-    jurosMensal: '',
+    quantidade_parcelas: '',
+    valor_parcelas: '',
+    folha: '',
+    juros_mensal: '',
     valorIof: '',
-    carenciaDias: '',
-    valorCarencia: '',
+    carencia_dias: '',
+    valor_carencia: '',
     vinculo: '',
-    margemAntes: '',
-    margemApos: '',
+    margem_antes: '',
+    margem_apos: '',
   });
   const { mutate: createReserva, isLoading: isSaving } = useReserva();
-  const [isLoadingServidor, setIsLoadingServidor] = useState(false);
-  const [isErrorServidor, setIsErrorServidor] = useState(false);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (reservaData.cpf.length === 11) { // Supondo que CPF tenha 11 dígitos
-        setIsLoadingServidor(true);
-        setIsErrorServidor(false);
-        try {
-          const data = await fetchServidorFromExternalApi(reservaData.cpf);
-          setReservaData(prevData => ({
-            ...prevData,
-            nome: data.nome || '',
-            matricula: data.matricula || '',
-            vinculo: data.vinculo || ''
-          }));
-        } catch (error) {
-          setIsErrorServidor(true);
-        } finally {
-          setIsLoadingServidor(false);
-        }
-      }
-    };
-
-    fetchData();
-  }, [reservaData.cpf]);
 
 
   // Consultas para o select
@@ -149,35 +103,89 @@ const ReservaPage = () => {
     setReservaData({
       valor: '',
       consulta: '',
-      prazoInicial: '',
-      prazoFinal: '',
-      situacao: 0,
+      email: '',
+      prazo_inicial:'',
+      prazo_final: '',
+      situacao: ' ',
       contrato: '',
       matricula: '',
       cpf: '',
       nome: '',
-      margemDisponivel: '',
-      margemTotal: '',
-      vencimentoParcela: '',
-      folhaDesconto: '',
-      totalFinanciado: '',
-      liquidoLiberado: '',
-      liberacaoCredito: '',
+      margem_disponivel: '',
+      margem_total: '',
+      vencimento_parcela: '',
+      folha_desconto: '',
+      total_financiado: '',
+      liquido_liberado: '',
+      liberacao_credito: '',
       cet: '',
       observacoes: '',
-      quantidadeParcelas: '',
-      valorParcelas: '',
-      jurosMensal: '',
-      valorIof: '',
-      carenciaDias: '',
-      valorCarencia: '',
+      quantidade_parcelas: '',
+      valor_parcelas: '',
+      folha: '',
+      juros_mensal: '',
+      valor_iof: '',
+      carencia_dias: '',
+      valor_carencia: '',
       vinculo: '',
-      margemAntes: '',
-      margemApos: '',
+      margem_antes: '',
+      margem_apos: '',
     });
     setActiveStep(0);
   };
 
+  const [isLoadingServidor, setIsLoadingServidor] = useState(false);
+  const [isErrorServidor, setIsErrorServidor] = useState(false);
+
+//Busca pelo dados na externalApi consignado
+  useEffect(() => {
+    const fetchData = async () => {
+      if (reservaData.matricula.length ) { 
+        setIsLoadingServidor(true);
+        setIsErrorServidor(false);
+        try {
+          const data = await fetchServidorConsignadoFromExternalApi(reservaData.matricula);
+          setReservaData(prevData => ({
+            ...prevData,
+            nome: data.results[0]?.nome_servidor || '',
+            cpf: data.results[0]?.cpf_servidor || '',
+            valorDisponivel: data.results[0]?.margem_consignada_livre || '',
+            margemTotal: data.results[0]?.margem_consignada_total || '',
+            margemAntes: data.results[0]?.margem_consignada_livre || '',
+            
+          }));
+        } catch (error) {
+          setIsErrorServidor(true);
+        } finally {
+          setIsLoadingServidor(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [reservaData.matricula]);
+//Busca pelo vinculo externalApi no servidor
+  useEffect(() => {
+    const fetchData = async () => {
+      if (reservaData.matricula.length ) { 
+        setIsLoadingServidor(true);
+        setIsErrorServidor(false);
+        try {
+          const data = await fetchServidorFromExternalApi(reservaData.matricula);
+          setReservaData(prevData => ({
+            ...prevData,
+            vinculo: data.results[0]?.tipo_servidor.nome || 'Vínculo Não Localizado',
+          }));
+        } catch (error) {
+          setIsErrorServidor(true);
+        } finally {
+          setIsLoadingServidor(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [reservaData.matricula]);
 
 
   return (
@@ -203,7 +211,25 @@ const ReservaPage = () => {
            <Grid item xs={12} sm={6}>
            <div style={{ padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
       <Typography variant="h6" gutterBottom>Preenchimento dos Dados</Typography>
+      <TextField
+        fullWidth
+        label="Matricula"
+        variant="outlined"
+        value={reservaData.matricula}
+        onChange={(e) => setReservaData({ ...reservaData, matricula: e.target.value })}
+        margin="normal"
+        required
+      />
       
+      <TextField
+        fullWidth
+        label="CPF"
+        variant="outlined"
+        value={reservaData.cpf}
+        onChange={(e) => setReservaData({ ...reservaData, cpf: e.target.value })}
+        margin="normal"
+        required
+      />
       <TextField
         fullWidth
         label="Valor"
@@ -237,7 +263,7 @@ const ReservaPage = () => {
             <MenuItem key={consulta.id} value={consulta.id}>
               {consulta.id}
             </MenuItem>
-          ))
+          )).at(-1)
         ) : (
           <MenuItem disabled>Nenhuma consulta disponível</MenuItem>
         )}
@@ -245,12 +271,23 @@ const ReservaPage = () => {
       
       <TextField
         fullWidth
+        label="E-mail"
+        variant="outlined"
+        type="email"
+        value={reservaData.email}
+        onChange={(e) => setReservaData({ ...reservaData, email: e.target.value })}
+        margin="normal"
+        required
+                />
+                
+      <TextField
+        fullWidth
         label="Prazo Inicial"
         variant="outlined"
-        value={reservaData.prazoInicial}
-        onChange={(e) => setReservaData({ ...reservaData, prazoInicial: e.target.value })}
+        value={reservaData.prazo_inicial}
+        onChange={(e) => setReservaData({ ...reservaData, prazo_inicial: e.target.value })}
         margin="normal"
-        type="date"
+        type="datetime-local"
         InputLabelProps={{ shrink: true }}
         required
       />
@@ -259,10 +296,10 @@ const ReservaPage = () => {
         fullWidth
         label="Prazo Final"
         variant="outlined"
-        value={reservaData.prazoFinal}
-        onChange={(e) => setReservaData({ ...reservaData, prazoFinal: e.target.value })}
+        value={reservaData.prazo_final}
+        onChange={(e) => setReservaData({ ...reservaData, prazo_final: e.target.value })}
         margin="normal"
-        type="date"
+        type="datetime-local"
         InputLabelProps={{ shrink: true }}
         required
       />
@@ -287,25 +324,8 @@ const ReservaPage = () => {
         required
       />
       
-      <TextField
-        fullWidth
-        label="Matricula"
-        variant="outlined"
-        value={reservaData.matricula}
-        onChange={(e) => setReservaData({ ...reservaData, matricula: e.target.value })}
-        margin="normal"
-        required
-      />
+   
       
-      <TextField
-        fullWidth
-        label="CPF"
-        variant="outlined"
-        value={reservaData.cpf}
-        onChange={(e) => setReservaData({ ...reservaData, cpf: e.target.value })}
-        margin="normal"
-        required
-      />
       
       <TextField
         fullWidth
@@ -322,9 +342,12 @@ const ReservaPage = () => {
         fullWidth
         label="Valor Disponível"
         variant="outlined"
-        value={reservaData.valorDisponivel}
-        onChange={(e) => setReservaData({ ...reservaData, valorDisponivel: e.target.value })}
+        value={reservaData.margem_disponivel}
+        onChange={(e) => setReservaData({ ...reservaData, margem_disponivel: e.target.value })}
         margin="normal"
+        InputLabelProps={{
+          shrink: true
+        }}
         required
       />
       
@@ -332,8 +355,8 @@ const ReservaPage = () => {
         fullWidth
         label="Margem Total"
         variant="outlined"
-        value={reservaData.margemTotal}
-        onChange={(e) => setReservaData({ ...reservaData, margemTotal: e.target.value })}
+        value={reservaData.margem_total}
+        onChange={(e) => setReservaData({ ...reservaData, margem_total: e.target.value })}
         margin="normal"
         required
       />
@@ -342,8 +365,18 @@ const ReservaPage = () => {
         fullWidth
         label="Vencimento das Parcelas"
         variant="outlined"
-        value={reservaData.vencimentoParcela}
-        onChange={(e) => setReservaData({ ...reservaData, vencimentoParcela: e.target.value })}
+        value={reservaData.vencimento_parcela}
+        onChange={(e) => setReservaData({ ...reservaData, vencimento_parcela: e.target.value })}
+        type="date"
+        margin="normal"
+        required
+      />
+      <TextField
+        fullWidth
+        label="Folha"
+        variant="outlined"
+        value={reservaData.folha_desconto}
+        onChange={(e) => setReservaData({ ...reservaData, folha_desconto: e.target.value })}
         margin="normal"
         required
       />
@@ -352,8 +385,8 @@ const ReservaPage = () => {
         fullWidth
         label="Total Financiado"
         variant="outlined"
-        value={reservaData.totalFinanciado}
-        onChange={(e) => setReservaData({ ...reservaData, totalFinanciado: e.target.value })}
+        value={reservaData.total_financiado}
+        onChange={(e) => setReservaData({ ...reservaData, total_financiado: e.target.value })}
         margin="normal"
         required
       />
@@ -362,12 +395,20 @@ const ReservaPage = () => {
         fullWidth
         label="Líquido Liberado"
         variant="outlined"
-        value={reservaData.liquidoLiberado}
-        onChange={(e) => setReservaData({ ...reservaData, liquidoLiberado: e.target.value })}
+        value={reservaData.liquido_liberado}
+        onChange={(e) => setReservaData({ ...reservaData, liquido_liberado: e.target.value })}
         margin="normal"
         required
       />
-      
+       <TextField
+        fullWidth
+        label="Liberação de Crédito"
+        variant="outlined"
+        value={reservaData.liberacao_credito}
+        onChange={(e) => setReservaData({ ...reservaData, liberacao_credito: e.target.value })}
+        margin="normal"
+        required
+      />
       <TextField
         fullWidth
         label="Observações"
@@ -392,8 +433,8 @@ const ReservaPage = () => {
         fullWidth
         label="Quantidade de Parcelas"
         variant="outlined"
-        value={reservaData.quantidadeParcelas}
-        onChange={(e) => setReservaData({ ...reservaData, quantidadeParcelas: e.target.value })}
+        value={reservaData.quantidade_parcelas}
+        onChange={(e) => setReservaData({ ...reservaData, quantidade_parcelas: e.target.value })}
         margin="normal"
         required
       />
@@ -402,18 +443,27 @@ const ReservaPage = () => {
         fullWidth
         label="Valor das Parcelas"
         variant="outlined"
-        value={reservaData.valorParcelas}
-        onChange={(e) => setReservaData({ ...reservaData, valorParcelas: e.target.value })}
+        value={reservaData.valor_parcelas}
+        onChange={(e) => setReservaData({ ...reservaData, valor_parcelas: e.target.value })}
         margin="normal"
         required
       />
       
       <TextField
         fullWidth
+        label="Folha"
+        variant="outlined"
+        value={reservaData.folha}
+        onChange={(e) => setReservaData({ ...reservaData, folha: e.target.value })}
+        margin="normal"
+        required
+      />
+      <TextField
+        fullWidth
         label="Juros Mensal"
         variant="outlined"
-        value={reservaData.jurosMensal}
-        onChange={(e) => setReservaData({ ...reservaData, jurosMensal: e.target.value })}
+        value={reservaData.juros_mensal}
+        onChange={(e) => setReservaData({ ...reservaData, juros_mensal: e.target.value })}
         margin="normal"
         required
       />
@@ -422,8 +472,8 @@ const ReservaPage = () => {
         fullWidth
         label="Valor do IOF"
         variant="outlined"
-        value={reservaData.valorIof}
-        onChange={(e) => setReservaData({ ...reservaData, valorIof: e.target.value })}
+        value={reservaData.valor_iof}
+        onChange={(e) => setReservaData({ ...reservaData, valor_iof: e.target.value })}
         margin="normal"
         required
       />
@@ -432,8 +482,8 @@ const ReservaPage = () => {
         fullWidth
         label="Dias de Carência"
         variant="outlined"
-        value={reservaData.carenciaDias}
-        onChange={(e) => setReservaData({ ...reservaData, carenciaDias: e.target.value })}
+        value={reservaData.carencia_dias}
+        onChange={(e) => setReservaData({ ...reservaData, carencia_dias: e.target.value })}
         margin="normal"
         required
       />
@@ -442,23 +492,21 @@ const ReservaPage = () => {
         fullWidth
         label="Valor da Carência"
         variant="outlined"
-        value={reservaData.valorCarencia}
-        onChange={(e) => setReservaData({ ...reservaData, valorCarencia: e.target.value })}
+        value={reservaData.valor_carencia}
+        onChange={(e) => setReservaData({ ...reservaData, valor_carencia: e.target.value })}
         margin="normal"
         required
       />
-      
-      <TextField
+       <TextField
         fullWidth
-        label="Vínculo do Servidor"
+        label="Vinculo"
         variant="outlined"
         value={reservaData.vinculo}
         onChange={(e) => setReservaData({ ...reservaData, vinculo: e.target.value })}
         margin="normal"
         required
-        disabled
       />
-      
+ 
       <Button onClick={handleNext} variant="contained" color="primary" style={{ marginTop: '16px' }}>Próximo</Button>
     </div>
          </Grid>
@@ -466,249 +514,132 @@ const ReservaPage = () => {
 
           )}
           {activeStep === 1 && (
-            <div>
-              <Typography variant="h6">Análise dos Dados</Typography>
-              <Typography>Valor: {reservaData.valor}</Typography>
-              <Typography>Consulta: {reservaData.consulta}</Typography>
-              <Typography>Prazo Incial: {reservaData.prazoInicial}</Typography>
-              <Typography>Prazo Final: {reservaData.prazoFinal}</Typography>
-              <Typography>Contrato: {reservaData.contrato}</Typography>
-              <Typography>CPF: {reservaData.cpf}</Typography>
-              <Typography>Nome: {reservaData.nome}</Typography>
-              <Typography>Valor Diponivel: {reservaData.valorDisponivel}</Typography>
-              <Typography>Margem Total: {reservaData.margemTotal}</Typography>
-              <Typography>Vencimento das Parcelas: {reservaData.vencimentoParcela}</Typography>
-              <Typography>Total Financiado: {reservaData.totalFinanciado}</Typography>
-              <Typography>Valor Liquido Liberado: {reservaData.liquidoLiberado}</Typography>
-              <Typography>Observações: {reservaData.observacoes}</Typography>
-              <Typography>Custo Efetivo Total - CET: {reservaData.cet}</Typography>
-              <Typography>Quantidades de Parcelas: {reservaData.quantidadeParcelas}</Typography>
-              <Typography>Valor das Parcelas: {reservaData.valorParcelas}</Typography>
-              <Typography>Juros Mensal: {reservaData.jurosMensal}</Typography>
-              <Typography>Valor do Iof: {reservaData.valorIof}</Typography>
-              <Typography>Dias de Carencia: {reservaData.carenciaDias}</Typography>
-              <Typography>Valor da Carência: {reservaData.valorCarencia}</Typography>
-              <Typography>Vinculo do Servidor: {reservaData.vinculo}</Typography>
-
-              {/*Aqui vai ser feito calculo de subtração ao ser criado a reserva */}
-              <Typography>Margem Antes: {reservaData.margemAntes}</Typography>
-              <Typography>Margem Após: {reservaData.margemApos}</Typography>
-              {/* Outros dados a confirmar */}
-              <Button onClick={handleBack} variant="contained">Voltar</Button>
-              <Button onClick={handleNext} variant="contained" color="primary" disabled={isSaving}>
-                {isSaving ? <CircularProgress size={24} /> : 'Confirmar'}
-              </Button>
-            </div>
+             <Box
+             sx={{
+               width: '90%',
+               maxWidth: '800px',
+               margin: 'auto',
+               padding: 3,
+               boxShadow: 3,
+               borderRadius: 2,
+               backgroundColor: 'background.paper',
+             }}
+           >
+             <Typography variant="h6" gutterBottom>
+               Análise dos Dados
+             </Typography>
+             <Grid container spacing={2}>
+               <Grid item xs={12} sm={6}>
+                 <Typography>Matricula:</Typography>
+                  <Typography>CPF:</Typography>
+                  <Typography>E-mail:</Typography>
+                 <Typography>Valor:</Typography>
+                 <Typography>Consulta:</Typography>
+                 <Typography>Prazo Inicial:</Typography>
+                 <Typography>Prazo Final:</Typography>
+                 <Typography>Contrato:</Typography>
+                 <Typography>Nome:</Typography>
+                 <Typography>Valor Disponível:</Typography>
+                 <Typography>Margem Total:</Typography>
+                 <Typography>Vencimento das Parcelas:</Typography>
+                 <Typography>Folha:</Typography>
+                 <Typography>Total Financiado:</Typography>
+                 <Typography>Valor Líquido Liberado:</Typography>
+                 <Typography>Liberação de Crédito:</Typography>
+                 <Typography>Observações:</Typography>
+                 <Typography>Custo Efetivo Total - CET:</Typography>
+                 <Typography>Quantidade de Parcelas:</Typography>
+                 <Typography>Valor das Parcelas:</Typography>
+                 <Typography>Juros Mensal:</Typography>
+                 <Typography>Valor do IOF:</Typography>
+                 <Typography>Dias de Carência:</Typography>
+                 <Typography>Valor da Carência:</Typography>
+                 <Typography>Vínculo:</Typography>
+                 <Typography>Margem Antes:</Typography>
+                 <Typography>Margem Após:</Typography>
+               </Grid>
+               <Grid item xs={12} sm={6}>
+                 <Typography>{reservaData.matricula}</Typography>
+                  <Typography>{reservaData.cpf}</Typography>
+                  <Typography>{reservaData.email}</Typography>
+                 <Typography>{reservaData.valor}</Typography>
+                 <Typography>{reservaData.consulta}</Typography>
+                 <Typography>{reservaData.prazo_inicial}</Typography>
+                 <Typography>{reservaData.prazo_final}</Typography>
+                 <Typography>{reservaData.contrato}</Typography>
+                 <Typography>{reservaData.nome}</Typography>
+                 <Typography>{reservaData.margem_disponivel}</Typography>
+                 <Typography>{reservaData.margem_total}</Typography>
+                 <Typography>{reservaData.vencimento_parcela}</Typography>
+                 <Typography>{reservaData.folha_desconto}</Typography>
+                 <Typography>{reservaData.total_financiado}</Typography>
+                 <Typography>{reservaData.liquido_liberado}</Typography>
+                 <Typography>{reservaData.liberacao_credito}</Typography>
+                 <Typography>{reservaData.observacoes}</Typography>
+                 <Typography>{reservaData.cet}</Typography>
+                 <Typography>{reservaData.quantidade_parcelas}</Typography>
+                 <Typography>{reservaData.valor_parcelas}</Typography>
+                 <Typography>{reservaData.juros_mensal}</Typography>
+                 <Typography>{reservaData.valor_iof}</Typography>
+                 <Typography>{reservaData.carencia_dias}</Typography>
+                 <Typography>{reservaData.valor_carencia}</Typography>
+                 <Typography>{reservaData.vinculo}</Typography>
+                 <Typography>{reservaData.margem_antes}</Typography>
+                 <Typography>{reservaData.margem_apos}</Typography>
+               </Grid>
+             </Grid>
+             <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'flex-end' }}>
+               <Button onClick={handleBack} variant="contained" sx={{ marginRight: 1 }}>
+                 Voltar
+               </Button>
+               <Button onClick={handleNext} variant="contained" color="primary" disabled={isSaving}>
+                 {isSaving ? <CircularProgress size={24} /> : 'Confirmar'}
+               </Button>
+             </Box>
+           </Box>
           )}
           {activeStep === 2 && (
-            <div>
-              <CheckCircleIcon color="success" fontSize="large" />
-              <Typography variant="h6">Contrato gerado com sucesso!</Typography>
-              <Typography>Número do contrato: {reservaData.contrato}</Typography>
-              <Typography>Status: Enviado para Analise.</Typography>
-              <Button
-                onClick={handleReset}
-                variant="contained"
-                color="primary"
-              >
-                Finalizar
-              </Button>
-            </div>
+            <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 3,
+              maxWidth: '600px',
+              margin: 'auto',
+              boxShadow: 3, 
+              borderRadius: 2,
+              textAlign: 'center',
+              bgcolor: 'background.paper',
+            }}
+          >
+            <CheckCircleIcon color="success" fontSize="large" sx={{ mb: 2 }} />
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Contrato gerado com sucesso!
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Número do contrato: {reservaData.contrato}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Status: Enviado para Análise.
+            </Typography>
+            <Button
+              onClick={handleReset}
+              variant="contained"
+              color="primary"
+            >
+              Finalizar
+            </Button>
+          </Box>
           )}
         </Box>
       </Box>
 
     </Box>
+
 
   );
 };
 
 export default ReservaPage;
-
-
-
-
-
-//FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-import React, { useState, useEffect } from 'react';
-import { Typography, TextField, Button, Grid, MenuItem, CircularProgress, IconButton } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { fetchServidorFromExternalApi } from './apiService'; // Importar a função de serviço
-import { Stepper, Step, StepLabel } from '@mui/material';
-
-const Formulario = ({ activeStep, steps, handleNext, handleBack, handleReset, isSaving }) => {
-  const [reservaData, setReservaData] = useState({
-    valor: '',
-    consulta: '',
-    prazoInicial: '',
-    prazoFinal: '',
-    situacao: '',
-    contrato: '',
-    matricula: '',
-    cpf: '',
-    nome: '',
-    valorDisponivel: '',
-    margemTotal: '',
-    vencimentoParcela: '',
-    totalFinanciado: '',
-    liquidoLiberado: '',
-    observacoes: '',
-    cet: '',
-    quantidadeParcelas: '',
-    valorParcelas: '',
-    jurosMensal: '',
-    valorIof: '',
-    carenciaDias: '',
-    valorCarencia: '',
-    vinculo: '',
-    margemAntes: '',
-    margemApos: ''
-  });
-
-  const [isLoadingServidor, setIsLoadingServidor] = useState(false);
-  const [isErrorServidor, setIsErrorServidor] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (reservaData.cpf.length === 11) { // Supondo que CPF tenha 11 dígitos
-        setIsLoadingServidor(true);
-        setIsErrorServidor(false);
-        try {
-          const data = await fetchServidorFromExternalApi(reservaData.cpf);
-          setReservaData(prevData => ({
-            ...prevData,
-            nome: data.nome || '',
-            matricula: data.matricula || '',
-            vinculo: data.vinculo || ''
-          }));
-        } catch (error) {
-          setIsErrorServidor(true);
-        } finally {
-          setIsLoadingServidor(false);
-        }
-      }
-    };
-
-    fetchData();
-  }, [reservaData.cpf]);
-
-  const renderTextField = (label, key, isDisabled = false) => (
-    <Grid item xs={12} sm={6} md={4} lg={3} key={key}>
-      <TextField
-        fullWidth
-        label={label}
-        variant="outlined"
-        value={reservaData[key]}
-        onChange={(e) => setReservaData({ ...reservaData, [key]: e.target.value })}
-        margin="normal"
-        required
-        disabled={isDisabled}
-        InputProps={{
-          endAdornment: reservaData[key] ? (
-            <IconButton edge="end">
-              <CheckCircleIcon color="success" />
-            </IconButton>
-          ) : null,
-        }}
-      />
-    </Grid>
-  );
-
-  return (
-    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2' }}>
-      <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 7 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem', padding: '6px' }}>
-          Nova Reserva de Empréstimo
-        </Typography>
-
-        <Stepper activeStep={activeStep}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        <Box sx={{ padding: 3 }}>
-          {activeStep === 0 && (
-            <Grid container spacing={2}>
-              {renderTextField('Valor', 'valor')}
-              {renderTextField('Consulta', 'consulta')}
-              {renderTextField('Prazo Inicial', 'prazoInicial', false, 'date')}
-              {renderTextField('Prazo Final', 'prazoFinal', false, 'date')}
-              {renderTextField('Situação', 'situacao')}
-              {renderTextField('Contrato', 'contrato')}
-              {renderTextField('Matricula', 'matricula')}
-              {renderTextField('CPF', 'cpf')}
-              {renderTextField('Nome', 'nome', true)}
-              {renderTextField('Valor Disponível', 'valorDisponivel')}
-              {renderTextField('Margem Total', 'margemTotal')}
-              {renderTextField('Vencimento das Parcelas', 'vencimentoParcela')}
-              {renderTextField('Total Financiado', 'totalFinanciado')}
-              {renderTextField('Líquido Liberado', 'liquidoLiberado')}
-              {renderTextField('Observações', 'observacoes')}
-              {renderTextField('Custo Efetivo Total - CET', 'cet')}
-              {renderTextField('Quantidade de Parcelas', 'quantidadeParcelas')}
-              {renderTextField('Valor das Parcelas', 'valorParcelas')}
-              {renderTextField('Juros Mensal', 'jurosMensal')}
-              {renderTextField('Valor do IOF', 'valorIof')}
-              {renderTextField('Dias de Carência', 'carenciaDias')}
-              {renderTextField('Valor da Carência', 'valorCarencia')}
-              {renderTextField('Vínculo do Servidor', 'vinculo', true)}
-
-              <Button onClick={handleNext} variant="contained" color="primary" style={{ marginTop: '16px' }}>
-                Próximo
-              </Button>
-            </Grid>
-          )}
-          {activeStep === 1 && (
-            <div>
-              <Typography variant="h6">Análise dos Dados</Typography>
-              <Typography>Valor: {reservaData.valor}</Typography>
-              <Typography>Consulta: {reservaData.consulta}</Typography>
-              <Typography>Prazo Incial: {reservaData.prazoInicial}</Typography>
-              <Typography>Prazo Final: {reservaData.prazoFinal}</Typography>
-              <Typography>Contrato: {reservaData.contrato}</Typography>
-              <Typography>CPF: {reservaData.cpf}</Typography>
-              <Typography>Nome: {reservaData.nome}</Typography>
-              <Typography>Valor Disponível: {reservaData.valorDisponivel}</Typography>
-              <Typography>Margem Total: {reservaData.margemTotal}</Typography>
-              <Typography>Vencimento das Parcelas: {reservaData.vencimentoParcela}</Typography>
-              <Typography>Total Financiado: {reservaData.totalFinanciado}</Typography>
-              <Typography>Valor Líquido Liberado: {reservaData.liquidoLiberado}</Typography>
-              <Typography>Observações: {reservaData.observacoes}</Typography>
-              <Typography>Custo Efetivo Total - CET: {reservaData.cet}</Typography>
-              <Typography>Quantidade de Parcelas: {reservaData.quantidadeParcelas}</Typography>
-              <Typography>Valor das Parcelas: {reservaData.valorParcelas}</Typography>
-              <Typography>Juros Mensal: {reservaData.jurosMensal}</Typography>
-              <Typography>Valor do IOF: {reservaData.valorIof}</Typography>
-              <Typography>Dias de Carência: {reservaData.carenciaDias}</Typography>
-              <Typography>Valor da Carência: {reservaData.valorCarencia}</Typography>
-              <Typography>Vínculo do Servidor: {reservaData.vinculo}</Typography>
-
-              <Typography>Margem Antes: {reservaData.margemAntes}</Typography>
-              <Typography>Margem Após: {reservaData.margemApos}</Typography>
-              <Button onClick={handleBack} variant="contained">Voltar</Button>
-              <Button onClick={handleNext} variant="contained" color="primary" disabled={isSaving}>
-                {isSaving ? <CircularProgress size={24} /> : 'Confirmar'}
-              </Button>
-            </div>
-          )}
-          {activeStep === 2 && (
-            <div>
-              <CheckCircleIcon color="success" fontSize="large" />
-              <Typography variant="h6">Contrato gerado com sucesso!</Typography>
-              <Typography>Número do contrato: {reservaData.contrato}</Typography>
-              <Typography>Status: Enviado para Análise.</Typography>
-              <Button onClick={handleReset} variant="contained" color="primary">
-                Finalizar
-              </Button>
-            </div>
-          )}
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
-export default Formulario;
-

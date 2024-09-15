@@ -23,10 +23,11 @@ import CustomizedList from '../../../shared/components/menu-lateral/Demo';
 import FloatingSearchButton from '../../../shared/components/buttons/FloatingSearchButton';
 import CookiesBanner from '../../../shared/components/cookiesBanner/CookiesBanner';
 
-
 // Etapas do stepper
 const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Contrato'];
 
+
+const margem_apos = reservaData.margem_disponivel - reservaData.valor_parcelas;
 
 
 const ReservaPage = () => {
@@ -73,8 +74,7 @@ const ReservaPage = () => {
 
   useEffect(() => {
     if (activeStep === 2 && reservaData.contrato) {
-      // Fetch margin data for the current reservation
-      // Logic to fetch margin data should be here
+
     }
   }, [activeStep, reservaData.contrato]);
 
@@ -103,7 +103,7 @@ const ReservaPage = () => {
     setReservaData({
       valor: '',
       consulta: '',
-      email: '',
+   
       prazo_inicial:'',
       prazo_final: '',
       situacao: ' ',
@@ -149,9 +149,9 @@ const ReservaPage = () => {
             ...prevData,
             nome: data.results[0]?.nome_servidor || '',
             cpf: data.results[0]?.cpf_servidor || '',
-            valorDisponivel: data.results[0]?.margem_consignada_livre || '',
-            margemTotal: data.results[0]?.margem_consignada_total || '',
-            margemAntes: data.results[0]?.margem_consignada_livre || '',
+            margem_disponivel: data.results[0]?.margem_consignada_livre || '',
+            margem_total: data.results[0]?.margem_consignada_total || '',
+            // margem_disponivel: data.results[0]?.margem_consignada_livre || '',
             
           }));
         } catch (error) {
@@ -187,12 +187,14 @@ const ReservaPage = () => {
     fetchData();
   }, [reservaData.matricula]);
 
+  
 
   return (
     <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
+    
 
       <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 7 }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem', padding: '6px' }}>
@@ -269,16 +271,6 @@ const ReservaPage = () => {
         )}
       </TextField>
       
-      <TextField
-        fullWidth
-        label="E-mail"
-        variant="outlined"
-        type="email"
-        value={reservaData.email}
-        onChange={(e) => setReservaData({ ...reservaData, email: e.target.value })}
-        margin="normal"
-        required
-                />
                 
       <TextField
         fullWidth
@@ -323,10 +315,7 @@ const ReservaPage = () => {
         margin="normal"
         required
       />
-      
-   
-      
-      
+        
       <TextField
         fullWidth
         label="Nome"
@@ -368,6 +357,9 @@ const ReservaPage = () => {
         value={reservaData.vencimento_parcela}
         onChange={(e) => setReservaData({ ...reservaData, vencimento_parcela: e.target.value })}
         type="date"
+        InputLabelProps={{
+          shrink: true
+        }}
         margin="normal"
         required
       />
@@ -451,15 +443,6 @@ const ReservaPage = () => {
       
       <TextField
         fullWidth
-        label="Folha"
-        variant="outlined"
-        value={reservaData.folha}
-        onChange={(e) => setReservaData({ ...reservaData, folha: e.target.value })}
-        margin="normal"
-        required
-      />
-      <TextField
-        fullWidth
         label="Juros Mensal"
         variant="outlined"
         value={reservaData.juros_mensal}
@@ -529,65 +512,65 @@ const ReservaPage = () => {
                Análise dos Dados
              </Typography>
              <Grid container spacing={2}>
-               <Grid item xs={12} sm={6}>
-                 <Typography>Matricula:</Typography>
-                  <Typography>CPF:</Typography>
-                  <Typography>E-mail:</Typography>
-                 <Typography>Valor:</Typography>
-                 <Typography>Consulta:</Typography>
-                 <Typography>Prazo Inicial:</Typography>
-                 <Typography>Prazo Final:</Typography>
-                 <Typography>Contrato:</Typography>
-                 <Typography>Nome:</Typography>
-                 <Typography>Valor Disponível:</Typography>
-                 <Typography>Margem Total:</Typography>
-                 <Typography>Vencimento das Parcelas:</Typography>
-                 <Typography>Folha:</Typography>
-                 <Typography>Total Financiado:</Typography>
-                 <Typography>Valor Líquido Liberado:</Typography>
-                 <Typography>Liberação de Crédito:</Typography>
-                 <Typography>Observações:</Typography>
-                 <Typography>Custo Efetivo Total - CET:</Typography>
-                 <Typography>Quantidade de Parcelas:</Typography>
-                 <Typography>Valor das Parcelas:</Typography>
-                 <Typography>Juros Mensal:</Typography>
-                 <Typography>Valor do IOF:</Typography>
-                 <Typography>Dias de Carência:</Typography>
-                 <Typography>Valor da Carência:</Typography>
-                 <Typography>Vínculo:</Typography>
-                 <Typography>Margem Antes:</Typography>
-                 <Typography>Margem Após:</Typography>
-               </Grid>
-               <Grid item xs={12} sm={6}>
-                 <Typography>{reservaData.matricula}</Typography>
-                  <Typography>{reservaData.cpf}</Typography>
-                  <Typography>{reservaData.email}</Typography>
-                 <Typography>{reservaData.valor}</Typography>
-                 <Typography>{reservaData.consulta}</Typography>
-                 <Typography>{reservaData.prazo_inicial}</Typography>
-                 <Typography>{reservaData.prazo_final}</Typography>
-                 <Typography>{reservaData.contrato}</Typography>
-                 <Typography>{reservaData.nome}</Typography>
-                 <Typography>{reservaData.margem_disponivel}</Typography>
-                 <Typography>{reservaData.margem_total}</Typography>
-                 <Typography>{reservaData.vencimento_parcela}</Typography>
-                 <Typography>{reservaData.folha_desconto}</Typography>
-                 <Typography>{reservaData.total_financiado}</Typography>
-                 <Typography>{reservaData.liquido_liberado}</Typography>
-                 <Typography>{reservaData.liberacao_credito}</Typography>
-                 <Typography>{reservaData.observacoes}</Typography>
-                 <Typography>{reservaData.cet}</Typography>
-                 <Typography>{reservaData.quantidade_parcelas}</Typography>
-                 <Typography>{reservaData.valor_parcelas}</Typography>
-                 <Typography>{reservaData.juros_mensal}</Typography>
-                 <Typography>{reservaData.valor_iof}</Typography>
-                 <Typography>{reservaData.carencia_dias}</Typography>
-                 <Typography>{reservaData.valor_carencia}</Typography>
-                 <Typography>{reservaData.vinculo}</Typography>
-                 <Typography>{reservaData.margem_antes}</Typography>
-                 <Typography>{reservaData.margem_apos}</Typography>
-               </Grid>
-             </Grid>
+      <Grid item xs={12} sm={6}>
+        <Typography>Matricula:</Typography>
+        <Typography>CPF:</Typography>
+        {/* <Typography>E-mail:</Typography> */}
+        <Typography>Valor:</Typography>
+        <Typography>Consulta:</Typography>
+        <Typography>Prazo Inicial:</Typography>
+        <Typography>Prazo Final:</Typography>
+        <Typography>Contrato:</Typography>
+        <Typography>Nome:</Typography>
+        <Typography>Valor Disponível:</Typography>
+        <Typography>Margem Total:</Typography>
+        <Typography>Vencimento das Parcelas:</Typography>
+        <Typography>Folha:</Typography>
+        <Typography>Total Financiado:</Typography>
+        <Typography>Valor Líquido Liberado:</Typography>
+        <Typography>Liberação de Crédito:</Typography>
+        <Typography>Observações:</Typography>
+        <Typography>Custo Efetivo Total - CET:</Typography>
+        <Typography>Quantidade de Parcelas:</Typography>
+        <Typography>Valor das Parcelas:</Typography>
+        <Typography>Juros Mensal:</Typography>
+        <Typography>Valor do IOF:</Typography>
+        <Typography>Dias de Carência:</Typography>
+        <Typography>Valor da Carência:</Typography>
+        <Typography>Vínculo:</Typography>
+        <Typography>Margem Antes:</Typography>
+        <Typography>Margem Após:</Typography>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Typography>{reservaData.matricula}</Typography>
+        <Typography>{reservaData.cpf}</Typography>
+        {/* <Typography>{reservaData.email}</Typography> */}
+        <Typography>{reservaData.valor}</Typography>
+        <Typography>{reservaData.consulta}</Typography>
+        <Typography>{reservaData.prazo_inicial}</Typography>
+        <Typography>{reservaData.prazo_final}</Typography>
+        <Typography>{reservaData.contrato}</Typography>
+        <Typography>{reservaData.nome}</Typography>
+        <Typography>{reservaData.margem_disponivel}</Typography>
+        <Typography>{reservaData.margem_total}</Typography>
+        <Typography>{reservaData.vencimento_parcela}</Typography>
+        <Typography>{reservaData.folha_desconto}</Typography>
+        <Typography>{reservaData.total_financiado}</Typography>
+        <Typography>{reservaData.liquido_liberado}</Typography>
+        <Typography>{reservaData.liberacao_credito}</Typography>
+        <Typography>{reservaData.observacoes}</Typography>
+        <Typography>{reservaData.cet}</Typography>
+        <Typography>{reservaData.quantidade_parcelas}</Typography>
+        <Typography>{reservaData.valor_parcelas}</Typography>
+        <Typography>{reservaData.juros_mensal}</Typography>
+        <Typography>{reservaData.valor_iof}</Typography>
+        <Typography>{reservaData.carencia_dias}</Typography>
+        <Typography>{reservaData.valor_carencia}</Typography>
+        <Typography>{reservaData.vinculo}</Typography>
+        <Typography>{reservaData.margem_antes}</Typography>
+        <Typography>{margem_apos}</Typography> {/* Exibindo o valor calculado */}
+      </Grid>
+    </Grid>
              <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'flex-end' }}>
                <Button onClick={handleBack} variant="contained" sx={{ marginRight: 1 }}>
                  Voltar

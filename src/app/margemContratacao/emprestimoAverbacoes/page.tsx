@@ -1,4 +1,4 @@
-// src/app/margemContratacao/emprestimoAverbacoes/page.tsx
+8// src/app/margemContratacao/emprestimoAverbacoes/page.tsx
 
 'use client';
 
@@ -626,3 +626,135 @@ const ReservaPage = () => {
 };
 
 export default ReservaPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+'use client';
+import React, { useEffect, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { Box, Button, CircularProgress, Grid, Step, StepLabel, Stepper, TextField, Typography, MenuItem } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useReserva } from '@/shared/hooks/useReserva';
+import { useQuery } from '@tanstack/react-query';
+import { fetchConsultas } from '@/shared/services/apiService';
+
+// Etapas do stepper
+const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Contrato'];
+
+const ReservaPage = () => {
+  const { control, handleSubmit, reset } = useForm();
+  const [activeStep, setActiveStep] = useState(0);
+  const { mutate: createReserva, isLoading: isSaving } = useReserva();
+
+  const { data: consultas, isLoading: isLoadingConsultas, isError: isErrorConsultas } = useQuery({
+    queryKey: ['consultas'],
+    queryFn: fetchConsultas,
+  });
+
+  const onSubmit = (data) => {
+    if (activeStep === 0) {
+      setActiveStep(1);
+    } else if (activeStep === 1) {
+      createReserva(data, {
+        onSuccess: (res) => {
+          reset();
+          setActiveStep(2);
+        },
+      });
+    }
+  };
+
+  const handleBack = () => {
+    setActiveStep((prev) => prev - 1);
+  };
+
+  const handleReset = () => {
+    reset();
+    setActiveStep(0);
+  };
+
+  return (
+    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2' }}>
+      <Box sx={{ flexGrow: 2, padding: 7 }}>
+        <Typography variant="h6" gutterBottom>Nova Reserva de Empréstimo</Typography>
+        <Stepper activeStep={activeStep}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+        <Box sx={{ padding: 3 }}>
+          {activeStep === 0 && (
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Grid container spacing={2}>
+                {['matricula', 'cpf', 'valor'].map((field) => (
+                  <Grid item xs={12} sm={6} key={field}>
+                    <Controller
+                      name={field}
+                      control={control}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <TextField {...field} label={field.charAt(0).toUpperCase() + field.slice(1)} fullWidth required />
+                      )}
+                    />
+                  </Grid>
+                ))}
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="consulta"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField {...field} select label="Consulta" fullWidth required>
+                        {isLoadingConsultas ? (
+                          <MenuItem disabled><CircularProgress size={24} /></MenuItem>
+                        ) : isErrorConsultas ? (
+                          <MenuItem disabled><Typography color="error">Erro ao carregar consultas</Typography></MenuItem>
+                        ) : (
+                          consultas.map((consulta) => (
+                            <MenuItem key={consulta.id} value={consulta.id}>{consulta.id}</MenuItem>
+                          ))
+                        )}
+                      </TextField>
+                    )}
+                  />
+                </Grid>
+              </Grid>
+              <Button type="submit" variant="contained" color="primary">Próximo</Button>
+            </form>
+          )}
+          {activeStep === 1 && (
+            <Box>
+              {/* Adicione a análise de dados aqui */}
+              <Button onClick={handleBack} variant="contained">Voltar</Button>
+              <Button onClick={handleSubmit(onSubmit)} variant="contained" color="primary" disabled={isSaving}>
+                {isSaving ? <CircularProgress size={24} /> : 'Confirmar'}
+              </Button>
+            </Box>
+          )}
+          {activeStep === 2 && (
+            <Box>
+              <CheckCircleIcon color="success" fontSize="large" />
+              <Typography variant="h6">Contrato gerado com sucesso!</Typography>
+              <Button onClick={handleReset} variant="contained" color="primary">Finalizar</Button>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default ReservaPage;
+

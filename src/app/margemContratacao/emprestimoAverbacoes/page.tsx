@@ -1,9 +1,11 @@
-// src/app/margemContratacao/emprestimoAverbacoes/page.tsx
-
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {Grid,
+import React, { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Grid,
   Button,
   TextField,
   MenuItem,
@@ -13,85 +15,73 @@ import {Grid,
   StepLabel,
   CircularProgress,
   Box,
-  IconButton
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useQuery } from '@tanstack/react-query';
 import { useReserva } from '../../../shared/hooks/useReserva';
-import { fetchConsultas, fetchServidorConsignadoFromExternalApi, fetchServidorFromExternalApi } from '../../../shared/services/apiService';
+import { fetchConsultas } from '../../../shared/services/apiService';
 import CustomizedList from '../../../shared/components/menu-lateral/Demo';
 import FloatingSearchButton from '../../../shared/components/buttons/FloatingSearchButton';
 import CookiesBanner from '../../../shared/components/cookiesBanner/CookiesBanner';
 
-// Etapas do stepper
+// Define o esquema de validação com zod
+const schema = z.object({
+  matricula: z.string().min(1, 'Matrícula é obrigatória'),
+  cpf: z.string().min(1, 'CPF é obrigatório'),
+  valor: z.string().min(1, 'Valor é obrigatório'),
+  consulta: z.string().min(1, 'Consulta é obrigatória'),
+  prazo_inicial: z.string().min(1, 'Prazo Inicial é obrigatório'),
+  prazo_final: z.string().min(1, 'Prazo Final é obrigatório'),
+  situacao: z.string().min(1, 'Situação é obrigatória'),
+  contrato: z.string().min(1, 'Contrato é obrigatório'),
+  vencimento_parcela: z.string().min(1, 'Vencimento das Parcelas é obrigatório'),
+  folha_desconto: z.string().min(1, 'Folha é obrigatória'),
+  total_financiado: z.string().min(1, 'Total Financiado é obrigatório'),
+  liquido_liberado: z.string().min(1, 'Líquido Liberado é obrigatório'),
+  liberacao_credito: z.string().min(1, 'Liberação de Crédito é obrigatória'),
+  cet: z.string().min(1, 'CET é obrigatório'),
+  observacoes: z.string().optional(),
+  quantidade_parcelas: z.string().min(1, 'Quantidade de Parcelas é obrigatória'),
+  valor_parcelas: z.string().min(1, 'Valor das Parcelas é obrigatório'),
+  juros_mensal: z.string().min(1, 'Juros Mensal é obrigatório'),
+  valor_iof: z.string().min(1, 'Valor do IOF é obrigatório'),
+  carencia_dias: z.string().min(1, 'Dias de Carência são obrigatórios'),
+  valor_carencia: z.string().min(1, 'Valor da Carência é obrigatório'),
+  vinculo: z.string().min(1, 'Vínculo é obrigatório'),
+});
+
 const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Contrato'];
 
-
-const margem_apos = reservaData.margem_disponivel - reservaData.valor_parcelas;
-
-
 const ReservaPage = () => {
-  const [activeStep, setActiveStep] = useState(0);
-  const [reservaData, setReservaData] = useState<any>({
-    matricula: '',
-    cpf: '',
-    valor: '',
-    consulta: '',
-    email: '',
-    prazo_inicial: '',
-    prazo_final: '',
-    situacao: 0,
-    contrato: '',
-    nome: '',
-    margem_disponivel: '',
-    margem_total: '',
-    vencimento_parcela: '',
-    folha_desconto: '',
-    total_financiado: '',
-    liquido_liberado: '',
-    liberacao_credito: '',
-    cet: '',
-    observacoes: '',
-    quantidade_parcelas: '',
-    valor_parcelas: '',
-    folha: '',
-    juros_mensal: '',
-    valorIof: '',
-    carencia_dias: '',
-    valor_carencia: '',
-    vinculo: '',
-    margem_antes: '',
-    margem_apos: '',
+  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+    resolver: zodResolver(schema),
   });
+
+  const [activeStep, setActiveStep] = React.useState(0);
   const { mutate: createReserva, isLoading: isSaving } = useReserva();
 
-
-  // Consultas para o select
   const { data: consultas, isLoading: isLoadingConsultas, isError: isErrorConsultas } = useQuery({
     queryKey: ['consultas'],
     queryFn: fetchConsultas,
   });
 
+  // Preenche automaticamente com a última consulta realizada, se existir
   useEffect(() => {
-    if (activeStep === 2 && reservaData.contrato) {
-
+    if (consultas && consultas.length > 0) {
+      const lastConsulta = consultas[consultas.length - 1];
+      setValue('consulta', lastConsulta.id); // Certifique-se de que lastConsulta.id é um número
     }
-  }, [activeStep, reservaData.contrato]);
+  }, [consultas, setValue]);
 
-  const handleNext = () => {
-    if (activeStep === 0) {
-      // Validate fields for the first step
-      if (reservaData.consulta && reservaData.valor) {
-        setActiveStep((prev) => prev + 1);
-      }
-    } else if (activeStep === 1) {
-      // Confirm and submit data
-      createReserva(reservaData, {
-        onSuccess: (data) => {
-          setReservaData((prev) => ({ ...prev, contrato: data.contrato }));
+
+  const onSubmit = (data) => {
+    if (activeStep === 1) {
+      createReserva(data, {
+        onSuccess: () => {
           setActiveStep((prev) => prev + 1);
         },
       });
+    } else {
+      setActiveStep((prev) => prev + 1);
     }
   };
 
@@ -99,108 +89,15 @@ const ReservaPage = () => {
     setActiveStep((prev) => prev - 1);
   };
 
-  const handleReset = () => {
-    setReservaData({
-      valor: '',
-      consulta: '',
-   
-      prazo_inicial:'',
-      prazo_final: '',
-      situacao: ' ',
-      contrato: '',
-      matricula: '',
-      cpf: '',
-      nome: '',
-      margem_disponivel: '',
-      margem_total: '',
-      vencimento_parcela: '',
-      folha_desconto: '',
-      total_financiado: '',
-      liquido_liberado: '',
-      liberacao_credito: '',
-      cet: '',
-      observacoes: '',
-      quantidade_parcelas: '',
-      valor_parcelas: '',
-      folha: '',
-      juros_mensal: '',
-      valor_iof: '',
-      carencia_dias: '',
-      valor_carencia: '',
-      vinculo: '',
-      margem_antes: '',
-      margem_apos: '',
-    });
-    setActiveStep(0);
-  };
-
-  const [isLoadingServidor, setIsLoadingServidor] = useState(false);
-  const [isErrorServidor, setIsErrorServidor] = useState(false);
-
-//Busca pelo dados na externalApi consignado
-  useEffect(() => {
-    const fetchData = async () => {
-      if (reservaData.matricula.length ) { 
-        setIsLoadingServidor(true);
-        setIsErrorServidor(false);
-        try {
-          const data = await fetchServidorConsignadoFromExternalApi(reservaData.matricula);
-          setReservaData(prevData => ({
-            ...prevData,
-            nome: data.results[0]?.nome_servidor || '',
-            cpf: data.results[0]?.cpf_servidor || '',
-            margem_disponivel: data.results[0]?.margem_consignada_livre || '',
-            margem_total: data.results[0]?.margem_consignada_total || '',
-            // margem_disponivel: data.results[0]?.margem_consignada_livre || '',
-            
-          }));
-        } catch (error) {
-          setIsErrorServidor(true);
-        } finally {
-          setIsLoadingServidor(false);
-        }
-      }
-    };
-
-    fetchData();
-  }, [reservaData.matricula]);
-//Busca pelo vinculo externalApi no servidor
-  useEffect(() => {
-    const fetchData = async () => {
-      if (reservaData.matricula.length ) { 
-        setIsLoadingServidor(true);
-        setIsErrorServidor(false);
-        try {
-          const data = await fetchServidorFromExternalApi(reservaData.matricula);
-          setReservaData(prevData => ({
-            ...prevData,
-            vinculo: data.results[0]?.tipo_servidor.nome || 'Vínculo Não Localizado',
-          }));
-        } catch (error) {
-          setIsErrorServidor(true);
-        } finally {
-          setIsLoadingServidor(false);
-        }
-      }
-    };
-
-    fetchData();
-  }, [reservaData.matricula]);
-
-  
-
   return (
     <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
-    
-
       <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 7 }}>
         <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem', padding: '6px' }}>
           Nova Reserva de Empréstimo
         </Typography>
-
         <Stepper activeStep={activeStep}>
           {steps.map((label) => (
             <Step key={label}>
@@ -210,418 +107,266 @@ const ReservaPage = () => {
         </Stepper>
         <Box sx={{ padding: 3 }}>
           {activeStep === 0 && (
-           <Grid item xs={12} sm={6}>
-           <div style={{ padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-      <Typography variant="h6" gutterBottom>Preenchimento dos Dados</Typography>
-      <TextField
-        fullWidth
-        label="Matricula"
-        variant="outlined"
-        value={reservaData.matricula}
-        onChange={(e) => setReservaData({ ...reservaData, matricula: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="CPF"
-        variant="outlined"
-        value={reservaData.cpf}
-        onChange={(e) => setReservaData({ ...reservaData, cpf: e.target.value })}
-        margin="normal"
-        required
-      />
-      <TextField
-        fullWidth
-        label="Valor"
-        variant="outlined"
-        value={reservaData.valor}
-        onChange={(e) => setReservaData({ ...reservaData, valor: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        select
-        label="Consulta"
-        variant="outlined"
-        value={reservaData.consulta}
-        onChange={(e) => setReservaData({ ...reservaData, consulta: e.target.value })}
-        margin="normal"
-        required
-      >
-        {isLoadingConsultas ? (
-          <MenuItem disabled>
-            <CircularProgress size={24} />
-          </MenuItem>
-        ) : isErrorConsultas ? (
-          <MenuItem disabled>
-            <Typography color="error">Erro ao carregar consultas</Typography>
-          </MenuItem>
-        ) : consultas.length > 0 ? (
-          consultas.map((consulta) => (
-            <MenuItem key={consulta.id} value={consulta.id}>
-              {consulta.id}
-            </MenuItem>
-          )).at(-1)
-        ) : (
-          <MenuItem disabled>Nenhuma consulta disponível</MenuItem>
-        )}
-      </TextField>
-      
-                
-      <TextField
-        fullWidth
-        label="Prazo Inicial"
-        variant="outlined"
-        value={reservaData.prazo_inicial}
-        onChange={(e) => setReservaData({ ...reservaData, prazo_inicial: e.target.value })}
-        margin="normal"
-        type="datetime-local"
-        InputLabelProps={{ shrink: true }}
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Prazo Final"
-        variant="outlined"
-        value={reservaData.prazo_final}
-        onChange={(e) => setReservaData({ ...reservaData, prazo_final: e.target.value })}
-        margin="normal"
-        type="datetime-local"
-        InputLabelProps={{ shrink: true }}
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Situação"
-        variant="outlined"
-        value={reservaData.situacao}
-        onChange={(e) => setReservaData({ ...reservaData, situacao: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Contrato"
-        variant="outlined"
-        value={reservaData.contrato}
-        onChange={(e) => setReservaData({ ...reservaData, contrato: e.target.value })}
-        margin="normal"
-        required
-      />
-        
-      <TextField
-        fullWidth
-        label="Nome"
-        variant="outlined"
-        value={reservaData.nome}
-        onChange={(e) => setReservaData({ ...reservaData, nome: e.target.value })}
-        margin="normal"
-        required
-        disabled
-      />
-      
-      <TextField
-        fullWidth
-        label="Valor Disponível"
-        variant="outlined"
-        value={reservaData.margem_disponivel}
-        onChange={(e) => setReservaData({ ...reservaData, margem_disponivel: e.target.value })}
-        margin="normal"
-        InputLabelProps={{
-          shrink: true
-        }}
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Margem Total"
-        variant="outlined"
-        value={reservaData.margem_total}
-        onChange={(e) => setReservaData({ ...reservaData, margem_total: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Vencimento das Parcelas"
-        variant="outlined"
-        value={reservaData.vencimento_parcela}
-        onChange={(e) => setReservaData({ ...reservaData, vencimento_parcela: e.target.value })}
-        type="date"
-        InputLabelProps={{
-          shrink: true
-        }}
-        margin="normal"
-        required
-      />
-      <TextField
-        fullWidth
-        label="Folha"
-        variant="outlined"
-        value={reservaData.folha_desconto}
-        onChange={(e) => setReservaData({ ...reservaData, folha_desconto: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Total Financiado"
-        variant="outlined"
-        value={reservaData.total_financiado}
-        onChange={(e) => setReservaData({ ...reservaData, total_financiado: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Líquido Liberado"
-        variant="outlined"
-        value={reservaData.liquido_liberado}
-        onChange={(e) => setReservaData({ ...reservaData, liquido_liberado: e.target.value })}
-        margin="normal"
-        required
-      />
-       <TextField
-        fullWidth
-        label="Liberação de Crédito"
-        variant="outlined"
-        value={reservaData.liberacao_credito}
-        onChange={(e) => setReservaData({ ...reservaData, liberacao_credito: e.target.value })}
-        margin="normal"
-        required
-      />
-      <TextField
-        fullWidth
-        label="Observações"
-        variant="outlined"
-        value={reservaData.observacoes}
-        onChange={(e) => setReservaData({ ...reservaData, observacoes: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Custo Efetivo Total - CET"
-        variant="outlined"
-        value={reservaData.cet}
-        onChange={(e) => setReservaData({ ...reservaData, cet: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Quantidade de Parcelas"
-        variant="outlined"
-        value={reservaData.quantidade_parcelas}
-        onChange={(e) => setReservaData({ ...reservaData, quantidade_parcelas: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Valor das Parcelas"
-        variant="outlined"
-        value={reservaData.valor_parcelas}
-        onChange={(e) => setReservaData({ ...reservaData, valor_parcelas: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Juros Mensal"
-        variant="outlined"
-        value={reservaData.juros_mensal}
-        onChange={(e) => setReservaData({ ...reservaData, juros_mensal: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Valor do IOF"
-        variant="outlined"
-        value={reservaData.valor_iof}
-        onChange={(e) => setReservaData({ ...reservaData, valor_iof: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Dias de Carência"
-        variant="outlined"
-        value={reservaData.carencia_dias}
-        onChange={(e) => setReservaData({ ...reservaData, carencia_dias: e.target.value })}
-        margin="normal"
-        required
-      />
-      
-      <TextField
-        fullWidth
-        label="Valor da Carência"
-        variant="outlined"
-        value={reservaData.valor_carencia}
-        onChange={(e) => setReservaData({ ...reservaData, valor_carencia: e.target.value })}
-        margin="normal"
-        required
-      />
-       <TextField
-        fullWidth
-        label="Vinculo"
-        variant="outlined"
-        value={reservaData.vinculo}
-        onChange={(e) => setReservaData({ ...reservaData, vinculo: e.target.value })}
-        margin="normal"
-        required
-      />
- 
-      <Button onClick={handleNext} variant="contained" color="primary" style={{ marginTop: '16px' }}>Próximo</Button>
-    </div>
-         </Grid>
-         
+            <Grid item xs={12} sm={6}>
+              <div style={{ padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                <Typography variant="h6" gutterBottom>Preenchimento dos Dados</Typography>
+                {/* Outros campos */}
+                <Controller
+                  name="matricula"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Matrícula" fullWidth required error={Boolean(errors.matricula)} helperText={errors.matricula?.message} />
+                  )}
+                />
 
+                <Controller
+                  name="cpf"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="CPF" fullWidth required error={Boolean(errors.cpf)} helperText={errors.cpf?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="valor"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Valor" fullWidth required error={Boolean(errors.valor)} helperText={errors.valor?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="consulta"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} select label="Consulta" fullWidth required error={Boolean(errors.consulta)} helperText={errors.consulta?.message}>
+                      {isLoadingConsultas ? (
+                        <MenuItem disabled>
+                          <CircularProgress size={24} />
+                        </MenuItem>
+                      ) : isErrorConsultas ? (
+                        <MenuItem disabled>
+                          <Typography color="error">Erro ao carregar consultas</Typography>
+                        </MenuItem>
+                      ) : (
+                        consultas.map((consulta) => (
+                          <MenuItem key={consulta.id} value={consulta.id}>
+                            {consulta.id}
+                          </MenuItem>
+                        ))
+                      )}
+                    </TextField>
+                  )}
+                />
+
+                {/* Campos adicionais */}
+                <Controller
+                  name="prazo_inicial"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Prazo Inicial" type="datetime-local" fullWidth required error={Boolean(errors.prazo_inicial)} helperText={errors.prazo_inicial?.message} InputLabelProps={{ shrink: true }} />
+                  )}
+                />
+
+                <Controller
+                  name="prazo_final"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Prazo Final" type="datetime-local" fullWidth required error={Boolean(errors.prazo_final)} helperText={errors.prazo_final?.message} InputLabelProps={{ shrink: true }} />
+                  )}
+                />
+
+                <Controller
+                  name="situacao"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Situação" fullWidth required error={Boolean(errors.situacao)} helperText={errors.situacao?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="contrato"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Contrato" fullWidth required error={Boolean(errors.contrato)} helperText={errors.contrato?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="vencimento_parcela"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Vencimento das Parcelas" type="date" fullWidth required error={Boolean(errors.vencimento_parcela)} helperText={errors.vencimento_parcela?.message} InputLabelProps={{ shrink: true }} />
+                  )}
+                />
+
+                <Controller
+                  name="folha_desconto"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Folha de Desconto" fullWidth required error={Boolean(errors.folha_desconto)} helperText={errors.folha_desconto?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="total_financiado"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Total Financiado" fullWidth required error={Boolean(errors.total_financiado)} helperText={errors.total_financiado?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="liquido_liberado"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Líquido Liberado" fullWidth required error={Boolean(errors.liquido_liberado)} helperText={errors.liquido_liberado?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="liberacao_credito"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Liberação de Crédito" fullWidth required error={Boolean(errors.liberacao_credito)} helperText={errors.liberacao_credito?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="cet"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="CET" fullWidth required error={Boolean(errors.cet)} helperText={errors.cet?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="observacoes"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Observações" fullWidth required error={Boolean(errors.observacoes)} helperText={errors.observacoes?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="quantidade_parcelas"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Quantidade de Parcelas" fullWidth required error={Boolean(errors.quantidade_parcelas)} helperText={errors.quantidade_parcelas?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="valor_parcelas"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Valor das Parcelas" fullWidth required error={Boolean(errors.valor_parcelas)} helperText={errors.valor_parcelas?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="juros_mensal"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Juros Mensal" fullWidth required error={Boolean(errors.juros_mensal)} helperText={errors.juros_mensal?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="valor_iof"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Valor do IOF" fullWidth required error={Boolean(errors.valor_iof)} helperText={errors.valor_iof?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="carencia_dias"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Dias de Carência" fullWidth required error={Boolean(errors.carencia_dias)} helperText={errors.carencia_dias?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="valor_carencia"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Valor da Carência" fullWidth required error={Boolean(errors.valor_carencia)} helperText={errors.valor_carencia?.message} />
+                  )}
+                />
+
+                <Controller
+                  name="vinculo"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField {...field} label="Vínculo" fullWidth required error={Boolean(errors.vinculo)} helperText={errors.vinculo?.message} />
+                  )}
+                />
+
+                <Button onClick={handleNext} variant="contained" color="primary" style={{ marginTop: '16px' }}>Próximo</Button>
+              </div>
+            </Grid>
           )}
-          {activeStep === 1 && (
-             <Box
-             sx={{
-               width: '90%',
-               maxWidth: '800px',
-               margin: 'auto',
-               padding: 3,
-               boxShadow: 3,
-               borderRadius: 2,
-               backgroundColor: 'background.paper',
-             }}
-           >
-             <Typography variant="h6" gutterBottom>
-               Análise dos Dados
-             </Typography>
-             <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-        <Typography>Matricula:</Typography>
-        <Typography>CPF:</Typography>
-        {/* <Typography>E-mail:</Typography> */}
-        <Typography>Valor:</Typography>
-        <Typography>Consulta:</Typography>
-        <Typography>Prazo Inicial:</Typography>
-        <Typography>Prazo Final:</Typography>
-        <Typography>Contrato:</Typography>
-        <Typography>Nome:</Typography>
-        <Typography>Valor Disponível:</Typography>
-        <Typography>Margem Total:</Typography>
-        <Typography>Vencimento das Parcelas:</Typography>
-        <Typography>Folha:</Typography>
-        <Typography>Total Financiado:</Typography>
-        <Typography>Valor Líquido Liberado:</Typography>
-        <Typography>Liberação de Crédito:</Typography>
-        <Typography>Observações:</Typography>
-        <Typography>Custo Efetivo Total - CET:</Typography>
-        <Typography>Quantidade de Parcelas:</Typography>
-        <Typography>Valor das Parcelas:</Typography>
-        <Typography>Juros Mensal:</Typography>
-        <Typography>Valor do IOF:</Typography>
-        <Typography>Dias de Carência:</Typography>
-        <Typography>Valor da Carência:</Typography>
-        <Typography>Vínculo:</Typography>
-        <Typography>Margem Antes:</Typography>
-        <Typography>Margem Após:</Typography>
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Typography>{reservaData.matricula}</Typography>
-        <Typography>{reservaData.cpf}</Typography>
-        {/* <Typography>{reservaData.email}</Typography> */}
-        <Typography>{reservaData.valor}</Typography>
-        <Typography>{reservaData.consulta}</Typography>
-        <Typography>{reservaData.prazo_inicial}</Typography>
-        <Typography>{reservaData.prazo_final}</Typography>
-        <Typography>{reservaData.contrato}</Typography>
-        <Typography>{reservaData.nome}</Typography>
-        <Typography>{reservaData.margem_disponivel}</Typography>
-        <Typography>{reservaData.margem_total}</Typography>
-        <Typography>{reservaData.vencimento_parcela}</Typography>
-        <Typography>{reservaData.folha_desconto}</Typography>
-        <Typography>{reservaData.total_financiado}</Typography>
-        <Typography>{reservaData.liquido_liberado}</Typography>
-        <Typography>{reservaData.liberacao_credito}</Typography>
-        <Typography>{reservaData.observacoes}</Typography>
-        <Typography>{reservaData.cet}</Typography>
-        <Typography>{reservaData.quantidade_parcelas}</Typography>
-        <Typography>{reservaData.valor_parcelas}</Typography>
-        <Typography>{reservaData.juros_mensal}</Typography>
-        <Typography>{reservaData.valor_iof}</Typography>
-        <Typography>{reservaData.carencia_dias}</Typography>
-        <Typography>{reservaData.valor_carencia}</Typography>
-        <Typography>{reservaData.vinculo}</Typography>
-        <Typography>{reservaData.margem_antes}</Typography>
-        <Typography>{margem_apos}</Typography> {/* Exibindo o valor calculado */}
-      </Grid>
-    </Grid>
-             <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'flex-end' }}>
-               <Button onClick={handleBack} variant="contained" sx={{ marginRight: 1 }}>
-                 Voltar
-               </Button>
-               <Button onClick={handleNext} variant="contained" color="primary" disabled={isSaving}>
-                 {isSaving ? <CircularProgress size={24} /> : 'Confirmar'}
-               </Button>
-             </Box>
-           </Box>
+
+          <Grid item xs={12} sm={6}>
+            <Controller
+              name="consulta"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Consulta"
+                  fullWidth
+                  required
+                  error={Boolean(errors.consulta)}
+                  helperText={errors.consulta?.message}
+                >
+                  {isLoadingConsultas ? (
+                    <MenuItem disabled>
+                      <CircularProgress size={24} />
+                    </MenuItem>
+                  ) : isErrorConsultas ? (
+                    <MenuItem disabled>
+                      <Typography color="error">Erro ao carregar consultas</Typography>
+                    </MenuItem>
+                  ) : (
+                    consultas.map((consulta) => (
+                      <MenuItem key={consulta.id} value={consulta.id}>
+                        {consulta.id}
+                      </MenuItem>
+                    ))
+                  )}
+                </TextField>
+              )}
+            />
+
+          </Grid>
+          {/* Adicione outros campos aqui, conforme necessário */}
+          <Button type="submit" variant="contained" color="primary" style={{ marginTop: '16px' }}>
+            Próximo
+          </Button>
+        </Grid>
+      </form>
           )}
-          {activeStep === 2 && (
-            <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 3,
-              maxWidth: '600px',
-              margin: 'auto',
-              boxShadow: 3, 
-              borderRadius: 2,
-              textAlign: 'center',
-              bgcolor: 'background.paper',
-            }}
-          >
-            <CheckCircleIcon color="success" fontSize="large" sx={{ mb: 2 }} />
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Contrato gerado com sucesso!
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Número do contrato: {reservaData.contrato}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Status: Enviado para Análise.
-            </Typography>
-            <Button
-              onClick={handleReset}
-              variant="contained"
-              color="primary"
-            >
-              Finalizar
-            </Button>
-          </Box>
-          )}
+      {activeStep === 1 && (
+        <Box>
+          <Typography variant="h6">Análise dos Dados</Typography>
+          <Button variant="contained" color="primary" onClick={handleBack} style={{ marginTop: '16px' }}>
+            Voltar
+          </Button>
+          <Button variant="contained" color="primary" onClick={handleSubmit(onSubmit)} style={{ marginTop: '16px' }}>
+            Confirmar
+          </Button>
         </Box>
-      </Box>
-
+      )}
+      {activeStep === 2 && (
+        <Typography variant="h6">Contrato gerado com sucesso!</Typography>
+      )}
     </Box>
-
-
+      </Box >
+    </Box >
   );
 };
 

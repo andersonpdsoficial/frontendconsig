@@ -1,20 +1,15 @@
 {
   "pages": {
-    "/solicitacoesDeAverbacao/page": [
+    "/margemContratacao/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/solicitacoesDeAverbacao/page.js"
+      "static/chunks/app/margemContratacao/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
-    ],
-    "/margemContratacao/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/margemContratacao/page.js"
     ],
     "/margemContratacao/emprestimoAverbacoes/page": [
       "static/chunks/webpack.js",

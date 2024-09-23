@@ -5,16 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  Grid,
-  Button,
-  TextField,
-  MenuItem,
-  Typography,
-  Stepper,
-  Step,
-  StepLabel,
-  CircularProgress,
-  Box,
+  Grid,  Button,  TextField,  Typography,  Stepper,  Step,  StepLabel,  Box,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useReserva } from '../../../shared/hooks/useReserva';
@@ -22,8 +13,9 @@ import { fetchConsultas } from '../../../shared/services/apiService';
 import CustomizedList from '../../../shared/components/menu-lateral/Demo';
 import FloatingSearchButton from '../../../shared/components/buttons/FloatingSearchButton';
 import CookiesBanner from '../../../shared/components/cookiesBanner/CookiesBanner';
+import { useDadosEmprestimo } from '../__hooks/use-dados-emprestimo';
 
-// Define o esquema de validação com zod
+// Define the validation schema with zod
 const schema = z.object({
   matricula: z.string().min(1, 'Matrícula é obrigatória'),
   cpf: z.string().min(1, 'CPF é obrigatório'),
@@ -52,7 +44,9 @@ const schema = z.object({
 const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Contrato'];
 
 const ReservaPage = () => {
-  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+  const matricula = useDadosEmprestimo((state) => state.matricula )   
+  console.log({ matricula })
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
   });
 
@@ -64,14 +58,13 @@ const ReservaPage = () => {
     queryFn: fetchConsultas,
   });
 
-  // Preenche automaticamente com a última consulta realizada, se existir
   useEffect(() => {
     if (consultas && consultas.length > 0) {
       const lastConsulta = consultas[consultas.length - 1];
-      setValue('consulta', lastConsulta.id); // Certifique-se de que lastConsulta.id é um número
+      setValue('consulta', String(lastConsulta.id)); // Converta para string
     }
   }, [consultas, setValue]);
-
+  
 
   const onSubmit = (data) => {
     if (activeStep === 1) {
@@ -90,283 +83,117 @@ const ReservaPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2' }}>
+    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2', minHeight: '100vh' }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
-      <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 7 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontSize: '1.2rem', padding: '6px' }}>
+      <Box sx={{ flexGrow: 2, backgroundColor: '#F2F2F2', padding: 4 }}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
           Nova Reserva de Empréstimo
         </Typography>
-        <Stepper activeStep={activeStep}>
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
             </Step>
           ))}
         </Stepper>
-        <Box sx={{ padding: 3 }}>
+        <Box sx={{ padding: 2 }}>
           {activeStep === 0 && (
-            <Grid item xs={12} sm={6}>
-              <div style={{ padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-                <Typography variant="h6" gutterBottom>Preenchimento dos Dados</Typography>
-                {/* Outros campos */}
-                <Controller
-                  name="matricula"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Matrícula" fullWidth required error={Boolean(errors.matricula)} helperText={errors.matricula?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="cpf"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="CPF" fullWidth required error={Boolean(errors.cpf)} helperText={errors.cpf?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="valor"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Valor" fullWidth required error={Boolean(errors.valor)} helperText={errors.valor?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="consulta"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} select label="Consulta" fullWidth required error={Boolean(errors.consulta)} helperText={errors.consulta?.message}>
-                      {isLoadingConsultas ? (
-                        <MenuItem disabled>
-                          <CircularProgress size={24} />
-                        </MenuItem>
-                      ) : isErrorConsultas ? (
-                        <MenuItem disabled>
-                          <Typography color="error">Erro ao carregar consultas</Typography>
-                        </MenuItem>
-                      ) : (
-                        consultas.map((consulta) => (
-                          <MenuItem key={consulta.id} value={consulta.id}>
-                            {consulta.id}
-                          </MenuItem>
-                        ))
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Grid container spacing={3}>
+                {[
+                  { name: 'matricula', label: 'Matrícula' },
+                  { name: 'cpf', label: 'CPF' },
+                  { name: 'valor', label: 'Valor' },
+                  { name: 'prazo_inicial', label: 'Prazo Inicial', type: 'datetime-local' },
+                  { name: 'prazo_final', label: 'Prazo Final', type: 'datetime-local' },
+                  { name: 'situacao', label: 'Situação' },
+                  { name: 'contrato', label: 'Contrato' },
+                  { name: 'vencimento_parcela', label: 'Vencimento das Parcelas', type: 'date' },
+                  { name: 'folha_desconto', label: 'Folha de Desconto' },
+                  { name: 'total_financiado', label: 'Total Financiado' },
+                  { name: 'liquido_liberado', label: 'Líquido Liberado' },
+                  { name: 'liberacao_credito', label: 'Liberação de Crédito' },
+                  { name: 'cet', label: 'CET' },
+                  { name: 'observacoes', label: 'Observações' },
+                  { name: 'quantidade_parcelas', label: 'Quantidade de Parcelas' },
+                  { name: 'valor_parcelas', label: 'Valor das Parcelas' },
+                  { name: 'juros_mensal', label: 'Juros Mensal' },
+                  { name: 'valor_iof', label: 'Valor do IOF' },
+                  { name: 'carencia_dias', label: 'Dias de Carência' },
+                  { name: 'valor_carencia', label: 'Valor da Carência' },
+                  { name: 'vinculo', label: 'Vínculo' },
+                ].map(({ name, label, type }) => (
+                  <Grid item xs={12} sm={6} key={name}>
+                    <Controller
+                      name={name}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label={label}
+                          type={type || 'text'}
+                          fullWidth
+                          required
+                          error={Boolean(errors[name])}
+                          helperText={errors[name]?.message}
+                          InputLabelProps={type === 'datetime-local' || type === 'date' ? { shrink: true } : {}}
+                          variant="outlined"
+                          sx={{ bgcolor: 'white', borderRadius: 1 }}
+                        />
                       )}
-                    </TextField>
-                  )}
-                />
+                    />
+                  </Grid>
+                ))}
 
-                {/* Campos adicionais */}
-                <Controller
-                  name="prazo_inicial"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Prazo Inicial" type="datetime-local" fullWidth required error={Boolean(errors.prazo_inicial)} helperText={errors.prazo_inicial?.message} InputLabelProps={{ shrink: true }} />
-                  )}
-                />
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="consulta"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Consulta"
+                        fullWidth
+                        required
+                        error={Boolean(errors.consulta)}
+                        helperText={errors.consulta?.message}
+                        InputProps={{ readOnly: true }}
+                        variant="outlined"
+                        sx={{ bgcolor: 'white', borderRadius: 1 }}
+                      />
+                    )}
+                  />
+                </Grid>
 
-                <Controller
-                  name="prazo_final"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Prazo Final" type="datetime-local" fullWidth required error={Boolean(errors.prazo_final)} helperText={errors.prazo_final?.message} InputLabelProps={{ shrink: true }} />
-                  )}
-                />
-
-                <Controller
-                  name="situacao"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Situação" fullWidth required error={Boolean(errors.situacao)} helperText={errors.situacao?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="contrato"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Contrato" fullWidth required error={Boolean(errors.contrato)} helperText={errors.contrato?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="vencimento_parcela"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Vencimento das Parcelas" type="date" fullWidth required error={Boolean(errors.vencimento_parcela)} helperText={errors.vencimento_parcela?.message} InputLabelProps={{ shrink: true }} />
-                  )}
-                />
-
-                <Controller
-                  name="folha_desconto"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Folha de Desconto" fullWidth required error={Boolean(errors.folha_desconto)} helperText={errors.folha_desconto?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="total_financiado"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Total Financiado" fullWidth required error={Boolean(errors.total_financiado)} helperText={errors.total_financiado?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="liquido_liberado"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Líquido Liberado" fullWidth required error={Boolean(errors.liquido_liberado)} helperText={errors.liquido_liberado?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="liberacao_credito"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Liberação de Crédito" fullWidth required error={Boolean(errors.liberacao_credito)} helperText={errors.liberacao_credito?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="cet"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="CET" fullWidth required error={Boolean(errors.cet)} helperText={errors.cet?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="observacoes"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Observações" fullWidth required error={Boolean(errors.observacoes)} helperText={errors.observacoes?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="quantidade_parcelas"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Quantidade de Parcelas" fullWidth required error={Boolean(errors.quantidade_parcelas)} helperText={errors.quantidade_parcelas?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="valor_parcelas"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Valor das Parcelas" fullWidth required error={Boolean(errors.valor_parcelas)} helperText={errors.valor_parcelas?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="juros_mensal"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Juros Mensal" fullWidth required error={Boolean(errors.juros_mensal)} helperText={errors.juros_mensal?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="valor_iof"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Valor do IOF" fullWidth required error={Boolean(errors.valor_iof)} helperText={errors.valor_iof?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="carencia_dias"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Dias de Carência" fullWidth required error={Boolean(errors.carencia_dias)} helperText={errors.carencia_dias?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="valor_carencia"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Valor da Carência" fullWidth required error={Boolean(errors.valor_carencia)} helperText={errors.valor_carencia?.message} />
-                  )}
-                />
-
-                <Controller
-                  name="vinculo"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField {...field} label="Vínculo" fullWidth required error={Boolean(errors.vinculo)} helperText={errors.vinculo?.message} />
-                  )}
-                />
-
-                <Button onClick={handleNext} variant="contained" color="primary" style={{ marginTop: '16px' }}>Próximo</Button>
-              </div>
-            </Grid>
+                <Grid item xs={12}>
+                  <Button type="submit" variant="contained" color="success" sx={{ mt: 2 }}>
+                    Próximo
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
           )}
 
-          <Grid item xs={12} sm={6}>
-            <Controller
-              name="consulta"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  select
-                  label="Consulta"
-                  fullWidth
-                  required
-                  error={Boolean(errors.consulta)}
-                  helperText={errors.consulta?.message}
-                >
-                  {isLoadingConsultas ? (
-                    <MenuItem disabled>
-                      <CircularProgress size={24} />
-                    </MenuItem>
-                  ) : isErrorConsultas ? (
-                    <MenuItem disabled>
-                      <Typography color="error">Erro ao carregar consultas</Typography>
-                    </MenuItem>
-                  ) : (
-                    consultas.map((consulta) => (
-                      <MenuItem key={consulta.id} value={consulta.id}>
-                        {consulta.id}
-                      </MenuItem>
-                    ))
-                  )}
-                </TextField>
-              )}
-            />
-
-          </Grid>
-          {/* Adicione outros campos aqui, conforme necessário */}
-          <Button type="submit" variant="contained" color="primary" style={{ marginTop: '16px' }}>
-            Próximo
-          </Button>
-        </Grid>
-      </form>
+          {activeStep === 1 && (
+            <Box>
+              <Typography variant="h6">Análise dos Dados</Typography>
+              <Button variant="contained" color="secondary" onClick={handleBack} sx={{ mt: 2 }}>
+                Voltar
+              </Button>
+              <Button variant="contained" color="success" onClick={handleSubmit(onSubmit)} sx={{ mt: 2 }}>
+                Confirmar
+              </Button>
+            </Box>
           )}
-      {activeStep === 1 && (
-        <Box>
-          <Typography variant="h6">Análise dos Dados</Typography>
-          <Button variant="contained" color="primary" onClick={handleBack} style={{ marginTop: '16px' }}>
-            Voltar
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleSubmit(onSubmit)} style={{ marginTop: '16px' }}>
-            Confirmar
-          </Button>
+
+          {activeStep === 2 && (
+            <Typography variant="h6">Contrato gerado com sucesso!</Typography>
+          )}
         </Box>
-      )}
-      {activeStep === 2 && (
-        <Typography variant="h6">Contrato gerado com sucesso!</Typography>
-      )}
+      </Box>
     </Box>
-      </Box >
-    </Box >
   );
 };
 

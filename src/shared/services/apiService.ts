@@ -216,6 +216,7 @@ export const updateSituacaoInLocalApi = async (id, situacao) => {
   }
 };
 
+
 export const deleteReservaInLocalApi = async (id) => {
   try {
     await localApi.delete(`/reservas/${id}/`);

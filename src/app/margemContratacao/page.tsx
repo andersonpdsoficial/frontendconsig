@@ -1,28 +1,8 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Grid,
-  TextField,
-  Typography,
-  Divider,
-  InputAdornment,
-  Snackbar,
-  Alert,
-  Stack,
-  IconButton,
-  styled,
-  LinearProgress,
-  debounce,
-  FormControl,
-  Select,
-  MenuItem,
-  TablePagination,
-  TableCell,
-  TableRow,
-  TableBody
-} from '@mui/material';
+import {   Box,  Button,  Grid,  TextField,  Typography,  Divider,  InputAdornment,
+ Snackbar,  Alert,  Stack,  IconButton,  styled,  LinearProgress,  debounce,  FormControl,  Select,
+  MenuItem,  TablePagination,  TableCell,  TableRow,  TableBody } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import CustomizedList from '../../shared/components/menu-lateral/Demo';
@@ -31,13 +11,7 @@ import { useServidor } from '../../shared/hooks/useServidor';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import {
-  AttachMoney,
-  ChevronLeft,
-  ChevronRight,
-  CreditCard,
-  KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon,
-  KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon
+import {  AttachMoney,  ChevronLeft,  ChevronRight,  CreditCard,  KeyboardDoubleArrowLeft as KeyboardDoubleArrowLeftIcon,  KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon
 } from '@mui/icons-material';
 import { PickersCalendarHeaderProps } from '@mui/x-date-pickers/PickersCalendarHeader';
 import dayjs, { Dayjs } from 'dayjs';
@@ -48,13 +22,14 @@ import { useConsignataria } from '../../shared/hooks/useConsignataria';
 import axios from 'axios';
 
 import { useRouter } from 'next/navigation';
-import { useNavigate } from 'react-router-dom';
-import { fetchServidorFromExternalApi, fetchServidorFromLocalApi, fetchConsignatariaFromLocalApi, fetchMargemServidor } from '../../../shared/services/apiService'; // Ajuste o caminho conforme necessário
+import { useDadosEmprestimo } from './__hooks/use-dados-emprestimo';
+
 dayjs.locale('pt-br');
 const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
 
 const MargemContratacao = () => {
   const router = useRouter();
+  const salvarDados = useDadosEmprestimo(state => state.salvarDados)
   const [matricula, setMatricula] = useState<number | null>(null);
   const [cpf, setCpf] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +45,15 @@ const MargemContratacao = () => {
   };
 
   const handleEmprestimoAverbacoesClick = () => {
+    console.log('handleEmprestimoAverbacoesClick')
+    salvarDados({
+      cpf: cpf,
+      matricula: matricula,
+      margemTotal: margemTotal,
+      margemDisponivel: margemDisponivel,
+     
+
+    })
     router.push('/margemContratacao/emprestimoAverbacoes');
   };
 

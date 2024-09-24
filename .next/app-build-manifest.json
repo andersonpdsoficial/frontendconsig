@@ -11,15 +11,15 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/visaoGeral/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/visaoGeral/page.js"
+    ],
     "/margemContratacao/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/margemContratacao/page.js"
-    ],
-    "/margemContratacao/emprestimoAverbacoes/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/margemContratacao/emprestimoAverbacoes/page.js"
     ]
   }
 }

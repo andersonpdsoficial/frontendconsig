@@ -209,12 +209,15 @@ export const fetchReservaFromLocalApi = async () => {
 
 export const updateSituacaoInLocalApi = async (id, situacao) => {
   try {
-    await localApi.put(`/reservas/${id}/`, { situacao });
+    // Envia apenas o campo 'situacao' na requisição PATCH
+    await localApi.patch(`/reservas/${id}/`, situacao);
   } catch (error) {
     console.error('Erro ao atualizar situação na API local:', error);
     throw error;
   }
 };
+
+
 
 
 export const deleteReservaInLocalApi = async (id) => {

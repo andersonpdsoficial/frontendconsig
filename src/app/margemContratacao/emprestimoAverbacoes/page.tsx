@@ -43,9 +43,24 @@ const schema = z.object({
 
 const steps = ['Preenchimento dos Dados', 'Análise dos Dados', 'Geração do Contrato'];
 
-const ReservaPage = () => {
-  const matricula = useDadosEmprestimo((state) => state.matricula )   
-  console.log({ matricula })
+const { preencherDados } = useDadosEmprestimo();
+  
+  // Supondo que você tenha os dados de margemContratacao disponíveis
+  const margemContratacao = {
+    cpf: '12345678900',
+    matricula: '123456',
+    margemTotal: 10000,
+    margemDisponivel: 5000,
+  };
+
+  // Quando precisar preencher os dados
+  React.useEffect(() => {
+    preencherDados(margemContratacao);
+  }, [margemContratacao, preencherDados]);
+
+  const matricula = useDadosEmprestimo((state) => state.matricula);
+  console.log({ matricula });
+
   const { control, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
   });
@@ -64,7 +79,7 @@ const ReservaPage = () => {
       setValue('consulta', String(lastConsulta.id)); // Converta para string
     }
   }, [consultas, setValue]);
-  
+
 
   const onSubmit = (data) => {
     if (activeStep === 1) {

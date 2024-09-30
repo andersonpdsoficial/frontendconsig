@@ -22,41 +22,72 @@ import { useConsignataria } from '../../shared/hooks/useConsignataria';
 import axios from 'axios';
 
 import { useRouter } from 'next/navigation';
-import { useDadosEmprestimo } from './__hooks/use-dados-emprestimo';
+
+
+import { useStore } from 'zustand';
+import useDadosEmprestimo from './__hooks/use-dados-emprestimo';
+
+// import { useDadosEmprestimo } from  '../margemContratacao/__hooks/use-dados-emprestimo'
+
 
 dayjs.locale('pt-br');
 const LOCAL_API_BASE_URL = 'http://localhost:8000/api';
 
 const MargemContratacao = () => {
   const router = useRouter();
-  const salvarDados = useDadosEmprestimo(state => state.salvarDados)
+  const salvarDados = useDadosEmprestimo(state => state.salvarDados);
+
   const [matricula, setMatricula] = useState<number | null>(null);
   const [cpf, setCpf] = useState<string>('');
+  const [vinculo, setvinculo] = useState<string>('')
+  const [nome, setNome] = useState<string>('')
   const [error, setError] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [selectValue, setSelectdValue] = useState<number | ''>('');
   const [margemTotal, setMargemTotal] = useState<number | null>(null);
   const [margemDisponivel, setMargemDisponivel] = useState<number | null>(null);
-
+  const [isLoadingServidor, setIsLoadingServidor] = useState(false);
+  const [isErrorServidor, setIsErrorServidor] = useState(false);
 
   //rotas das novas averbações
   const handleRefinanciamentoAverbacoesClick = () => {
+
     router.push('/margemContratacao/refinaciamentoAverbacao');
   };
 
   const handleEmprestimoAverbacoesClick = () => {
-    console.log('handleEmprestimoAverbacoesClick')
+    // Captura os dados do servidor
+    const nome = externalData.results[0]?.nome || '';
+    const cpf = externalData.results[0]?.cpf || '';
+    const vinculo = externalData.results[0]?.tipo_servidor.nome || 'Vínculo Não Localizado';
+  
+    console.log('Navegando para Averbacoes com os seguintes dados:', {
+      cpf,
+      matricula,
+      margemTotal,
+      margemDisponivel,
+      vinculo,
+      nome,
+    });
+  
     salvarDados({
-      cpf: cpf,
-      matricula: matricula,
-      margemTotal: margemTotal,
-      margemDisponivel: margemDisponivel,
-     
-
-    })
+      cpf,            // Captura o CPF
+      matricula,     // Captura a matrícula
+      margemDisponivel, // Captura a margem disponível
+      vinculo,       // Captura o vínculo
+      nome,          // Captura o nome
+    });
+  
     router.push('/margemContratacao/emprestimoAverbacoes');
   };
+  
 
+
+  // Função para formatar a data
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Intl.DateTimeFormat('pt-BR', options).format(new Date(dateString));
+  };
 
 
   //constantes para  calcular valores do colaborador para proximos meses anos
@@ -64,8 +95,24 @@ const MargemContratacao = () => {
     month: dayjs().month() + 1, // Default to current month
     year: dayjs().year() // Default to current year
   });
+  //função para trasformar os meses de number para strings
+  const getMonthName = (month) => {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return months[month - 1];
+  };
 
-  // Function to generate the next 4 months and years
+
+  // Função para formatar o valor monetário
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
+  };
+  // Function to generate the next 4 months and years 
   const generateNextDates = (startMonth, startYear) => {
     const dates = [];
     let month = startMonth;
@@ -98,22 +145,12 @@ const MargemContratacao = () => {
     setSelectedMonthYear({ month: newMonth, year: newYear });
   };
 
-  const getMonthName = (month) => {
-    const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
-    return months[month - 1];
-  };
-
-
-
-
   // Determine o parâmetro de busca baseado em matricula ou cpf
-  const searchParam = matricula !== null ? matricula.toString() : cpf;
+  const searchParamMatricula = matricula !== null ? matricula : undefined;
+  const searchParamCpf = cpf !== null ? cpf : undefined;
 
   // Fetch data based on search parameter
-  const { externalData, localData, isLoading, isError, error: fetchError } = useServidor(searchParam);
+  const { externalData, localData, isLoading, isError, error: fetchError } = useServidor(searchParamMatricula, searchParamCpf);
   const { localData: consignataria } = useConsignataria();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement> | any) => {
@@ -137,6 +174,7 @@ const MargemContratacao = () => {
     }
   }, [isLoading]);
 
+  //seletor, somente poderá ser pesquisado por um metodo
   const handleSearch = () => {
     if (!matricula && !cpf) {
       setError('Informe a matrícula ou CPF para a busca!');
@@ -272,19 +310,8 @@ const MargemContratacao = () => {
       setError('Não foi possível calcular margem. Verifique o vínculo; caso contrário, o servidor pode não ter margem suficiente para o cálculo.');
     }
   };
-  // Função para formatar a data
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Intl.DateTimeFormat('pt-BR', options).format(new Date(dateString));
-  };
 
-  // Função para formatar o valor monetário
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
+
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -320,7 +347,7 @@ const MargemContratacao = () => {
                 fullWidth
                 variant="outlined"
                 error={Boolean(error && !cpf)}
-                helperText={error && !cpf ? error : ''}
+                helperText={error && !cpf ? error : null}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -336,7 +363,7 @@ const MargemContratacao = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 label="CPF"
-                value={cpf}
+                value={cpf ?? ''}
                 onChange={(e) => setCpf(e.target.value)}
                 fullWidth
                 variant="outlined"

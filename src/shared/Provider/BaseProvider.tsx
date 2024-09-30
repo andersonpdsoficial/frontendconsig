@@ -1,20 +1,18 @@
-'use client'
-import StyleMaterialUi from '../lib/StyleMaterialUi'
-import React from 'react'
-import ReactQueryProvider from '../lib/ReactQueryProvider'
+'use client';
+import StyleMaterialUi from '../lib/styleProvider';
+import React from 'react';
+import ReactQueryProvider from '../lib/reactQueryProvider';
 
-interface Props {   /* Após react 18 não aceita  o children sem a interface declarada */
-  children: React.ReactNode
+interface Props {
+  children: React.ReactNode;
 }
 
 export default function BaseProvider({ children }: Props) {
   return (
     <ReactQueryProvider>
       <StyleMaterialUi>
-        <>
         {children}
-        </>
       </StyleMaterialUi>
     </ReactQueryProvider>
-  )
+  );
 }

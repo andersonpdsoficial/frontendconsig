@@ -36,16 +36,29 @@ const localApi = axios.create({
  }
 });
 
-// Função para buscar o servidor na API externa
-export const fetchServidorFromExternalApi = async (matricula: number) => {
+// Função para buscar servidor pela matrícula ou CPF na API externa 
+export const fetchServidorFromExternalApi = async (matricula?: number, cpf?: string) => {
+  let queryParam;
+
+  if (matricula) {
+    queryParam = `matricula=${matricula}`;
+  } else if (cpf) {
+    queryParam = `pessoa_fisica__cpf=${cpf}`; // Padrão correto para CPF 300132117
+  } else {
+    throw new Error('Pelo menos um dos parâmetros deve ser fornecido: matrícula ou CPF.');
+  }
+
   try {
-    const response = await externalApi.get(`?matricula=${matricula}`);
-    return response.data;
+    const { data } = await axios.get(`${EXTERNAL_API_BASE_URL}?${queryParam}`, {
+      headers: { 'Authorization': `Token ${EXTERNAL_API_TOKEN}` }
+    });
+    return data;
   } catch (error) {
     console.error('Erro ao buscar servidor na API externa:', error);
     throw error;
   }
 };
+
 
 // Função para buscar o servidor na API externa consignado
 export const fetchServidorConsignadoFromExternalApi = async (matricula: number) => {
@@ -58,6 +71,14 @@ export const fetchServidorConsignadoFromExternalApi = async (matricula: number) 
   }
 };
 
+// Função para buscar servidor pela matrícula ou CPF na API externa
+// export const fetchServidorFromExternalApi = async (matricula?: number, cpf?: string) => {
+//   const queryParam = matricula ? `matricula=${matricula}` : `cpf=${cpf}`;
+//   const { data } = await axios.get(`${EXTERNAL_API_BASE_URL}?${queryParam}`, {
+//     headers: { 'Authorization': `Token ${EXTERNAL_API_TOKEN}` }
+//   });
+//   return data;
+// };
 // Função para buscar a consignataria  na API local
 export const fetchConsignatariaFromLocalApi = async () =>{
   try{
@@ -81,30 +102,17 @@ export const fetchServidorFromLocalApi = async (matricula: number) => {
   }
 };
 
-// Função para criar um novo servidor na API local
-//Essa função foi desativada por não ser necessario
-// export const createServidor = async (servidorData: {
-//   nome: string;
-//   matricula: string;
-//   cadastradoPor?: string;
-//   modificadoPor?: string;
-//   desativadoPor?: string;
-//   desativadoEmData?: string;
-//   desativadoEmHora?: string;
-// }) => {
+
+// // Função para buscar o servidor na API externa consignado
+// export const fetchServidorFromExternalApiServidor = async (cpf: number) => {
 //   try {
-//     const response = await localApi.post('/servidores/', servidorData, {
-//       headers: {
-//         'Authorization': `Bearer ${LOCAL_API_TOKEN}`
-//       }
-//     });
+//     const response = await externalApi.get(`?cpf=${cpf}`);
 //     return response.data;
 //   } catch (error) {
-//     console.error('Erro ao criar servidor na API local:', error);
+//     console.error('Erro ao buscar servidor na API externa consignado:', error);
 //     throw error;
 //   }
 // };
-
 
 //Função para criar uma nova consulta de margem na API local
 export const createConsultaMargem = async (id_servidor: number, id_consignataria: number) => {
@@ -141,11 +149,12 @@ export const checkContratoExists = async (contrato: number) => {
 export const fetchreRervaFromLocalApi = async (reservaData: {
   valor: number;
   consulta?: string;
+  folha?: number;
   prazoInicial?: string;
   prazoFinal?: string;
   prazoInicialEmData?: string;
   prazoFinalEmHora?: string;
-  situacao: string; // Corrigido o nome da propriedade
+  situacao: number; // Corrigido o nome da propriedade
   contrato: number;
   cpf: number;
   nome: string;
@@ -172,7 +181,7 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
   desativadoEmData?: string;
   desativadoEmHora?: string;
 }) => {
-  if (reservaData.situacao !== '0') {
+  if (reservaData.situacao !== 0 ){
     console.error('A situação deverá sempre ser 0, pois é EM ANALISE');
     throw new Error('A situação deverá sempre ser 0, pois é EM ANALISE');
   }
@@ -196,38 +205,54 @@ export const fetchreRervaFromLocalApi = async (reservaData: {
 
 
 //gerencie as reservas diretamente do banco de dados. 
-
 export const fetchReservaFromLocalApi = async () => {
   try {
     const response = await localApi.get('/reservas/');
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar reservas na API local:', error);
-    throw error;
+    throw error; 
   }
 };
-
-export const updateSituacaoInLocalApi = async (id, situacao) => {
+//Função para atualizar status da situação 
+export const updateSituacaoInLocalApi = async (id,data) => {
   try {
-    // Envia apenas o campo 'situacao' na requisição PATCH
-    await localApi.patch(`/reservas/${id}/`, situacao);
+    await localApi.patch(`/reservas/${id}/`,data ); 
+    console.log('Situação atualizada com sucesso.');
   } catch (error) {
     console.error('Erro ao atualizar situação na API local:', error);
-    throw error;
+    throw error; 
   }
 };
-
-
-
 
 export const deleteReservaInLocalApi = async (id) => {
   try {
-    await localApi.delete(`/reservas/${id}/`);
+    const response = await localApi.delete(`/reservas/${id}/`);
+    
+    // Log para confirmar que a reserva foi deletada com sucesso
+    console.log('Reserva deletada com sucesso:', response.data);
+    
+    // Retorna os dados da resposta se necessário para a função chamadora
+    return response.data;
   } catch (error) {
-    console.error('Erro ao deletar reserva na API local:', error);
-    throw error;
+    if (error.response) {
+      console.error('Erro ao deletar reserva na API local:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers,
+      });
+    } else if (error.request) {
+      console.error('Erro ao deletar reserva na API local: Nenhuma resposta recebida', error.request);
+    } else {
+      console.error('Erro ao deletar reserva na API local:', error.message);
+    }
+    
+    throw error; // Re-lança o erro para que a função chamadora possa lidar com ele
   }
 };
+
+
 
 // Função de criação de reserva (não alterada, mas pode ser removida se for redundante)
 export const createReserva = async (reservaData: any) => {
@@ -284,5 +309,42 @@ export const fetchMargemServidor = async (matricula: number, id_consignataria: n
   } catch (error) {
     console.error('Erro ao buscar margem do servidor na API local:', error);
     throw error;
+  }
+};
+
+
+
+// Função para buscar reservas para relatórios, agora com filtro por situação
+export const fetchReservasForReports = async () => {
+  try {
+    const response = await localApi.get('/reservas/');
+    return response.data; // Retorna todos os contratos
+  } catch (error) {
+    console.error('Erro ao buscar reservas:', error);
+    throw error;
+  }
+};
+
+
+
+// Função para buscar as consignatárias
+export const fetchConsignatariasData = async () => {
+  try {
+    const response = await localApi.get('/consignatarias/'); // Ajuste a URL conforme necessário
+    return response.data; // Supondo que a resposta contenha os dados que você precisa
+  } catch (error) {
+    console.error('Erro ao buscar consignatárias:', error);
+    throw new Error('Erro ao buscar consignatárias');
+  }
+};
+
+// Função para buscar as consultas realizadas
+export const fetchConsultasData = async () => {
+  try {
+    const response = await localApi.get('/consultas-margem-athenas/'); // Ajuste a URL conforme necessário
+    return response.data; // Supondo que a resposta contenha os dados que você precisa
+  } catch (error) {
+    console.error('Erro ao buscar consultas:', error);
+    throw new Error('Erro ao buscar consultas');
   }
 };

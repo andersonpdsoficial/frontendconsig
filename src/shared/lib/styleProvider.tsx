@@ -1,21 +1,20 @@
-
 import { CssBaseline } from '@mui/material';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';   //	Slot nomeado
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'; // Slot nomeado
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../themes/theme';
 
 interface Props {
-    children: React.ReactNode
+    children: React.ReactNode;
 }
 
 export function StyleProvider({ children }: Props) {
-
-    return <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-        <ThemeProvider theme={theme}>
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-            <CssBaseline />
-            {children}
-        </ThemeProvider>
-    </AppRouterCacheProvider>
-
+    return (
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+            <ThemeProvider theme={theme}>
+                {/* CssBaseline inicia uma base elegante, consistente e simples para construir. */}
+                <CssBaseline />
+                {children}
+            </ThemeProvider>
+        </AppRouterCacheProvider>
+    );
 }

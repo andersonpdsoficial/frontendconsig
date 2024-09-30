@@ -69,12 +69,23 @@ const ReservaTable = () => {
     setFilteredReservas(filtered);
   };
 
-  const handleSituacaoChange = async (id, newSituacao) => {
+  const situacaoStyles = {
+    0: { backgroundColor: '#ffeb3b' },  // Em Análise
+    1: { backgroundColor: '#4caf50' },  // Deferido
+    2: { backgroundColor: '#f44336' },  // Indeferido
+    3: { backgroundColor: '#9e9e9e' },  // Expirado
+  };
+  const handleSituacaoChange = async (id, newSituacao, valueToUpdate ) => {
+    console.log("Aqui acionamos a handlechange ",{id}, {newSituacao})
+    const updatedValue = {
+      ...newSituacao,
+      situacao: valueToUpdate
+    }
     try {
-      await updateSituacaoInLocalApi(id, { situacao: newSituacao });
+      await updateSituacaoInLocalApi(id, updatedValue);
       setFilteredReservas((prev) =>
         prev.map((reserva) =>
-          reserva.id === id ? { ...reserva, situacao: newSituacao } : reserva
+          reserva.id === id ? { ...reserva, situacao: valueToUpdate } : reserva
         )
       );
       setSnackbarMessage('Situação atualizada com sucesso.');
@@ -88,39 +99,49 @@ const ReservaTable = () => {
   };
 
   const columns = [
-    { field: 'contrato', headerName: 'Número do Contrato', width: 150, align: 'center' },
-    { field: 'nome', headerName: 'Nome do Usuário', width: 200 },
+    { field: 'contrato', headerName: 'CONTRATO', width: 100, align: 'center', },
+    { field: 'nome', headerName: 'NOME', width: 250 },
     { field: 'cpf', headerName: 'CPF', width: 133 },
-    { field: 'valor', headerName: 'Valor (R$)', type: 'number', align: 'center' },
+    { field: 'valor', headerName: 'VALOR', type: 'number', align: 'center' },
     {
       field: 'situacao',
-      headerName: 'Situação',
+      headerName: 'SITUAÇÃO',
+      align: 'center',
       width: 200,
-      renderCell: (params: GridCellParams) => (
-        <Select
-          value={params.row.situacao || 0}
-          onChange={(e) => handleSituacaoChange(params.row.id, e.target.value)}
-          sx={{ minWidth: 180, transition: 'all 0.3s ease', backgroundColor: '#e3f2fd' }}
-        >
-          <MenuItem value="0">Em Análise</MenuItem>
-          <MenuItem value="1">Deferido</MenuItem>
-          <MenuItem value="2">Indeferido</MenuItem>
-          <MenuItem value="3">Expirado</MenuItem>
-        </Select>
-      ),
+      renderCell: (params: GridCellParams) => {
+        const situacao = params.row.situacao || 0; // Usando '0' como padrão
+        const style = situacaoStyles[situacao] || {}; // Estilo padrão se a situação não estiver mapeada
+
+        return (
+          <Select
+            value={situacao}
+            onChange={(e) => handleSituacaoChange(params.row.id, params.row, e.target.value)}
+            sx={{ minWidth: 160, transition: 'all 0.3s ease', ...style }}
+          >
+            <MenuItem value={0}>Em Análise</MenuItem>
+            <MenuItem value={1}>Deferido</MenuItem>
+            <MenuItem value={2}>Indeferido</MenuItem>
+            <MenuItem value={3}>Expirado</MenuItem>
+          </Select>
+        );
+      }
     },
-    { field: 'observacoes', headerName: 'Observações', width: 200 },
-    { field: 'prazo_inicial', headerName: 'Prazo de Início', width: 190, type: 'number', align: 'center' },
-    {
+    { field: 'observacoes', headerName: 'OBSERVAÇÃO', width: 120 },
+    { field: 'liquido_liberado', headerName: 'VALOR LIQUIDO', width: 120, type: 'number', align: 'center' },
+    { field: 'quantidade_parcelas', headerName: 'QTD PARCELAS', width: 120, type: 'number', align: 'center' },
+    { field: 'valor_parcelas', headerName: 'VALOR PARCELAS', width: 120, type: 'number', align: 'center' },
+
+    { field: 'consulta', headerName: 'CONSULTA', width: 120, type: 'number', align: 'center' }, {
       field: 'actions',
-      headerName: 'Ações',
-      width: 200,
+      headerName: 'AÇÃO',
+      width: 120,
       renderCell: (params) => (
-        <Button 
-          onClick={() => handleDelete(params.row.id)} 
-          color="error" 
+        <Button
+          onClick={() => handleDelete(params.row.id)}
+          color="error"
+          align='center'
           startIcon={<DeleteIcon />}
-          sx={{ '&:hover': { backgroundColor: '#f44336', color: '#fff' }}}
+          sx={{ '&:hover': { backgroundColor: '#f44336', color: '#fff' } }}
         >
           Excluir
         </Button>
@@ -129,16 +150,16 @@ const ReservaTable = () => {
   ];
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: '#F2F2F2', flexDirection: { xs: 'column', md: 'row' } }}>
+    <Box sx={{ display: 'flex', backgroundColor: '#272020', flexDirection: { xs: 'column', md: 'row' } }}>
       <CustomizedList />
       <FloatingSearchButton />
       <CookiesBanner />
-      <Box sx={{ padding: '20px', backgroundColor: '#E0F2F1', flex: 1, minHeight: '100vh' }}>
+      <Box sx={{ padding: '40px', backgroundColor: '#E0F2F1', flex: 1, minHeight: '100vh' }}>
         <Typography variant="h6" gutterBottom>
-          Tabela de Solicitações de Contratos
+          Gerenciamento das Solicitações de Contratos
         </Typography>
-        <Grid container spacing={2} mb={2}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={3} mb={4}>
+          <Grid item xs={6} md={6}>
             <TextField
               label="Pesquisar"
               variant="outlined"
@@ -149,12 +170,12 @@ const ReservaTable = () => {
             />
           </Grid>
           <Grid item xs={12} md={6} display="flex" alignItems="center" justifyContent="flex-end">
-            <Button 
-              variant="contained" 
-              color="success" 
-              startIcon={<PrintIcon />} 
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<PrintIcon />}
               onClick={() => window.print()}
-              sx={{ '&:hover': { backgroundColor: '#388e3c' }}}
+              sx={{ '&:hover': { backgroundColor: '#388e3c' } }}
             >
               Imprimir
             </Button>
@@ -170,7 +191,7 @@ const ReservaTable = () => {
               rows={filteredReservas}
               columns={columns}
               pageSize={10}
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={[10, 25, 50 ,100]}
               disableSelectionOnClick
               checkboxSelection
               selectionModel={selectionModel}
@@ -179,7 +200,7 @@ const ReservaTable = () => {
                 backgroundColor: '#fff',
                 '& .MuiDataGrid-columnHeaders': {
                   backgroundColor: '#4caf50',
-                  color: '#fff',
+                  color: '#0f1d07',
                   position: 'sticky',
                   top: 0,
                   zIndex: 1,
@@ -208,3 +229,4 @@ const ReservaTable = () => {
 };
 
 export default ReservaTable;
+

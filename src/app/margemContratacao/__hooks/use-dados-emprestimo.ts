@@ -1,24 +1,21 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 
-export const useDadosEmprestimo = create((set) => ({
+interface Store {
+  cpf: string;
+  nome: string;
+  matricula: string | null;
+  vinculo: string;
+  margemDisponivel: number | null;
+  salvarDados: (dados: Partial<Store>) => void;
+}
+
+const useDadosEmprestimo = create<Store>((set) => ({
   cpf: '',
-  matricula: '',
-  margemTotal: 0,
-  margemDisponivel: 0,
-  vinculo: '',
   nome: '',
-  
-  salvarDados(dados) {
-    console.log({ dados });
-    set((state) => ({ ...state, ...dados }));
-  },
-
-  preencherDados(margemContratacao) {
-    set((state) => ({
-      margemTotal: margemContratacao.margemTotal,
-      margemDisponivel: margemContratacao.margemDisponivel,
-      cpf: margemContratacao.cpf,
-      matricula: margemContratacao.matricula,
-    }));
-  }
+  matricula: null,
+  vinculo: '',
+  margemDisponivel: null,
+  salvarDados: (dados) => set((state) => ({ ...state, ...dados })),
 }));
+
+export default useDadosEmprestimo;

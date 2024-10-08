@@ -1,0 +1,59 @@
+Para ajustar o tamanho do gráfico nesse caso específico, já que o gráfico está sendo renderizado com o componente Chart da biblioteca react-google-charts, você pode controlar o tamanho através de CSS e propriedades do próprio componente. Além disso, é importante garantir que o gráfico seja responsivo e se ajuste adequadamente ao tamanho do contêiner.
+
+Aqui estão algumas sugestões para garantir que o gráfico se ajuste corretamente:
+
+Passo 1: Redimensionando o Gráfico no Componente
+Você pode aplicar estilos diretamente no componente Chart para garantir que ele ocupe uma altura e largura adequadas. Exemplo:
+
+tsx
+Copiar código
+<CardContent>
+  <Chart
+    chartType="BarChart"
+    width="100%"  // Garantir que a largura seja 100%
+    height="400px"  // Definir uma altura fixa ou variável
+    data={data}
+    options={options}
+  />
+</CardContent>
+Isso define o gráfico com 100% da largura disponível e uma altura fixa de 400px. Você pode ajustar o valor de height conforme necessário.
+
+Passo 2: Tornar o Gráfico Responsivo
+Se você quiser que o gráfico seja responsivo, adaptando-se a diferentes tamanhos de tela, você pode fazer o seguinte:
+
+Uso de Box para Responsividade: Você pode colocar o Chart dentro de um Box com o tamanho dinâmico, utilizando breakpoints para ajustar o tamanho em telas diferentes:
+tsx
+Copiar código
+<CardContent>
+  <Box sx={{ width: '100%', height: { xs: 300, sm: 400, md: 500 } }}>
+    <Chart
+      chartType="BarChart"
+      width="100%"  // Para garantir que ocupe 100% da largura do contêiner
+      height="100%"  // Para a altura ocupar 100% do contêiner
+      data={data}
+      options={options}
+    />
+  </Box>
+</CardContent>
+Aqui, a altura do gráfico será ajustada conforme o tamanho da tela (300px em telas pequenas, 400px em telas médias e 500px em telas grandes).
+
+Passo 3: Garantir que o Gráfico Respeite o Tamanho do Contêiner
+Se o gráfico ainda não estiver sendo redimensionado corretamente, é importante garantir que o contêiner que o envolve tenha o tamanho apropriado. No seu código, o contêiner do gráfico é o CardContent, que tem padding e margens. Você pode ajustar o CardContent para garantir que ele não tenha margens ou padding excessivos que afetem o tamanho do gráfico.
+
+tsx
+Copiar código
+<CardContent sx={{ padding: 0 }}>
+  <Chart
+    chartType="BarChart"
+    width="100%"
+    height="400px"  // Ajuste a altura conforme necessário
+    data={data}
+    options={options}
+  />
+</CardContent>
+Ajustando sx={{ padding: 0 }}, você remove o padding e garante que o gráfico ocupe o máximo possível de espaço no contêiner.
+
+Passo 4: Testar e Ajustar a Responsividade
+Depois de aplicar as mudanças, é importante testar o layout em diferentes tamanhos de tela. Use as ferramentas de desenvolvedor do navegador para testar a página em diferentes resoluções e ver como o gráfico se comporta.
+
+Com essas mudanças, o gráfico deverá ser redimensionado corretamente e se ajustar melhor aos diferentes tamanhos de tela.

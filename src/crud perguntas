@@ -1,0 +1,107 @@
+import { useState } from "react";
+import { TextField, Button, Switch, Typography, Card, CardContent, Stack, Table, TableBody, TableCell, TableHead, TableRow, IconButton } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+
+interface PerguntaFrequente {
+  id: number;
+  pergunta: string;
+  resposta: string;
+  ativo: boolean;
+}
+
+const perguntasIniciais: PerguntaFrequente[] = [
+  { id: 1, pergunta: "O que é a Defensoria Pública?", resposta: "É uma instituição pública que presta assistência jurídica gratuita a pessoas que não podem pagar por esse serviço.", ativo: true },
+  { id: 2, pergunta: "Em que situações posso procurar a Defensoria Pública?", resposta: "Quando você precisar entrar com uma ação judicial ou se defender em um processo judicial ou extrajudicial.", ativo: true },
+  // Adicione as outras perguntas aqui
+];
+
+export default function PerguntasFrequentes() {
+  const [perguntas, setPerguntas] = useState<PerguntaFrequente[]>(perguntasIniciais);
+  const [novaPergunta, setNovaPergunta] = useState("");
+  const [novaResposta, setNovaResposta] = useState("");
+  const [ativo, setAtivo] = useState(true);
+
+  const handleAddPergunta = () => {
+    const nova = {
+      id: perguntas.length + 1,
+      pergunta: novaPergunta,
+      resposta: novaResposta,
+      ativo,
+    };
+    setPerguntas([...perguntas, nova]);
+    setNovaPergunta("");
+    setNovaResposta("");
+  };
+
+  const handleDelete = (id: number) => {
+    setPerguntas(perguntas.filter((p) => p.id !== id));
+  };
+
+  const handleEdit = (id: number) => {
+    const perguntaEditada = perguntas.find((p) => p.id === id);
+    if (perguntaEditada) {
+      setNovaPergunta(perguntaEditada.pergunta);
+      setNovaResposta(perguntaEditada.resposta);
+      setAtivo(perguntaEditada.ativo);
+      setPerguntas(perguntas.filter((p) => p.id !== id)); // Remove a pergunta original
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h5">Perguntas Frequentes (SIC)</Typography>
+
+        <Stack spacing={2} mt={2}>
+          <TextField
+            label="Pergunta"
+            variant="outlined"
+            value={novaPergunta}
+            onChange={(e) => setNovaPergunta(e.target.value)}
+          />
+          <TextField
+            label="Resposta"
+            variant="outlined"
+            value={novaResposta}
+            onChange={(e) => setNovaResposta(e.target.value)}
+          />
+          <Typography>Ativo?</Typography>
+          <Switch checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
+
+          <Button variant="contained" color="primary" onClick={handleAddPergunta}>
+            Adicionar Pergunta
+          </Button>
+        </Stack>
+
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Pergunta</TableCell>
+              <TableCell>Resposta</TableCell>
+              <TableCell>Ativo</TableCell>
+              <TableCell>Ações</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {perguntas.map((p) => (
+              <TableRow key={p.id}>
+                <TableCell>{p.pergunta}</TableCell>
+                <TableCell>{p.resposta}</TableCell>
+                <TableCell>{p.ativo ? "Sim" : "Não"}</TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleEdit(p.id)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton onClick={() => handleDelete(p.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}

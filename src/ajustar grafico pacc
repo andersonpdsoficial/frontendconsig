@@ -1,0 +1,38 @@
+Para redimensionar o gráfico e melhorar a visualização dos dados, você pode ajustar as propriedades do Box, CardContent, ou os próprios parâmetros de renderização do componente GraficoPacc. Dependendo de como o componente GraficoPacc foi implementado, você pode aumentar a largura e a altura do gráfico diretamente no componente ou ajustar o container que envolve o gráfico.
+
+Aqui está uma sugestão de ajustes: caso aceite 
+
+Passo 1: Ajustar o Container do Gráfico
+Você pode adicionar um Box ou aplicar propriedades de estilo diretamente no CardContent para definir um tamanho fixo ou dinâmico do gráfico. Por exemplo:
+
+tsx
+Copiar código
+<CardContent>
+  <Box sx={{ height: 400, width: '100%' }}>
+    <GraficoPacc pacc={pacc} />
+  </Box>
+</CardContent>
+Aqui, estamos garantindo que o gráfico tenha uma altura de 400px e ocupe toda a largura disponível (width: '100%').
+
+Passo 2: Verificar se o GraficoPacc aceita Props de Tamanho
+Se o componente GraficoPacc aceita props para controlar o tamanho, como height e width, você pode passar essas propriedades diretamente. Algo como:
+
+tsx
+Copiar código
+<CardContent>
+  <GraficoPacc pacc={pacc} width={800} height={400} />
+</CardContent>
+Passo 3: Ajustar o Tamanho Dinamicamente com Responsividade
+Para um gráfico responsivo, você pode ajustar dinamicamente o tamanho com base na largura da tela, utilizando o sistema de breakpoints do Material-UI:
+
+tsx
+Copiar código
+<CardContent>
+  <Box sx={{ height: { xs: 300, sm: 400, md: 500 }, width: '100%' }}>
+    <GraficoPacc pacc={pacc} />
+  </Box>
+</CardContent>
+Neste exemplo, o gráfico terá 300px de altura em telas pequenas, 400px em telas médias, e 500px em telas maiores, garantindo uma visualização adequada em diferentes dispositivos.
+
+Passo 4: Ajustar o Componente GraficoPacc (Se Necessário)
+Caso o componente GraficoPacc esteja sendo redimensionado de forma inadequada, você pode precisar ajustar internamente o componente, certificando-se de que ele aceita e respeita as propriedades de width e height.

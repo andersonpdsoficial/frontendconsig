@@ -1,0 +1,76 @@
+import CustomBox from "@/components/CustomBox/customBox";
+import CustomTypography from "@/components/CustomTypography/customTypography";
+import { api } from "@/lib/api";
+import { ArquivosNormas } from "@/types/arquivosNormas";
+import DownloadIcon from "@mui/icons-material/Download";
+import { Divider, Typography } from "@mui/material";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+
+export default function Detalhes() {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const [arquivos, setArquivos] = useState<ArquivosNormas[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/v1/norma/${id}`);
+
+        setArquivos([response.data]); // Transformando o objeto em uma matriz de um único elemento
+      } catch (error) {
+        console.error("Erro ao buscar os detalhes do arquivo:", error);
+      }
+    };
+
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
+
+
+  return (
+    <CustomBox>
+      {arquivos.map((arquivo) => (
+        <>
+          <Typography
+            variant="subtitle1"
+            sx={{ color: "#19857b", textAlign: "justify", marginBottom: 2 }}
+          >
+            <strong>{arquivo.titulo}</strong>
+          </Typography>
+          <Divider />
+          <Typography
+            component="article"
+            dangerouslySetInnerHTML={{ __html: arquivo.descricao ?? "" }}
+          />
+          <CustomTypography variant="subtitle1">
+            Lista de Arquivos:
+          </CustomTypography>
+
+          {arquivo.arquivos_norma && arquivo.arquivos_norma.map((item, index) => (
+            <a
+              key={index}
+              href={item.arquivo}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "#656cd6",
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "5px",
+              }}
+            >
+              <DownloadIcon style={{ fontSize: 20, color: "#212121", marginRight: "5px" }} />  {/* Ícone de download */}
+              <Typography variant="subtitle1">
+                {item.descricao}  {/* Descrição do arquivo */}
+              </Typography>
+            </a>
+          ))}
+        </>
+      ))}
+    </CustomBox>
+  );
+}

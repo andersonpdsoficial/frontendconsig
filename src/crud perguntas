@@ -1,106 +1,130 @@
-import { useState } from "react";
-import { TextField, Button, Switch, Typography, Card, CardContent, Stack, Table, TableBody, TableCell, TableHead, TableRow, IconButton } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-
-interface PerguntaFrequente {
-  id: number;
-  pergunta: string;
-  resposta: string;
-  ativo: boolean;
-}
-
-const perguntasIniciais: PerguntaFrequente[] = [
-  { id: 1, pergunta: "O que é a Defensoria Pública?", resposta: "É uma instituição pública que presta assistência jurídica gratuita a pessoas que não podem pagar por esse serviço.", ativo: true },
-  { id: 2, pergunta: "Em que situações posso procurar a Defensoria Pública?", resposta: "Quando você precisar entrar com uma ação judicial ou se defender em um processo judicial ou extrajudicial.", ativo: true },
-  // Adicione as outras perguntas aqui
-];
+import { useEffect, useState } from "react";
+import {
+  Typography, Card, CardContent, Stack, Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow, TablePagination
+} from "@mui/material";
+import { Print as PrintIcon, PictureAsPdf as PdfIcon, FileDownload as FileDownloadIcon } from '@mui/icons-material';
+import { api } from "@/lib/api";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from 'xlsx';
 
 export default function PerguntasFrequentes() {
-  const [perguntas, setPerguntas] = useState<PerguntaFrequente[]>(perguntasIniciais);
-  const [novaPergunta, setNovaPergunta] = useState("");
-  const [novaResposta, setNovaResposta] = useState("");
-  const [ativo, setAtivo] = useState(true);
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleAddPergunta = () => {
-    const nova = {
-      id: perguntas.length + 1,
-      pergunta: novaPergunta,
-      resposta: novaResposta,
-      ativo,
-    };
-    setPerguntas([...perguntas, nova]);
-    setNovaPergunta("");
-    setNovaResposta("");
-  };
+  useEffect(() => {
+    fetchData();
+  }, [page, rowsPerPage]);
 
-  const handleDelete = (id: number) => {
-    setPerguntas(perguntas.filter((p) => p.id !== id));
-  };
+  const fetchData = async () => {
+    try {
+      const response = await api.get(
+        `/v1/perguntas_respostas?limit=${rowsPerPage}&offset=${page * rowsPerPage}`
+      );
 
-  const handleEdit = (id: number) => {
-    const perguntaEditada = perguntas.find((p) => p.id === id);
-    if (perguntaEditada) {
-      setNovaPergunta(perguntaEditada.pergunta);
-      setNovaResposta(perguntaEditada.resposta);
-      setAtivo(perguntaEditada.ativo);
-      setPerguntas(perguntas.filter((p) => p.id !== id)); // Remove a pergunta original
+      setData(response.data.results);
+      setTotalItems(response.data.count);
+    } catch (error) {
+      console.log("Ocorreu um erro ao buscar dados", error);
     }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Função para imprimir a página
+  const handlePrint = () => {
+    window.print();
+  };
+
+  // Função para gerar PDF
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    autoTable(doc, { 
+      head: [['Pergunta', 'Resposta']],
+      body: data.map((row) => [row.pergunta, row.resposta]),
+    });
+    doc.save("perguntas_respostas.pdf");
+  };
+
+  // Função para baixar em XLSX
+  const handleDownloadXLSX = () => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "PerguntasRespostas");
+    XLSX.writeFile(workbook, "perguntas_respostas.xlsx");
+  };
+
+  // Função para baixar em CSV
+  const handleDownloadCSV = () => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const csv = XLSX.utils.sheet_to_csv(worksheet);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "perguntas_respostas.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
     <Card>
       <CardContent>
         <Typography variant="h5">Perguntas Frequentes (SIC)</Typography>
-
+        <Typography>Atualizado em: {new Date().toLocaleDateString()} - Fonte: Portal Transparência {" "} </Typography>
+        
         <Stack spacing={2} mt={2}>
-          <TextField
-            label="Pergunta"
-            variant="outlined"
-            value={novaPergunta}
-            onChange={(e) => setNovaPergunta(e.target.value)}
-          />
-          <TextField
-            label="Resposta"
-            variant="outlined"
-            value={novaResposta}
-            onChange={(e) => setNovaResposta(e.target.value)}
-          />
-          <Typography>Ativo?</Typography>
-          <Switch checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
-
-          <Button variant="contained" color="primary" onClick={handleAddPergunta}>
-            Adicionar Pergunta
+          <Button variant="contained" color="success" startIcon={<PrintIcon />} onClick={handlePrint}>
+            Imprimir
+          </Button>
+          <Button variant="contained" color="success" startIcon={<PdfIcon />} onClick={handleDownloadPDF}>
+            Baixar PDF
+          </Button>
+          <Button variant="contained" color="success" startIcon={<FileDownloadIcon />} onClick={handleDownloadXLSX}>
+            Baixar XLSX
+          </Button>
+          <Button variant="contained" color="success" startIcon={<FileDownloadIcon />} onClick={handleDownloadCSV}>
+            Baixar CSV
           </Button>
         </Stack>
 
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Pergunta</TableCell>
-              <TableCell>Resposta</TableCell>
-              <TableCell>Ativo</TableCell>
-              <TableCell>Ações</TableCell>
+              <TableCell style={{ fontWeight: "bold", textAlign: "center" }}>Pergunta</TableCell>
+              <TableCell style={{ fontWeight: "bold", textAlign: "center" }}>Resposta</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {perguntas.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell>{p.pergunta}</TableCell>
-                <TableCell>{p.resposta}</TableCell>
-                <TableCell>{p.ativo ? "Sim" : "Não"}</TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleEdit(p.id)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(p.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
+            {data.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell style={{ textAlign: "justify" }}>{row.pergunta}</TableCell>
+                <TableCell style={{ textAlign: "justify" }}>{row.resposta}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+
+        <TablePagination
+          labelRowsPerPage="Linhas por página:"
+          rowsPerPageOptions={[10, 25, 50]}
+          component="div"
+          count={totalItems}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </CardContent>
     </Card>
   );

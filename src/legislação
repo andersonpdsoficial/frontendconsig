@@ -250,3 +250,47 @@ const EnhancedTable = () => {
 };
 
 export default EnhancedTable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<TableCell>
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Link href={`/legislacao/${row.id}`}>
+      <VisibilityIcon style={{ color: "#212121" }} />
+    </Link>
+    <IconButton onClick={(e) => handleOpenDownloadMenu(e, row)}>
+      <DownloadIcon style={{ fontSize: 20, color: "#212121", cursor: "pointer" }} />
+      {selectedFiles.length > 1 && <ExpandMoreIcon />}
+    </IconButton>
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleCloseDownloadMenu}
+    >
+      {loadingFiles ? (
+        <MenuItem disabled>Carregando arquivos...</MenuItem>
+      ) : (
+        selectedFiles[0]?.arquivos_norma?.map((item, index) => (
+          <MenuItem key={index} onClick={() => handleDownload(item.arquivo)}>
+            {item.descricao}
+          </MenuItem>
+        ))
+      )}
+    </Menu>
+  </Stack>
+</TableCell>

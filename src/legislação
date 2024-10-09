@@ -1,76 +1,252 @@
-import CustomBox from "@/components/CustomBox/customBox";
-import CustomTypography from "@/components/CustomTypography/customTypography";
+import BodyContainer from "@/components/BodyContainer";
+import SelectAnoExercicio from "@/components/SelectAnoExercicio";
+import SkeletonTable from "@/components/SkeletonTable/SkeletonTable";
+import formatDate from "@/functions/formatDate";
+import { useGenericFetch } from "@/hooks/useGenericFetch";
+import usePaginationController from "@/hooks/usePaginationController";
 import { api } from "@/lib/api";
 import { ArquivosNormas } from "@/types/arquivosNormas";
+import { GenericResponse } from "@/types/genericResponse";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DownloadIcon from "@mui/icons-material/Download";
-import { Divider, Typography } from "@mui/material";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  Stack,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem
+} from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Switch from "@mui/material/Switch";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Link from "next/link";
+import { ChangeEvent, useEffect, useState } from "react";
 
-export default function Detalhes() {
-  const router = useRouter();
-  const { id } = router.query;
+const tipoMap = {
+  2: "Ata Conselho Superior",
+  20: "Decreto",
+  // (outros tipos omitidos para reduzir o código)
+};
 
-  const [arquivos, setArquivos] = useState<ArquivosNormas[]>([]);
+type TipoMapKey = keyof typeof tipoMap;
+
+interface Props {
+  searchTerm?: string;
+  selectedType?: string;
+  ano?: string;
+  rowsPerPage?: number;
+  page?: number;
+}
+
+interface GenericNorma extends GenericResponse {
+  results: ArquivosNormas[];
+}
+
+const fetchLegislacao = async ({
+  ano = "",
+  page = 0,
+  rowsPerPage = 10,
+  searchTerm = "",
+  selectedType = "",
+}: Props): Promise<GenericNorma> => {
+  const url = `/v1/norma?titulo=${searchTerm}&tipo=${selectedType}&ano=${ano}&limit=${rowsPerPage}&offset=${page * rowsPerPage}`;
+  const response = await api.get(url);
+  return response.data;
+};
+
+const EnhancedTable = () => {
+  const [dense, setDense] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [ano, setAno] = useState("");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<ArquivosNormas[]>([]);
+  const [loadingFiles, setLoadingFiles] = useState<boolean>(false);
+
+  const { PaginationComponent, handleChangeCount, page, rowsPerPage } =
+    usePaginationController(10);
+
+  const { data, isLoading } = useGenericFetch({
+    queryKeys: [page, rowsPerPage, searchTerm, selectedType, ano],
+    queryFunction: fetchLegislacao,
+    initialParams: {
+      ano,
+      page,
+      rowsPerPage,
+      searchTerm,
+      selectedType,
+    },
+  });
+
+  const arquivoDeNorma = data?.results;
+  const count = data?.count;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get(`/v1/norma/${id}`);
+    handleChangeCount(count);
+  }, [count, handleChangeCount]);
 
-        setArquivos([response.data]); // Transformando o objeto em uma matriz de um único elemento
-      } catch (error) {
-        console.error("Erro ao buscar os detalhes do arquivo:", error);
-      }
-    };
+  const handleChangeDense = (event: ChangeEvent<HTMLInputElement>) => {
+    setDense(event.target.checked);
+  };
 
-    if (id) {
-      fetchData();
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleTypeChange = (event: SelectChangeEvent) => {
+    const selectedType = event.target.value;
+    setSelectedType(selectedType === "all" ? "" : selectedType);
+  };
+
+  // Função para abrir a lista de arquivos para download
+  const handleOpenDownloadMenu = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    row: ArquivosNormas
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setLoadingFiles(true);
+    try {
+      // Busca os arquivos disponíveis para download
+      const response = await api.get(`/v1/norma/${row.id}`);
+      setSelectedFiles([response.data]); // Carrega os arquivos de norma
+    } catch (error) {
+      console.error("Erro ao buscar arquivos:", error);
+    } finally {
+      setLoadingFiles(false); // Indica que terminou de carregar
     }
-  }, [id]);
+  };
 
+  const handleCloseDownloadMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownload = (url: string) => {
+    if (url) {
+      window.open(url, "_blank");
+    } else {
+      console.error("URL do arquivo indisponível");
+    }
+  };
 
   return (
-    <CustomBox>
-      {arquivos.map((arquivo) => (
-        <>
-          <Typography
-            variant="subtitle1"
-            sx={{ color: "#19857b", textAlign: "justify", marginBottom: 2 }}
-          >
-            <strong>{arquivo.titulo}</strong>
-          </Typography>
-          <Divider />
-          <Typography
-            component="article"
-            dangerouslySetInnerHTML={{ __html: arquivo.descricao ?? "" }}
-          />
-          <CustomTypography variant="subtitle1">
-            Lista de Arquivos:
-          </CustomTypography>
-
-          {arquivo.arquivos_norma && arquivo.arquivos_norma.map((item, index) => (
-            <a
-              key={index}
-              href={item.arquivo}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "#656cd6",
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "5px",
+    <BodyContainer>
+      <Card>
+        <CardContent sx={{ marginTop: 4 }}>
+          <Stack direction={["column", "column", "column", "row"]} gap={2}>
+            <FormControl fullWidth>
+              <InputLabel id="demo">Filtrar por tipo de ato</InputLabel>
+              <Select
+                labelId="demo"
+                value={selectedType}
+                onChange={handleTypeChange}
+                displayEmpty
+                label="Filtrar por tipo de ato"
+              >
+                <MenuItem value="all">Limpar Seleção</MenuItem>
+                {Object.entries(tipoMap).map(([key, value]) => (
+                  <MenuItem key={key} value={key}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <SelectAnoExercicio
+              ano={ano}
+              handleAno={(e) => {
+                const value = e.target.value;
+                value === "all" ? setAno("") : setAno(value);
               }}
-            >
-              <DownloadIcon style={{ fontSize: 20, color: "#212121", marginRight: "5px" }} />  {/* Ícone de download */}
-              <Typography variant="subtitle1">
-                {item.descricao}  {/* Descrição do arquivo */}
-              </Typography>
-            </a>
-          ))}
-        </>
-      ))}
-    </CustomBox>
+            />
+            <FormControl fullWidth>
+              <TextField
+                label="Filtrar por Título"
+                variant="outlined"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </FormControl>
+          </Stack>
+        </CardContent>
+
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ fontWeight: "bold" }}>Data da Publicação</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Tipo de Ato</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Título/Prévia</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Ações</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Baixar</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <SkeletonTable columns={4} rows={rowsPerPage} isLoading={isLoading} />
+              {arquivoDeNorma?.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{formatDate(row.data_hora)}</TableCell>
+                  <TableCell>{tipoMap[row.tipo as TipoMapKey]}</TableCell>
+                  <TableCell>
+                    <div style={{ margin: "8px 0" }}>
+                      <span style={{ color: "#19857b", fontWeight: "bold" }}>{row.titulo}</span>
+                      <br />
+                      {row.previa}
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <Link href={`/legislacao/${row.id}`}>
+                      <VisibilityIcon style={{ color: "#212121" }} />
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton onClick={(e) => handleOpenDownloadMenu(e, row)}>
+                      <DownloadIcon style={{ fontSize: 20, color: "#212121", cursor: "pointer" }} />
+                      {selectedFiles.length > 1 && <ExpandMoreIcon />}
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleCloseDownloadMenu}
+                    >
+                      {loadingFiles ? (
+                        <MenuItem disabled>Carregando arquivos...</MenuItem>
+                      ) : (
+                        selectedFiles[0]?.arquivos_norma?.map((item, index) => (
+                          <MenuItem key={index} onClick={() => handleDownload(item.arquivo)}>
+                            {item.descricao}
+                          </MenuItem>
+                        ))
+                      )}
+                    </Menu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <PaginationComponent />
+        <Stack padding={2}>
+          <FormControlLabel
+            control={<Switch checked={dense} onChange={handleChangeDense} />}
+            label="Dense padding"
+          />
+        </Stack>
+      </Card>
+    </BodyContainer>
   );
-}
+};
+
+export default EnhancedTable;
